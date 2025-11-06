@@ -17,7 +17,7 @@ __pycache__/
 
 # Arquivos estáticos gerados
 # (Vamos deixar o Docker/Django cuidar disso)
-/static/
+/staticfiles/
 
 # Arquivos do Tailwind
 # (O executável que baixamos)
