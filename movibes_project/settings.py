@@ -31,6 +31,8 @@ DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = ['movibes.linexa.com.br']
 
+CSRF_TRUSTED_ORIGINS = ['https://movibes.linexa.com.br']
+
 # Application definition
 
 INSTALLED_APPS = [
