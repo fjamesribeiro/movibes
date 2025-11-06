@@ -1,0 +1,17 @@
+{% comment %}
+  Este é o template de login.
+  'form' é a variável que o django-allauth nos envia.
+{% endcomment %}
+
+<h1>Entrar</h1>
+
+<p>Se você ainda não tem uma conta, por favor
+<a href="/accounts/signup/">cadastre-se</a> primeiro.</p>
+
+<form method="POST" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Entrar</button>
+</form>
+
+<p><a href="{% url 'account_reset_password' %}">Esqueceu sua senha?</a></p>

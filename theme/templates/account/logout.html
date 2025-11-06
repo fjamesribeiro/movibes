@@ -1,0 +1,12 @@
+{% comment %}
+  Esta é a página de confirmação de logout.
+{% endcomment %}
+
+<h1>Sair</h1>
+
+<p>Você tem certeza que deseja sair?</p>
+
+<form method="POST" action="{% url 'account_logout' %}">
+  {% csrf_token %}
+  <button type="submit">Sair</button>
+</form>

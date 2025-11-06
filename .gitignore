@@ -1,0 +1,24 @@
+# Arquivos de Ambiente
+.env
+.env.*
+
+# Dependências do Python
+.venv/
+__pycache__/
+*.pyc
+
+# Arquivos de IDE
+.idea/
+.vscode/
+
+# Arquivos de Mídia (Uploads de Usuários)
+# NÃO queremos salvar as fotos de teste no git
+/media/
+
+# Arquivos estáticos gerados
+# (Vamos deixar o Docker/Django cuidar disso)
+/static/
+
+# Arquivos do Tailwind
+# (O executável que baixamos)
+/theme/bin/

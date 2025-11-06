@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<!-- Hero Section com bordas arredondadas -->
+<section class="overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl" style="background-image: url('{% static 'images/hero-bg.jpg' %}'); background-size: cover; background-position: center;">
+    <!-- Overlay escuro -->
+    <div class="absolute inset-0 bg-gradient-to-r from-black/20 to-black/20"></div>
+
+    <!-- Conteúdo -->
+    <div class="relative z-10 px-12 md:px-16 py-20 max-w-3xl">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-8">
+            Bem-vindo(a) a sua nova plataforma de
+            <span class="text-yellow-400">Conexão por estilo</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-white font-bold mb-12">
+            Criamos conexões através do estilo de vida
+        </p>
+
+        <!-- Botões -->
+        <div class="flex flex-wrap gap-5">
+            <a href="#" class="bg-yellow-400 text-black font-bold px-8 py-3 rounded-lg text-base hover:bg-yellow-500 transition-all transform hover:scale-105 shadow-lg">
+                Criar perfil Profissional
+            </a>
+            <a href="#" class="bg-yellow-400 text-black font-bold px-8 py-3 rounded-lg text-base hover:bg-yellow-500 transition-all transform hover:scale-105 shadow-lg">
+                Ver eventos
+            </a>
+        </div>
+    </div>
+
+    <!-- Logo Movibes decorativo no canto inferior direito (opcional) -->
+    <div class="absolute bottom-8 right-8 opacity-30 hidden lg:block">
+        <svg class="w-48 h-48 text-yellow-400" viewBox="0 0 200 200" fill="currentColor">
+            <!-- Ícone de pessoas conectadas estilizado -->
+            <circle cx="60" cy="60" r="15" opacity="0.6"/>
+            <circle cx="100" cy="80" r="18" opacity="0.8"/>
+            <circle cx="140" cy="60" r="15" opacity="0.6"/>
+            <path d="M 60 75 Q 80 120 100 98 Q 120 120 140 75" stroke="currentColor" stroke-width="3" fill="none" opacity="0.5"/>
+        </svg>
+    </div>
+</section>
+
+<!-- Seção de eventos -->
+<section class="mt-16 text-center" >
+    <h3 class="text-4xl font-bold mb-2 text-center">
+        Próximos eventos, <span class="text-yellow-400">agendados</span>
+    </h3>
+    <p class="text-gray-300  text-2xl mb-12 text-center">
+        Aqui é vida real. Encontre treinos e atividades <br> para sair de casa, treinar e fazer conexões
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for evento in eventos %}
+        <div class="bg-[#1F2937] rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+
+            <img
+                 src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% load static %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
+                 alt="{{ evento.nome_evento }}"
+                 class="w-full h-48 object-cover">
+
+            <div class="p-6">
+                <h4 class="text-xl font-semibold mb-4">{{ evento.nome_evento }}</h4>
+
+                <div class="flex items-center text-sm text-gray-400">
+
+                    <img
+                         src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% load static %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                         alt="foto do criador"
+                         class="w-8 h-8 rounded-full mr-2 object-cover">
+
+                    <span>{{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+
+</section>
+
+{% endblock %}
