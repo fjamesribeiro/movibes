@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  # Define o serviço do banco de dados local
+  postgres-local:
+    image: postgres:15
+    container_name: movibes-postgres-local
+    environment:
+      POSTGRES_USER: movibes_user
+      POSTGRES_PASSWORD: movibes_pass
+      POSTGRES_DB: movibes_local_db
+    ports:
+      # Expõe a porta 5432 do container na porta 5432 da sua máquina
+      - "5432:5432"
+    volumes:
+      # Garante que os dados do banco persistam
+      - movibes_local_db_data:/var/lib/postgresql/data
+    networks:
+      - movibes-local-net
+
+volumes:
+  movibes_local_db_data:
+
+networks:
+  movibes-local-net:

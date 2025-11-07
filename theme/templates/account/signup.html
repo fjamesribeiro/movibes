@@ -1,9 +1,76 @@
-<h1>Cadastrar-se</h1>
+{% extends "base.html" %}
+{% load widget_tweaks %}
 
-<form method="POST" action="{% url 'account_signup' %}">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Cadastrar</button>
-</form>
+{% block content %}
+<div class="max-w-md mx-auto mt-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
+    
+    <h1 class="text-3xl font-bold text-white text-center mb-6">
+        Criar nova conta
+    </h1>
 
-<p>Já tem uma conta? <a href="{% url 'account_login' %}">Faça o login</a>.</p>
+    <form method="POST" action="{% url 'account_signup' %}" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div>
+            <label for="id_email" class="block text-sm font-medium text-gray-300">Email</label>
+            {% render_field form.email class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com" %}
+            {% if form.email.errors %}
+                <div class="text-red-400 text-sm mt-1">
+                    {% for error in form.email.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="id_password1" class="block text-sm font-medium text-gray-300">Senha</label>
+            {% render_field form.password1 class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" %}
+
+            {% if form.password1.errors %}
+                <div class="text-red-400 text-sm mt-1">
+                    {% for error in form.password1.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {% if form.password2 %}
+        <div>
+            <label for="id_password2" class="block text-sm font-medium text-gray-300">Confirme a Senha</label>
+            {% render_field form.password2 class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" %}
+            {% if form.password2.errors %}
+                <div class="text-red-400 text-sm mt-1">
+                    {% for error in form.password2.errors %}
+                        {{ error }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+
+        <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+            Cadastrar
+        </button>
+
+        <div class="text-center">
+            <p class="text-sm text-gray-400">
+                Já tem uma conta? 
+                <a href="{% url 'account_login' %}" class="text-yellow-400 hover:text-yellow-300 font-semibold">
+                    Faça o login
+                </a>
+            </p>
+        </div>
+    </form>
+</div>
+{% endblock %}

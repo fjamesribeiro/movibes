@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 mb-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
+
+    <h1 class="text-3xl font-bold text-white text-center mb-6">
+        Complete seu Perfil
+    </h1>
+    <p class="text-gray-400 text-center mb-8">
+        Precisamos de mais alguns detalhes para finalizar seu cadastro de aluno.
+    </p>
+
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div>
+            <label for="{{ form.afinidades.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                {{ form.afinidades.label|default:"Afinidades" }}
+            </label>
+            {% render_field form.afinidades class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Corrida, Yoga, Vôlei" %}
+            <p class="mt-1 text-xs text-gray-500">Separe suas afinidades por vírgulas.</p>
+            {% if form.afinidades.errors %}
+                <div class="text-red-400 text-sm mt-1">{% for error in form.afinidades.errors %}{{ error }}{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.horarios_preferidos.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                {{ form.horarios_preferidos.label|default:"Horários preferidos" }}
+            </label>
+            {% render_field form.horarios_preferidos class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Manhã (fins de semana), Noite (dias de semana)" %}
+            {% if form.horarios_preferidos.errors %}
+                <div class="text-red-400 text-sm mt-1">{% for error in form.horarios_preferidos.errors %}{{ error }}{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.nivel_pratica.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                {{ form.nivel_pratica.label|default:"Nível de prática" }}
+            </label>
+            {% render_field form.nivel_pratica class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Iniciante, Intermediário, Avançado" %}
+            {% if form.nivel_pratica.errors %}
+                <div class="text-red-400 text-sm mt-1">{% for error in form.nivel_pratica.errors %}{{ error }}{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.objetivos.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                {{ form.objetivos.label|default:"Objetivos" }}
+            </label>
+            {% render_field form.objetivos class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Perder peso, Conhecer pessoas, Melhorar performance" %}
+            {% if form.objetivos.errors %}
+                <div class="text-red-400 text-sm mt-1">{% for error in form.objetivos.errors %}{{ error }}{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.vibe_after.id_for_label }}" class="block text-sm font-medium text-gray-300">
+                {{ form.vibe_after.label|default:"Vibe (after)" }}
+            </label>
+            {% render_field form.vibe_after class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Gosto de tomar uma cerveja, prefiro ir pra casa" %}
+            {% if form.vibe_after.errors %}
+                <div class="text-red-400 text-sm mt-1">{% for error in form.vibe_after.errors %}{{ error }}{% endfor %}</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+            Salvar e Continuar
+        </button>
+    </form>
+</div>
+{% endblock %}

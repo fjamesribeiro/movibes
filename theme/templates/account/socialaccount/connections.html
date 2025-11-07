@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 p-8 bg-[#1F2937] rounded-lg shadow-lg text-center">
+    
+    <h1 class="text-3xl font-bold text-white mb-6">
+        Conexões de Conta
+    </h1>
+
+    {% if form.accounts %}
+        <p class="text-gray-300 mb-6">Você pode remover as conexões existentes abaixo:</p>
+        <div class="space-y-4">
+            {% for account in form.accounts %}
+            <div class="p-4 bg-gray-700 rounded-md flex justify-between items-center">
+                <span class="text-white font-semibold">{{ account.get_provider.name }}</span>
+                <span class="text-gray-400">{{ account.to_str }}</span>
+                
+                <form method="POST" action="{% url 'socialaccount_connections' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="account" value="{{ account.id }}">
+                    <button type="submit" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500">Remover</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-gray-300">
+            Atualmente, você não tem contas de terceiros conectadas a esta conta.
+        </p>
+    {% endif %}
+
+    <h2 class="text-2xl font-bold text-white text-center mt-8 mb-6">
+        Adicionar Conexão
+    </h2>
+    
+    <p class="text-gray-400">
+        Você pode se conectar usando um serviço de terceiros (como o Google) para facilitar seu login.
+    </p>
+    
+</div>
+{% endblock %}

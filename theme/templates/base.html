@@ -6,8 +6,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movibes - Conectando Lifestyles</title>
-
     {% tailwind_css %}
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 
 <body class="bg-[#111827] text-white font-sans">
@@ -25,14 +25,14 @@
                     <a href="#" class="text-gray-300 hover:text-white">Contato</a>
                 </div>
 
-                <a href="#" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg text-base hover:bg-yellow-500 whitespace-nowrap">
+                <a href="{% url 'account_signup' %}" class="bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg text-base hover:bg-yellow-500 whitespace-nowrap">
                     Quero me cadastrar
                 </a>
             </div>
         </nav>
     </header>
 
-    <main class="container mx-auto px-0 md:px-0 lg:px-0 py-6">
+    <main class="container mx-auto px-0 md:px-0 lg:px-0 py-0">
         {% block content %}
         {% endblock %}
     </main>

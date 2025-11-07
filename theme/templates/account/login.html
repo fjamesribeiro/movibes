@@ -1,17 +1,41 @@
-{% comment %}
-  Este é o template de login.
-  'form' é a variável que o django-allauth nos envia.
-{% endcomment %}
+{% extends "base.html" %}
+{% load widget_tweaks %}
 
-<h1>Entrar</h1>
+{% block content %}
+<div class="max-w-md mx-auto mt-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
 
-<p>Se você ainda não tem uma conta, por favor
-<a href="/accounts/signup/">cadastre-se</a> primeiro.</p>
+    <h1 class="text-3xl font-bold text-white text-center mb-6">
+        Entrar na sua conta
+    </h1>
 
-<form method="POST" action="{% url 'account_login' %}">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Entrar</button>
-</form>
+    <p class="text-gray-400 text-center mb-6">
+        Se você ainda não tem uma conta, por favor
+        <a href="{% url 'account_signup' %}" class="text-yellow-400 hover:text-yellow-300 font-semibold">cadastre-se</a> primeiro.
+    </p>
 
-<p><a href="{% url 'account_reset_password' %}">Esqueceu sua senha?</a></p>
+    <form method="POST" action="{% url 'account_login' %}" class="space-y-6">
+        {% csrf_token %}
+
+        <div>
+            <label for="id_login" class="block text-sm font-medium text-gray-300">Email</label>
+            {% render_field form.login class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com" %}
+        </div>
+
+        <div>
+            <label for="id_password" class="block text-sm font-medium text-gray-300">Senha</label>
+            {% render_field form.password class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" %}
+        </div>
+
+        <button type
+="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+            Entrar
+        </button>
+
+        <div class="text-center">
+            <a href="{% url 'account_reset_password' %}" class="text-sm text-gray-400 hover:text-yellow-400">
+                Esqueceu sua senha?
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

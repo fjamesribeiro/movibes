@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-
 <!-- Hero Section com bordas arredondadas -->
 <section class="overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl" style="background-image: url('{% static 'images/hero-bg.jpg' %}'); background-size: cover; background-position: center;">
     <!-- Overlay escuro -->
@@ -52,32 +51,58 @@
     </p>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
         {% for evento in eventos %}
-        <div class="bg-[#1F2937] rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+        <div class="bg-[#1F2937] rounded-lg shadow-lg overflow-hidden flex flex-col justify-between">
 
-            <img
-                 src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% load static %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
-                 alt="{{ evento.nome_evento }}"
-                 class="w-full h-48 object-cover">
+            <div>
+                <img
+                     src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% load static %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
+                     alt="{{ evento.nome_evento }}"
+                     class="w-full h-48 object-cover">
 
-            <div class="p-6">
-                <h4 class="text-xl font-semibold mb-4">{{ evento.nome_evento }}</h4>
+                <div class="p-6">
+                    <h4 class="text-xl font-semibold mb-4">{{ evento.nome_evento }}</h4>
 
-                <div class="flex items-center text-sm text-gray-400">
+                    <div class="flex items-center text-sm text-gray-400">
+                        <img
+                             src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% load static %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                             alt="foto do criador"
+                             class="w-8 h-8 rounded-full mr-2 object-cover">
 
-                    <img
-                         src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% load static %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
-                         alt="foto do criador"
-                         class="w-8 h-8 rounded-full mr-2 object-cover">
-
-                    <span>{{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}</span>
+                        <span>{{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}</span>
+                    </div>
                 </div>
+            </div>
+
+            <div class="p-6 pt-0" id="subscribe-button-{{ evento.id }}">
+
+                {% if user.is_authenticated %}
+                    {% if evento.id in eventos_inscritos_ids %}
+                        <button class="w-full bg-green-500 text-white font-semibold px-4 py-2 rounded-md text-sm" disabled>
+                            ✓ Inscrito
+                        </button>
+                    {% else %}
+                        <button
+                            hx-post="{% url 'subscribe_event' evento.id %}"
+                            hx-target="#subscribe-button-{{ evento.id }}"
+                            hx-swap="outerHTML"
+                            hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                            class="w-full bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md text-sm hover:bg-yellow-500"
+                        >
+                            Inscrever-se
+                        </button>
+                    {% endif %}
+                    {% else %}
+                        <a href="{% url 'account_signup' %}"
+                           class="block w-full text-center bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+                            Inscrever-se
+                        </a>
+                    {% endif %}
             </div>
         </div>
         {% endfor %}
     </div>
-
-
 </section>
 
 {% endblock %}

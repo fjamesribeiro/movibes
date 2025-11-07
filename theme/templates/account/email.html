@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
+
+    <h1 class="text-3xl font-bold text-white text-center mb-8">
+        Gerenciar E-mails
+    </h1>
+
+    <div class="space-y-4 mb-8">
+        {% for emailaddress in emailaddresses %}
+        <div class="p-4 bg-gray-700 rounded-md flex justify-between items-center">
+            <div class="text-white">
+                {{ emailaddress.email }}
+                {% if emailaddress.primary %}
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-yellow-400 text-black font-semibold">Primário</span>
+                {% endif %}
+                {% if emailaddress.verified %}
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-green-500 text-white font-semibold">Verificado</span>
+                {% else %}
+                    <span class="ml-2 px-2 py-0.5 rounded-full text-xs bg-red-500 text-white font-semibold">Não verificado</span>
+                {% endif %}
+            </div>
+
+            <form method="POST" action="{% url 'account_email' %}" class="flex space-x-2">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ emailaddress.email }}">
+
+                {% if not emailaddress.primary %}
+                <button type="submit" name="action_primary" class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-500">Tornar principal</button>
+                {% endif %}
+                {% if not emailaddress.verified %}
+                <button type="submit" name="action_send" class="px-3 py-1 bg-gray-600 text-white text-xs rounded hover:bg-gray-500">Reenviar verificação</button>
+                {% endif %}
+                {% if not emailaddress.primary %}
+                <button type="submit" name="action_remove" class="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-500">Remover</button>
+                {% endif %}
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="text-2xl font-bold text-white text-center mb-6">
+        Adicionar E-mail
+    </h2>
+
+    <form method="POST" action="{% url 'account_email' %}" class="space-y-4">
+        {% csrf_token %}
+
+        <div>
+            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-300">Novo Email</label>
+            {% render_field form.email class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="novo@email.com" %}
+        </div>
+
+        <button type="submit" name="action_add" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+            Adicionar E-mail
+        </button>
+    </form>
+</div>
+{% endblock %}
