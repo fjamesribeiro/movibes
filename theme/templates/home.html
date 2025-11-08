@@ -178,7 +178,13 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
-
+    .scrollbar-hide {
+    scroll-snap-type: x proximity;
+    scroll-behavior: smooth;
+    }
+    .category-btn {
+        scroll-snap-align: start;
+    }
     .htmx-indicator {
         display: none;
     }
