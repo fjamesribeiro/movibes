@@ -21,6 +21,7 @@ class EventoForm(forms.ModelForm):
             'nome_evento': 'Nome do Evento',
             'descricao_do_evento': 'Descrição',
             'foto_do_evento': 'Foto de Capa do Evento',
+            'preco': 'Valor',
             'vagas_restantes': 'Vagas Disponíveis',
             'data_e_hora': 'Data e Hora (ex: 2025-12-31 18:30)',
             'localizacao_cidade': 'Cidade',
