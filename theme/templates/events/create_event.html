@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 mb-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
+    
+    <h1 class="text-3xl font-bold text-white text-center mb-6">
+        Criar Novo Evento
+    </h1>
+    <p class="text-gray-400 text-center mb-8">
+        Preencha os detalhes abaixo para cadastrar seu evento na plataforma.
+    </p>
+
+    <form method="POST" class="space-y-6" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        <div>
+            <label for="{{ form.nome_evento.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.nome_evento.label }}</label>
+            {% render_field form.nome_evento class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Treinão de Corrida" %}
+            {% if form.nome_evento.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.nome_evento.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.foto_do_evento.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.foto_do_evento.label }}</label>
+            {% render_field form.foto_do_evento class="mt-1 w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white file:bg-yellow-400 file:border-0 file:text-black file:font-semibold file:py-2 file:px-4 file:rounded file:cursor-pointer" %}
+            {% if form.foto_do_evento.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.foto_do_evento.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.descricao_do_evento.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.descricao_do_evento.label }}</label>
+            {% render_field form.descricao_do_evento class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="4" placeholder="Descreva os detalhes do evento, o que levar, etc." %}
+            {% if form.descricao_do_evento.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.descricao_do_evento.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div>
+            <label for="{{ form.data_e_hora.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.data_e_hora.label }}</label>
+            {% render_field form.data_e_hora type="datetime-local" class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" %}
+            {% if form.data_e_hora.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.data_e_hora.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.preco.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.preco.label|default:"Preço (R$)" }}</label>
+                {% render_field form.preco type="number" class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="0.00" %}
+                <p class="mt-1 text-xs text-gray-500">Deixe 0 ou em branco para gratuito.</p>
+                {% if form.preco.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.preco.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.vagas_restantes.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.vagas_restantes.label }}</label>
+                {% render_field form.vagas_restantes type="number" class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: 20" %}
+                {% if form.vagas_restantes.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.vagas_restantes.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+        </div>
+
+        <div>
+            <label for="{{ form.categoria_de_esporte.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.categoria_de_esporte.label }}</label>
+            {% render_field form.categoria_de_esporte class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Corrida, Yoga, Vôlei" %}
+            {% if form.categoria_de_esporte.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.categoria_de_esporte.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="{{ form.localizacao_cidade.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.localizacao_cidade.label }}</label>
+                {% render_field form.localizacao_cidade class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Fortaleza" %}
+                {% if form.localizacao_cidade.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.localizacao_cidade.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+            <div>
+                <label for="{{ form.localizacao_bairro_endereco.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ form.localizacao_bairro_endereco.label }}</label>
+                {% render_field form.localizacao_bairro_endereco class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Beira Mar, 1000" %}
+                {% if form.localizacao_bairro_endereco.errors %}<div class="text-red-400 text-sm mt-1">{% for error in form.localizacao_bairro_endereco.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            </div>
+        </div>
+
+        <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
+            Publicar Evento
+        </button>
+    </form>
+</div>
+{% endblock %}

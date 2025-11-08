@@ -1,7 +1,8 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from .models import Evento, Inscricao, Aluno
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
+from .forms import EventoForm
 
 def homepage(request):
     todos_os_eventos = Evento.objects.all().order_by('data_e_hora')
@@ -51,3 +52,30 @@ def subscribe_to_event(request, event_id):
     return HttpResponse(
         '<button class="bg-green-500 text-white font-semibold px-4 py-2 rounded-md text-sm" disabled>✓ Inscrito</button>'
     )
+
+
+@login_required  # Só usuários logados podem criar eventos
+def create_event(request):
+    """
+    Mostra o formulário para criar um novo evento.
+    """
+    if request.method == 'POST':
+        # Usuário está enviando o formulário
+        form = EventoForm(request.POST, request.FILES)
+        if form.is_valid():
+            # Não salve no banco ainda, precisamos adicionar o criador
+            evento = form.save(commit=False)
+            # 3. Define o 'id_criador' como o usuário logado
+            evento.id_criador = request.user
+            # 4. Define um status padrão
+            evento.status = 'ativo'
+            # 5. Agora sim, salva no banco
+            evento.save()
+            # 6. Redireciona para a homepage para ver o evento criado
+            return redirect('home')
+    else:
+        # Usuário está vendo a página (GET)
+        form = EventoForm()
+
+    # Vamos criar este template no próximo passo
+    return render(request, 'events/create_event.html', {'form': form})
