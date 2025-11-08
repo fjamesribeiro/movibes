@@ -5,10 +5,10 @@
 <div class="max-w-md mx-auto mt-10 mb-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
 
     <h1 class="text-3xl font-bold text-white text-center mb-6">
-        Complete seu Perfil
+        Complete seu Perfil Profissional
     </h1>
     <p class="text-gray-400 text-center mb-8">
-        Quase lá! Precisamos dos seus dados básicos e do seu perfil de aluno.
+        Quase lá! Precisamos dos seus dados básicos e do seu perfil profissional.
     </p>
 
     <form method="POST" class="space-y-6" enctype="multipart/form-data">
@@ -55,35 +55,11 @@
         <hr class="border-gray-700">
 
         <div>
-            <label for="{{ profile_form.afinidades.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.afinidades.label|default:"Afinidades" }}</label>
-            {% render_field profile_form.afinidades class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Corrida, Yoga, Vôlei" %}
-            <p class="mt-1 text-xs text-gray-500">Separe suas afinidades por vírgulas.</p>
-            {% if profile_form.afinidades.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.afinidades.errors %}{{ error }}{% endfor %}</div>{% endif %}
+            <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.especialidade.label|default:"Especialidade" }}</label>
+            {% render_field profile_form.especialidade class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="4" placeholder="Ex: Treinador de corrida, Professor de Yoga" %}
+            {% if profile_form.especialidade.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.especialidade.errors %}{{ error }}{% endfor %}</div>{% endif %}
         </div>
 
-        <div>
-            <label for="{{ profile_form.horarios_preferidos.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.horarios_preferidos.label|default:"Horários preferidos" }}</label>
-            {% render_field profile_form.horarios_preferidos class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Manhã (fins de semana), Noite (dias de semana)" %}
-            {% if profile_form.horarios_preferidos.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.horarios_preferidos.errors %}{{ error }}{% endfor %}</div>{% endif %}
-        </div>
-
-        <div>
-            <label for="{{ profile_form.nivel_pratica.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.nivel_pratica.label|default:"Nível de prática" }}</label>
-            {% render_field profile_form.nivel_pratica class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Iniciante, Intermediário, Avançado" %}
-            {% if profile_form.nivel_pratica.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.nivel_pratica.errors %}{{ error }}{% endfor %}</div>{% endif %}
-        </div>
-
-        <div>
-            <label for="{{ profile_form.objetivos.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.objetivos.label|default:"Objetivos" }}</label>
-            {% render_field profile_form.objetivos class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Perder peso, Conhecer pessoas, Melhorar performance" %}
-            {% if profile_form.objetivos.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.objetivos.errors %}{{ error }}{% endfor %}</div>{% endif %}
-        </div>
-
-        <div>
-            <label for="{{ profile_form.vibe_after.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.vibe_after.label|default:"Vibe (after)" }}</label>
-            {% render_field profile_form.vibe_after class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Ex: Gosto de tomar uma cerveja, prefiro ir pra casa" %}
-            {% if profile_form.vibe_after.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.vibe_after.errors %}{{ error }}{% endfor %}</div>{% endif %}
-        </div>
 
         <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
             Salvar e Continuar

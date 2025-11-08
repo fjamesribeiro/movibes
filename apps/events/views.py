@@ -1,24 +1,20 @@
-from django.shortcuts import render, get_object_or_404 # Garanta que 'get_object_or_404' está importado
-from .models import Evento, Inscricao, Aluno # Garanta que 'Inscricao' e 'Aluno' estão importados
-from django.contrib.auth.decorators import login_required # Nova importação
-from django.http import HttpResponse, HttpResponseForbidden # Nova importação
+from django.shortcuts import render, get_object_or_404
+from .models import Evento, Inscricao, Aluno
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseForbidden
 
-# Esta é a view que será nossa homepage
 def homepage(request):
-    todos_os_eventos = Evento.objects.all().order_by('data_e_hora')  # Pega todos
-    eventos_inscritos_ids = []  # Lista vazia por padrão
-    # 1. Verifica se o usuário está logado e é um Aluno
+    todos_os_eventos = Evento.objects.all().order_by('data_e_hora')
+    eventos_inscritos_ids = []
     if request.user.is_authenticated:
         try:
             aluno = request.user.aluno
-            # 2. Pega os IDs de todos os eventos que este aluno já se inscreveu
             eventos_inscritos_ids = Inscricao.objects.filter(
                 id_aluno=aluno
             ).values_list('id_evento_id', flat=True)  # Retorna uma lista de IDs [1, 5, 12]
 
         except Aluno.DoesNotExist:
-            # Usuário está logado, mas não é um aluno (ex: é Profissional ou Admin)
-            pass  # A lista de IDs continua vazia
+            pass
 
     contexto = {
         'eventos': todos_os_eventos,
