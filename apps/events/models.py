@@ -2,6 +2,17 @@ from django.db import models
 from apps.users.models import Usuario, Aluno  # Importa nossos modelos de usuário
 
 
+class CategoriaEvento(models.Model):
+    """ Tabela de cadastro das categorias (ex: Corrida, Yoga, Vôlei). """
+    nome = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.nome
+
+    class Meta:
+        verbose_name = "Categoria de Evento"
+        verbose_name_plural = "Categorias de Eventos"
+
 # --- Modelo de Eventos ---
 class Evento(models.Model):
     """ Tabela principal de eventos, criados por alunos ou profissionais. """
@@ -16,7 +27,15 @@ class Evento(models.Model):
     data_e_hora = models.DateTimeField(null=True, blank=True)
     localizacao_cidade = models.TextField(null=True, blank=True)
     localizacao_bairro_endereco = models.TextField(null=True, blank=True)
-    categoria_de_esporte = models.TextField(null=True, blank=True)
+
+    # DEPOIS:
+    categoria = models.ForeignKey(
+        CategoriaEvento,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='eventos'
+    )
 
     # Chave estrangeira para o Usuário (aluno ou profissional) que criou.
     id_criador = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='eventos_criados')

@@ -14,7 +14,7 @@ class EventoForm(forms.ModelForm):
             'data_e_hora',
             'localizacao_cidade',
             'localizacao_bairro_endereco',
-            'categoria_de_esporte',
+            'categoria',
         ]
         # Opcional: Adiciona labels amigáveis
         labels = {
@@ -26,5 +26,5 @@ class EventoForm(forms.ModelForm):
             'data_e_hora': 'Data e Hora (ex: 2025-12-31 18:30)',
             'localizacao_cidade': 'Cidade',
             'localizacao_bairro_endereco': 'Endereço com Bairro',
-            'categoria_de_esporte': 'Categoria (ex: Corrida, Yoga, Vôlei)',
+            'categoria': 'Categoria'
         }

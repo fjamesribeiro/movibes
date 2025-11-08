@@ -1,28 +1,63 @@
+from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Evento, Inscricao, Aluno
+from .models import Evento, Inscricao, Aluno, CategoriaEvento
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from .forms import EventoForm
 
+
 def homepage(request):
-    todos_os_eventos = Evento.objects.all().order_by('data_e_hora')
+    # Buscar todas as categorias com contagem de eventos
+    categorias = CategoriaEvento.objects.annotate(
+        eventos_count=Count('eventos')
+    ).order_by('nome')
+
+    # Filtrar eventos
+    eventos = Evento.objects.select_related(
+        'id_criador',
+        'categoria'
+    ).all().order_by('data_e_hora')
+
+    # Filtro por categoria
+    categoria_id = request.GET.get('categoria')
+    if categoria_id:
+        eventos = eventos.filter(categoria_id=categoria_id)
+
+    # Busca por nome
+    search = request.GET.get('search')
+    if search:
+        eventos = eventos.filter(
+            Q(nome_evento__icontains=search) |
+            Q(descricao_do_evento__icontains=search)
+        )
+
+    # Ordenação
+    order = request.GET.get('order', 'data_e_hora')
+    if order:
+        eventos = eventos.order_by(order)
+
+    # Eventos inscritos do usuário
     eventos_inscritos_ids = []
     if request.user.is_authenticated:
         try:
             aluno = request.user.aluno
-            eventos_inscritos_ids = Inscricao.objects.filter(
-                id_aluno=aluno
-            ).values_list('id_evento_id', flat=True)  # Retorna uma lista de IDs [1, 5, 12]
-
+            eventos_inscritos_ids = list(
+                aluno.inscricoes.values_list('id_evento_id', flat=True)
+            )
         except Aluno.DoesNotExist:
             pass
 
-    contexto = {
-        'eventos': todos_os_eventos,
-        'eventos_inscritos_ids': eventos_inscritos_ids  # 3. Envia a lista para o template
+    context = {
+        'eventos': eventos,
+        'categorias': categorias,
+        'eventos_inscritos_ids': eventos_inscritos_ids,
     }
 
-    return render(request, 'home.html', contexto)
+    # Se for requisição HTMX, retornar apenas a lista
+    if request.headers.get('HX-Request'):
+        return render(request, 'partials/eventos_list.html', context)
+
+    return render(request, 'home.html', context)
 
 
 @login_required  # 1. Garante que apenas usuários logados acessem

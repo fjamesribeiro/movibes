@@ -1,0 +1,202 @@
+{% load static %}
+
+{% if not eventos %}
+<div class="text-center py-16 bg-gray-800/30 rounded-xl border-2 border-dashed border-gray-700">
+    <svg class="w-24 h-24 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    </svg>
+    <h4 class="text-2xl font-bold text-gray-400 mb-2">Nenhum evento encontrado</h4>
+    <p class="text-gray-500 mb-6">Tente ajustar os filtros ou buscar por outro termo</p>
+    {% if user.is_authenticated %}
+    <a href="{% url 'create_event' %}" class="inline-flex items-center bg-yellow-400 text-black font-semibold px-6 py-3 rounded-lg hover:bg-yellow-500 transition-all">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        Criar Primeiro Evento
+    </a>
+    {% endif %}
+</div>
+{% else %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    {% for evento in eventos %}
+    <div class="bg-[#1F2937] rounded-xl shadow-xl overflow-hidden flex flex-col justify-between hover:transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl border border-gray-700/50">
+
+        <!-- Imagem com overlays -->
+        <div class="relative h-56 overflow-hidden">
+            <img
+                src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
+                alt="{{ evento.nome_evento }}"
+                class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500">
+
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+            {% if evento.categoria %}
+            <span class="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wide">
+                {{ evento.categoria.nome }}
+            </span>
+            {% endif %}
+
+            {% if evento.data_e_hora %}
+            <div class="absolute top-4 right-4 bg-black/80 backdrop-blur-sm text-white text-center px-3 py-2 rounded-lg shadow-lg border border-white/20">
+                <div class="text-2xl font-bold leading-none">{{ evento.data_e_hora|date:"d" }}</div>
+                <div class="text-xs uppercase font-semibold">{{ evento.data_e_hora|date:"M" }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Conteúdo -->
+        <div class="p-6 flex-grow">
+            <h4 class="text-xl font-bold mb-3 text-white leading-tight line-clamp-2">
+                {{ evento.nome_evento }}
+            </h4>
+
+            {% if evento.descricao_do_evento %}
+            <p class="text-sm text-gray-400 mb-4 line-clamp-2">
+                {{ evento.descricao_do_evento }}
+            </p>
+            {% endif %}
+
+            <div class="space-y-2.5 mb-4">
+                {% if evento.data_e_hora %}
+                <div class="flex items-center text-sm text-gray-300">
+                    <svg class="w-4 h-4 mr-2 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span>{{ evento.data_e_hora|date:"d/m/Y às H:i" }}</span>
+                </div>
+                {% endif %}
+
+                {% if evento.localizacao_cidade or evento.localizacao_bairro_endereco %}
+                <div class="flex items-start text-sm text-gray-300">
+                    <svg class="w-4 h-4 mr-2 mt-0.5 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                    <span class="line-clamp-1">
+                        {% if evento.localizacao_bairro_endereco %}
+                            {{ evento.localizacao_bairro_endereco }}
+                        {% endif %}
+                        {% if evento.localizacao_cidade %}
+                            - {{ evento.localizacao_cidade }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if evento.vagas_restantes is not None %}
+                <div class="flex items-center text-sm text-gray-300">
+                    <svg class="w-4 h-4 mr-2 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                    <span>
+                        <span class="{% if evento.vagas_restantes < 5 %}text-red-400 font-semibold{% endif %}">
+                            {{ evento.vagas_restantes }}
+                        </span>
+                        {% if evento.vagas_restantes == 1 %}vaga restante{% else %}vagas restantes{% endif %}
+                    </span>
+                </div>
+                {% endif %}
+
+                {% if evento.preco is not None %}
+                <div class="flex items-center text-sm">
+                    <svg class="w-4 h-4 mr-2 text-yellow-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-yellow-400 font-bold text-lg">
+                        {% if evento.preco == 0 %}
+                            GRATUITO
+                        {% else %}
+                            R$ {{ evento.preco|floatformat:2 }}
+                        {% endif %}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="border-t border-gray-700 pt-4 mt-4">
+                <div class="flex items-center text-sm">
+                    <img
+                        src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                        alt="{{ evento.id_criador.first_name }}"
+                        class="w-10 h-10 rounded-full mr-3 object-cover border-2 border-yellow-400 shadow-lg">
+                    <div>
+                        <p class="text-gray-400 text-xs">Organizado por</p>
+                        <p class="text-white font-semibold">
+                            {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botão -->
+        <div class="p-6 pt-0" id="subscribe-button-{{ evento.id }}">
+            {% if user.is_authenticated %}
+                {% if evento.id in eventos_inscritos_ids %}
+                    <button class="w-full bg-green-500 text-white font-semibold px-4 py-3 rounded-lg text-sm flex items-center justify-center cursor-default" disabled>
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        Você está inscrito
+                    </button>
+                {% elif evento.vagas_restantes == 0 %}
+                    <button class="w-full bg-gray-600 text-gray-400 font-semibold px-4 py-3 rounded-lg text-sm cursor-not-allowed" disabled>
+                        Vagas esgotadas
+                    </button>
+                {% else %}
+                    <button
+                        hx-post="{% url 'subscribe_event' evento.id %}"
+                        hx-target="#subscribe-button-{{ evento.id }}"
+                        hx-swap="outerHTML"
+                        hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                        hx-indicator="#loading-{{ evento.id }}"
+                        class="w-full bg-yellow-400 text-black font-bold px-4 py-3 rounded-lg text-sm hover:bg-yellow-500 transition-colors flex items-center justify-center group relative overflow-hidden">
+                        <span class="flex items-center relative z-10">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Inscrever-se agora
+                        </span>
+                        <span id="loading-{{ evento.id }}" class="htmx-indicator absolute inset-0 bg-yellow-500 flex items-center justify-center">
+                            <svg class="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                    </button>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'account_signup' %}"
+                   class="block w-full text-center bg-yellow-400 text-black font-bold px-4 py-3 rounded-lg text-sm hover:bg-yellow-500 transition-colors">
+                    Fazer login para se inscrever
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<style>
+    .line-clamp-1 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .htmx-indicator {
+        display: none;
+    }
+
+    .htmx-request .htmx-indicator {
+        display: flex;
+    }
+</style>
