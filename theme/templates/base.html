@@ -13,7 +13,7 @@
 
 <body class="bg-[#111827] text-white font-sans">
 
-<header class="bg-[#111827] border-b border-gray-700" x-data="{ open: false }">
+    <header class="bg-[#111827] border-b border-gray-700" x-data="{ open: false }">
         <nav class="container mx-auto flex items-center justify-between p-4">
 
             <a href="/" class="flex items-center space-x-2">
@@ -76,8 +76,36 @@
         {% endblock %}
     </main>
 
-    <footer class="text-center p-8 mt-16 border-t border-gray-700">
-        <p class="text-gray-500">&copy; 2025 Movibes. Todos os direitos reservados.</p>
+    <footer class="mt-24 border-t border-gray-700">
+        <div class="container mx-auto px-4 py-12 flex flex-col items-center text-center">
+
+            <h3 class="text-2xl font-semibold text-white mb-4">
+                Leve o Movibes com você
+            </h3>
+            <p class="text-gray-400 mb-8 max-w-lg">
+                Em breve!
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+
+                <a href="#" class="block cursor-not-allowed" title="App Store (Em breve)" disabled>
+                    <img src="{% static 'images/app-store-badge.png' %}"
+                         alt="Download on the App Store (em breve)"
+                         class="h-12 w-auto grayscale opacity-70 transition-opacity hover:opacity-90">
+                </a>
+
+                <a href="#" class="block cursor-not-allowed" title="Google Play (Em breve)" disabled>
+                    <img src="{% static 'images/google-play-badge.png' %}"
+                         alt="Android App on Google Play (em breve)"
+                         class="h-16 w-auto grayscale opacity-70 transition-opacity hover:opacity-90">
+                </a>
+
+            </div>
+
+            <p class="text-gray-500 text-sm">
+                &copy; 2025 Movibes. Todos os direitos reservados.
+            </p>
+        </div>
     </footer>
 
 </body>
