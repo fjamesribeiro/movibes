@@ -1,11 +1,14 @@
+from django.http import HttpRequest, HttpResponse
+from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm
 from .models import Aluno, Profissional, Perfil
+from django.contrib import messages
 
 
 @login_required
-def select_profile_type(request):
+def select_profile_type(request: HttpRequest) -> HttpResponse:
     """
     Mostra a página para o usuário escolher entre Aluno ou Profissional.
     Esta é a página para onde os novos usuários serão redirecionados.
@@ -108,3 +111,63 @@ def set_profile_type(request, profile_type):
 
     # Se o tipo não for válido, manda de volta para a escolha
     return redirect('account_select_profile_type')
+
+
+@login_required
+def profile_view(request):
+    """
+    Página "Meu Perfil" para ver e editar os dados do
+    Usuário e do perfil (Aluno ou Profissional).
+    """
+    user: User = request.user
+    profile_form = None
+    profile_form_class = None
+    profile_instance = None
+    profile_type = None  # Vamos usar isso no template
+
+    # 1. Tenta identificar o tipo de perfil do usuário
+    if hasattr(user, 'aluno'):
+        profile_instance = user.aluno
+        profile_form_class = AlunoProfileForm
+        profile_type = 'aluno'
+    elif hasattr(user, 'profissional'):
+        profile_instance = user.profissional
+        profile_form_class = ProfissionalProfileForm
+        profile_type = 'profissional'
+
+    # 2. Processa o formulário se for um POST (salvando)
+    if request.method == 'POST':
+        user_form = UsuarioProfileForm(request.POST, request.FILES, instance=user)
+
+        # Instancia o formulário de perfil (Aluno ou Profissional) se ele existir
+        if profile_form_class:
+            profile_form = profile_form_class(request.POST, instance=profile_instance)
+
+        # Verifica se ambos os formulários são válidos
+        if user_form.is_valid() and (not profile_form or profile_form.is_valid()):
+            user_form.save()
+            if profile_form:
+                profile_form.save()
+
+            # 3. Adiciona uma mensagem de sucesso
+            messages.success(request, 'Perfil atualizado com sucesso!')
+
+            # Redireciona de volta para a mesma página
+            return redirect('profile')
+        else:
+            # Se houver erros, eles aparecerão no formulário
+            messages.error(request, 'Houve um erro ao atualizar seu perfil. Verifique os campos.')
+
+    # 3. Se for um GET (apenas vendo a página)
+    else:
+        user_form = UsuarioProfileForm(instance=user)
+        if profile_form_class:
+            profile_form = profile_form_class(instance=profile_instance)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'profile_type': profile_type  # 'aluno', 'profissional' ou None
+    }
+
+    return render(request, 'account/profile.html', context)

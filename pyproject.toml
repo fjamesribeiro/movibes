@@ -1,0 +1,35 @@
+[tool.mypy]
+python_version = "3.11"
+plugins = ["mypy_django_plugin.main"]
+django_settings_module = "seu_projeto.settings"  # MUDE AQUI!
+
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+check_untyped_defs = true
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.venv
+  | migrations
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = ["migrations", ".venv"]
+
+[tool.django-stubs]
+django_settings_module = "seu_projeto.settings"  # MUDE AQUI!

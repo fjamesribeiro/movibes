@@ -1,6 +1,7 @@
 from django import forms
 from .models import Aluno, Profissional, Usuario
 
+
 class UsuarioProfileForm(forms.ModelForm):
     class Meta:
         model = Usuario
@@ -20,6 +21,7 @@ class UsuarioProfileForm(forms.ModelForm):
             'link_social': 'Link Social (LinkedIn, Instagram, etc.)'
         }
 
+
 class AlunoProfileForm(forms.ModelForm):
     class Meta:
         model = Aluno
@@ -30,6 +32,7 @@ class AlunoProfileForm(forms.ModelForm):
             'objetivos',
             'vibe_after'
         ]
+
 
 class ProfissionalProfileForm(forms.ModelForm):
     class Meta:
