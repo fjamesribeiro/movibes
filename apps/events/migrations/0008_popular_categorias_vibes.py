@@ -27,7 +27,7 @@ def popular_categorias(apps, schema_editor):
     # IMPORTANTE: Substitua 'events' pelo nome real do seu app
     # onde o modelo 'Categoria' está definido.
     try:
-        Categoria = apps.get_model('events', 'categoriaeventos')
+        Categoria = apps.get_model('events', 'categoriaevento')
     except LookupError:
         print("\n[Erro na Migração]")
         print("Não foi possível encontrar o modelo 'Categoria' no app 'events'.")
