@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Evento, Inscricao, CategoriaEvento
@@ -6,59 +8,102 @@ from django.http import HttpResponse, HttpResponseForbidden
 from .forms import EventoForm
 from apps.users.models import Aluno
 
-def homepage(request):
-    # Buscar todas as categorias com contagem de eventos
-    categorias = CategoriaEvento.objects.annotate(
-        eventos_count=Count('eventos')
-    ).order_by('nome')
 
-    # Filtrar eventos
-    eventos = Evento.objects.select_related(
-        'id_criador',
-        'categoria'
-    ).all().order_by('data_e_hora')
+def home(request):
+    # Buscar todos os eventos
+    eventos = Evento.objects.all().select_related('categoria', 'id_criador')
 
-    # Filtro por categoria
-    categoria_id = request.GET.get('categoria')
-    if categoria_id:
-        eventos = eventos.filter(categoria_id=categoria_id)
-
-    # Busca por nome
-    search = request.GET.get('search')
+    # Filtro de busca por nome
+    search = request.GET.get('search', '').strip()
     if search:
         eventos = eventos.filter(
             Q(nome_evento__icontains=search) |
             Q(descricao_do_evento__icontains=search)
         )
 
-    # Ordenação
-    order = request.GET.get('order', 'data_e_hora')
-    if order:
-        eventos = eventos.order_by(order)
+    # Filtro de categorias (múltiplas seleções)
+    categorias_ids = request.GET.getlist('categorias')
+    if categorias_ids:
+        eventos = eventos.filter(categoria_id__in=categorias_ids)
 
-    # Eventos inscritos do usuário
-    eventos_inscritos_ids = []
-    if request.user.is_authenticated:
-        try:
-            aluno = request.user.aluno
-            eventos_inscritos_ids = list(
-                aluno.inscricoes.values_list('id_evento_id', flat=True)
-            )
-        except Aluno.DoesNotExist:
-            pass
+    # Filtro de cidade
+    cidade = request.GET.get('cidade', '').strip()
+    if cidade:
+        eventos = eventos.filter(localizacao_cidade__icontains=cidade)
+
+    # Filtro de bairro
+    bairro = request.GET.get('bairro', '').strip()
+    if bairro:
+        eventos = eventos.filter(localizacao_bairro_endereco__icontains=bairro)
+
+    # Filtro de status
+    status_filtros = request.GET.getlist('status')
+    if status_filtros:
+        status_q = Q()
+        if 'vagas_disponiveis' in status_filtros:
+            status_q |= Q(vagas_restantes__gt=5)
+        if 'quase_lotado' in status_filtros:
+            status_q |= Q(vagas_restantes__lte=5, vagas_restantes__gt=0)
+        if 'confirmado' in status_filtros:
+            status_q |= Q(status='confirmado')
+        eventos = eventos.filter(status_q)
+
+    # Filtro de data (atalhos rápidos)
+    after_filtros = request.GET.getlist('after')
+    hoje = datetime.now().date()
+
+    if after_filtros:
+        data_q = Q()
+        if 'hoje' in after_filtros:
+            data_q |= Q(data_e_hora__date=hoje)
+        if 'amanha' in after_filtros:
+            amanha = hoje + timedelta(days=1)
+            data_q |= Q(data_e_hora__date=amanha)
+        if 'esta_semana' in after_filtros:
+            fim_semana = hoje + timedelta(days=7)
+            data_q |= Q(data_e_hora__date__range=[hoje, fim_semana])
+        if 'proximo_mes' in after_filtros:
+            fim_mes = hoje + timedelta(days=30)
+            data_q |= Q(data_e_hora__date__range=[hoje, fim_mes])
+        eventos = eventos.filter(data_q)
+
+    # Filtro de período personalizado
+    data_inicio = request.GET.get('data_inicio')
+    data_fim = request.GET.get('data_fim')
+    if data_inicio:
+        eventos = eventos.filter(data_e_hora__date__gte=data_inicio)
+    if data_fim:
+        eventos = eventos.filter(data_e_hora__date__lte=data_fim)
+
+    # Ordenar por data
+    eventos = eventos.order_by('data_e_hora')
+
+    # Buscar categorias com contagem de eventos
+    categorias = CategoriaEvento.objects.annotate(
+        eventos_count=Count('eventos')
+    ).order_by('nome')
+
+    # Buscar cidades e bairros únicos para autocomplete
+    cidades_disponiveis = Evento.objects.values_list(
+        'localizacao_cidade', flat=True
+    ).distinct().order_by('localizacao_cidade')
+
+    bairros_disponiveis = Evento.objects.values_list(
+        'localizacao_bairro_endereco', flat=True
+    ).distinct().order_by('localizacao_bairro_endereco')
 
     context = {
         'eventos': eventos,
         'categorias': categorias,
-        'eventos_inscritos_ids': eventos_inscritos_ids,
+        'cidades_disponiveis': [c for c in cidades_disponiveis if c],
+        'bairros_disponiveis': [b for b in bairros_disponiveis if b],
     }
 
-    # Se for requisição HTMX, retornar apenas a lista
+    # Se for requisição HTMX, retornar apenas a lista de eventos
     if request.headers.get('HX-Request'):
         return render(request, 'partials/eventos_list.html', context)
 
     return render(request, 'home.html', context)
-
 
 @login_required  # 1. Garante que apenas usuários logados acessem
 def subscribe_to_event(request, event_id):

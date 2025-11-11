@@ -8,19 +8,6 @@ from django.contrib import messages
 
 
 @login_required
-def select_profile_type(request: HttpRequest) -> HttpResponse:
-    """
-    Mostra a página para o usuário escolher entre Aluno ou Profissional.
-    Esta é a página para onde os novos usuários serão redirecionados.
-    """
-    # Se o usuário já completou o cadastro, não o deixe ver esta página.
-    if request.user.cadastro_completo:
-        return redirect('home')
-
-    # Apenas renderiza o template de escolha
-    return render(request, 'account/select_profile_type.html')
-
-@login_required
 def complete_aluno_profile(request):
     """
     View para forçar o aluno a completar o cadastro

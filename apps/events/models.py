@@ -5,6 +5,8 @@ from django.conf import settings
 class CategoriaEvento(models.Model):
     """ Tabela de cadastro das categorias (ex: Corrida, Yoga, Vôlei). """
     nome = models.CharField(max_length=100, unique=True)
+    icone = models.CharField(max_length=10, null=True, blank=True,
+                             help_text="Cole o emoji aqui (ex: 🏃)")
 
     def __str__(self):
         return self.nome

@@ -102,3 +102,6 @@ class ProfissionalProfileForm(forms.ModelForm):
             'especialidade',
             'num_conselho_classe',
         ]
+        labels = {
+            'num_conselho_classe': 'Nº Conselho de classe',
+        }

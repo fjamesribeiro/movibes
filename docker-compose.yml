@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Define o serviço do banco de dados local
   postgres-local:

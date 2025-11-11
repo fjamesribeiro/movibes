@@ -46,6 +46,23 @@
             {% if user_form.bio_curta.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.bio_curta.errors %}{{ error }}{% endfor %}</div>{% endif %}
         </div>
 
+        <!-- WhatsApp -->
+          <div class="mb-6">
+            <label for="{{ user_form.whatsapp.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ user_form.whatsapp.label }}
+              <span class="text-gray-500 font-normal">(11 dígitos com DDD)</span>
+            </label>
+            {% render_field user_form.whatsapp type="tel" id="id_whatsapp" maxlength="11" pattern="[0-9]{11}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="85999998888" %}
+            <p id="whatsapp_helper" class="text-xs text-gray-500 mt-1">Exemplo: 85999998888 (DDD + 9 dígitos)</p>
+            <p id="whatsapp_feedback" class="text-sm mt-2 hidden"></p>
+            {% if user_form.whatsapp.errors %}
+            <div class="text-red-400 text-sm mt-2">
+              {% for error in user_form.whatsapp.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
         <div>
             <label for="{{ user_form.link_social.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.link_social.label }}</label>
             {% render_field user_form.link_social class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="https://..." %}
@@ -72,4 +89,66 @@
         </button>
     </form>
 </div>
+
+<script>
+  // Validação do WhatsApp - aceita apenas números e valida ao sair do campo
+  const whatsappInput = document.getElementById('id_whatsapp');
+  const whatsappFeedback = document.getElementById('whatsapp_feedback');
+  const whatsappHelper = document.getElementById('whatsapp_helper');
+
+  if (whatsappInput) {
+    // Durante a digitação: limpa caracteres não numéricos (INALTERADO)
+    whatsappInput.addEventListener('input', function() {
+      this.value = this.value.replace(/\D/g, '');
+      if (this.value.length > 11) {
+        this.value = this.value.slice(0, 11);
+      }
+      whatsappFeedback.classList.add('hidden');
+      whatsappHelper.classList.remove('hidden');
+      this.classList.remove('border-red-500', 'border-green-500');
+      this.classList.add('border-gray-600');
+    });
+
+    // Ao sair do campo: valida e mostra feedback
+    whatsappInput.addEventListener('blur', function() {
+      const value = this.value.trim();
+
+      // --- 1. ADICIONADO O REGEX ---
+      const regexCelular = /^[1-9]{2}9[0-9]{8}$/;
+
+      // Se o campo estiver vazio, não mostra erro (assume que é opcional)
+      if (value === '') {
+        whatsappFeedback.classList.add('hidden');
+        whatsappHelper.classList.remove('hidden');
+        this.classList.remove('border-red-500', 'border-green-500');
+        this.classList.add('border-gray-600');
+        return;
+      }
+
+      // --- 2. MUDADA A CONDIÇÃO PARA USAR O REGEX ---
+      // Valida se não bate com o regex
+      if (!regexCelular.test(value)) {
+        // Mostra mensagem de erro
+        whatsappFeedback.textContent = `❌ WhatsApp inválido. Deve ter 11 dígitos (DDD + 9xxxxxxxx).`;
+        whatsappFeedback.className = 'text-sm mt-2 text-red-400 block';
+        whatsappHelper.classList.add('hidden');
+        this.classList.remove('border-gray-600', 'border-green-500');
+        this.classList.add('border-red-500');
+      } else {
+        // --- 3. MUDANÇA PRINCIPAL: Bloco "else" agora limpa o feedback ---
+        // (Antes mostrava "WhatsApp válido!")
+        whatsappFeedback.classList.add('hidden');
+        whatsappHelper.classList.remove('hidden');
+        this.classList.remove('border-red-500', 'border-green-500'); // Remove borda de erro/sucesso
+        this.classList.add('border-gray-600'); // Volta à borda normal
+      }
+    });
+
+    // Ao focar no campo novamente: remove o feedback de sucesso/erro (INALTERADO)
+    whatsappInput.addEventListener('focus', function() {
+      whatsappFeedback.classList.add('hidden');
+      whatsappHelper.classList.remove('hidden');
+    });
+  }
+</script>
 {% endblock %}

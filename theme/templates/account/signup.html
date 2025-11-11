@@ -1,76 +1,76 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
-
 {% block content %}
-<div class="max-w-md mx-auto mt-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
-    
-    <h1 class="text-3xl font-bold text-white text-center mb-6">
-        Criar nova conta
-    </h1>
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+  <div class="max-w-md mx-auto">
 
-    <form method="POST" action="{% url 'account_signup' %}" class="space-y-6">
+    <div class="text-center mb-10">
+      <div class="inline-block p-3 bg-yellow-400 rounded-2xl mb-4">
+        <svg class="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+        </svg>
+      </div>
+      <h1 class="text-4xl font-bold text-white mb-3">
+        Criar nova conta
+      </h1>
+      <p class="text-gray-400 text-lg">
+        Rápido e fácil. Vamos começar!
+      </p>
+    </div>
+
+    <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+      <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
         {% csrf_token %}
 
+        {% if redirect_field_value %}
+        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+        {% endif %}
+
         {% if form.non_field_errors %}
-            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
+        <div class="bg-red-900/50 border border-red-700 text-red-200 px-6 py-4 rounded-xl mb-6">
+          {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="space-y-6">
+          {% for field in form %}
+          <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ field.label }}
+              {% if field.field.required %}<span class="text-yellow-400">*</span>{% endif %}
+            </label>
+
+            {% render_field field type=field.field.widget.input_type class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder=field.label %}
+
+            {% if field.help_text and 'password' not in field.name %}
+                <p class="text-xs text-gray-400 mt-1">{{ field.help_text }}</p>
+            {% endif %}
+
+            {% if field.errors %}
+            <div class="text-red-400 text-sm mt-2">
+              {% for error in field.errors %}{{ error }}{% endfor %}
             </div>
-        {% endif %}
-
-        <div>
-            <label for="id_email" class="block text-sm font-medium text-gray-300">Email</label>
-            {% render_field form.email class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="voce@email.com" %}
-            {% if form.email.errors %}
-                <div class="text-red-400 text-sm mt-1">
-                    {% for error in form.email.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
             {% endif %}
+          </div>
+          {% endfor %}
         </div>
 
-        <div>
-            <label for="id_password1" class="block text-sm font-medium text-gray-300">Senha</label>
-            {% render_field form.password1 class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" %}
-
-            {% if form.password1.errors %}
-                <div class="text-red-400 text-sm mt-1">
-                    {% for error in form.password1.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-
-        {% if form.password2 %}
-        <div>
-            <label for="id_password2" class="block text-sm font-medium text-gray-300">Confirme a Senha</label>
-            {% render_field form.password2 class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="••••••••" %}
-            {% if form.password2.errors %}
-                <div class="text-red-400 text-sm mt-1">
-                    {% for error in form.password2.errors %}
-                        {{ error }}
-                    {% endfor %}
-                </div>
-            {% endif %}
-        </div>
-        {% endif %}
-
-
-        <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
-            Cadastrar
+        <button type="submit"
+                class="w-full cursor-p
+                ,0ointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-4 rounded-xl text-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl mt-8">
+          Cadastrar
         </button>
 
-        <div class="text-center">
-            <p class="text-sm text-gray-400">
-                Já tem uma conta? 
-                <a href="{% url 'account_login' %}" class="text-yellow-400 hover:text-yellow-300 font-semibold">
-                    Faça o login
-                </a>
-            </p>
-        </div>
-    </form>
+        <p class="text-center text-gray-400 text-sm mt-6">
+          Já tem uma conta?
+          <a href="{% url 'account_login' %}" class="font-semibold text-yellow-400 hover:text-yellow-300">
+            Faça o login
+          </a>
+        </p>
+
+      </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
