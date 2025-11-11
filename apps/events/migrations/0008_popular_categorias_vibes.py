@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
         # IMPORTANTE: Altere isso para apontar para a ÚLTIMA migração
         # do seu app 'events' (ou o app onde 'Categoria' vive).
         # Exemplo: ('events', '0002_alter_evento_campo_x'),
-        ('events', '0001_initial'),
+        ('events', '0007_categoriaevento_icone'),
     ]
 
     operations = [
