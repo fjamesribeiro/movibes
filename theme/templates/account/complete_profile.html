@@ -19,17 +19,6 @@
       <p class="text-gray-400 text-lg">
         Quase lá! Precisamos dos seus dados básicos e do seu perfil de aluno.
       </p>
-
-      <!-- Progress Bar -->
-      <div class="mt-6 max-w-md mx-auto">
-        <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
-          <span>Progresso</span>
-          <span>70%</span>
-        </div>
-        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full" style="width: 70%"></div>
-        </div>
-      </div>
     </div>
 
     <form method="POST" class="space-y-6" enctype="multipart/form-data">
@@ -362,40 +351,42 @@
 </style>
 
 <script>
-  // Busca CEP usando ViaCEP
+  // Busca CEP usando ViaCEP (CÓDIGO INALTERADO)
   const cepInput = document.getElementById('cep_input');
   const statusSpan = document.getElementById('cep_status');
 
-  cepInput.addEventListener('input', function() {
-    const cleanedCep = this.value.replace(/\D/g, '');
+  if (cepInput) {
+    cepInput.addEventListener('input', function() {
+      const cleanedCep = this.value.replace(/\D/g, '');
 
-    if (cleanedCep.length !== 8) {
-      statusSpan.textContent = '';
-      return;
-    }
+      if (cleanedCep.length !== 8) {
+        statusSpan.textContent = '';
+        return;
+      }
 
-    statusSpan.textContent = 'Buscando CEP...';
-    statusSpan.className = 'text-sm text-gray-400 mt-2 block';
+      statusSpan.textContent = 'Buscando CEP...';
+      statusSpan.className = 'text-sm text-gray-400 mt-2 block';
 
-    fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.erro) {
-          statusSpan.textContent = 'CEP não encontrado.';
+      fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
+            statusSpan.textContent = 'CEP não encontrado.';
+            statusSpan.className = 'text-sm text-red-400 mt-2 block';
+          } else {
+            document.getElementById('{{ profile_form.estado.id_for_label }}').value = data.uf;
+            document.getElementById('{{ profile_form.cidade.id_for_label }}').value = data.localidade;
+            document.getElementById('{{ profile_form.bairro.id_for_label }}').value = data.bairro;
+            statusSpan.textContent = 'Endereço preenchido!';
+            statusSpan.className = 'text-sm text-green-400 mt-2 block';
+          }
+        })
+        .catch(err => {
+          statusSpan.textContent = 'Erro ao buscar o CEP.';
           statusSpan.className = 'text-sm text-red-400 mt-2 block';
-        } else {
-          document.getElementById('{{ profile_form.estado.id_for_label }}').value = data.uf;
-          document.getElementById('{{ profile_form.cidade.id_for_label }}').value = data.localidade;
-          document.getElementById('{{ profile_form.bairro.id_for_label }}').value = data.bairro;
-          statusSpan.textContent = 'Endereço preenchido!';
-          statusSpan.className = 'text-sm text-green-400 mt-2 block';
-        }
-      })
-      .catch(err => {
-        statusSpan.textContent = 'Erro ao buscar o CEP.';
-        statusSpan.className = 'text-sm text-red-400 mt-2 block';
-      });
-  });
+        });
+    });
+  }
 
   // Validação do WhatsApp - aceita apenas números e valida ao sair do campo
   const whatsappInput = document.getElementById('id_whatsapp');
@@ -403,21 +394,14 @@
   const whatsappHelper = document.getElementById('whatsapp_helper');
 
   if (whatsappInput) {
-    // Durante a digitação: limpa caracteres não numéricos
+    // Durante a digitação: limpa caracteres não numéricos (INALTERADO)
     whatsappInput.addEventListener('input', function() {
-      // Remove tudo que não é número
       this.value = this.value.replace(/\D/g, '');
-
-      // Limita a 11 dígitos
       if (this.value.length > 11) {
         this.value = this.value.slice(0, 11);
       }
-
-      // Remove feedback anterior enquanto está digitando
       whatsappFeedback.classList.add('hidden');
       whatsappHelper.classList.remove('hidden');
-
-      // Remove a borda vermelha se estiver presente
       this.classList.remove('border-red-500', 'border-green-500');
       this.classList.add('border-gray-600');
     });
@@ -425,6 +409,9 @@
     // Ao sair do campo: valida e mostra feedback
     whatsappInput.addEventListener('blur', function() {
       const value = this.value.trim();
+
+      // --- 1. ADICIONADO O REGEX ---
+      const regexCelular = /^[1-9]{2}9[0-9]{8}$/;
 
       // Se o campo estiver vazio, não mostra erro (assume que é opcional)
       if (value === '') {
@@ -435,34 +422,29 @@
         return;
       }
 
-      // Valida se tem exatamente 11 dígitos
-      if (value.length !== 11) {
+      // --- 2. MUDADA A CONDIÇÃO PARA USAR O REGEX ---
+      // Valida se não bate com o regex
+      if (!regexCelular.test(value)) {
         // Mostra mensagem de erro
-        whatsappFeedback.textContent = `❌ O WhatsApp deve ter 11 dígitos (você digitou ${value.length})`;
+        whatsappFeedback.textContent = `❌ WhatsApp inválido. Deve ter 11 dígitos (DDD + 9xxxxxxxx).`;
         whatsappFeedback.className = 'text-sm mt-2 text-red-400 block';
         whatsappHelper.classList.add('hidden');
-
-        // Adiciona borda vermelha
         this.classList.remove('border-gray-600', 'border-green-500');
         this.classList.add('border-red-500');
       } else {
-        // Mostra mensagem de sucesso
-        whatsappFeedback.textContent = '✓ WhatsApp válido!';
-        whatsappFeedback.className = 'text-sm mt-2 text-green-400 block';
-        whatsappHelper.classList.add('hidden');
-
-        // Adiciona borda verde
-        this.classList.remove('border-gray-600', 'border-red-500');
-        this.classList.add('border-green-500');
+        // --- 3. MUDANÇA PRINCIPAL: Bloco "else" agora limpa o feedback ---
+        // (Antes mostrava "WhatsApp válido!")
+        whatsappFeedback.classList.add('hidden');
+        whatsappHelper.classList.remove('hidden');
+        this.classList.remove('border-red-500', 'border-green-500'); // Remove borda de erro/sucesso
+        this.classList.add('border-gray-600'); // Volta à borda normal
       }
     });
 
-    // Ao focar no campo novamente: remove o feedback de sucesso/erro
+    // Ao focar no campo novamente: remove o feedback de sucesso/erro (INALTERADO)
     whatsappInput.addEventListener('focus', function() {
-      if (this.value.length === 11) {
-        whatsappFeedback.classList.add('hidden');
-        whatsappHelper.classList.remove('hidden');
-      }
+      whatsappFeedback.classList.add('hidden');
+      whatsappHelper.classList.remove('hidden');
     });
   }
 </script>
