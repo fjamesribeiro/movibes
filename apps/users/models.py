@@ -1,6 +1,18 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
+
+# --- 1. ADICIONE ESTE NOVO MODELO (TABELA) ---
+class VibeAfterOpcao(models.Model):
+    """ Tabela de cadastro das opções de pós-treino. """
+    nome = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        verbose_name = "Opção de Vibe After"
+        verbose_name_plural = "Opções de Vibe After"
+
+    def __str__(self):
+        return self.nome
 
 
 # --- Modelo de Perfil (RBAC) ---
@@ -61,7 +73,11 @@ class Usuario(AbstractUser):
     # Nossos campos customizados
     url_foto_perfil = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     bio_curta = models.TextField(null=True, blank=True)
-    link_social = models.TextField(null=True, blank=True)
+    whatsapp = models.CharField(
+        max_length=20,
+        null=True, blank=True,
+        verbose_name="WhatsApp"
+    )
     cadastro_completo = models.BooleanField(default=False)
 
     # Campo que define qual é o "username" (para o django-admin)
@@ -100,17 +116,112 @@ class UsuarioPerfil(models.Model):
         verbose_name_plural = "Perfis dos Usuários"
 
 
+class TipoConta(models.Model):
+    """ Tabela de cadastro dos tipos de conta (ex: Free, Premium). """
+    nome = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        verbose_name = "Tipo de Conta"
+        verbose_name_plural = "Tipos de Conta"
+
+    def __str__(self):
+        return self.nome
+
+
+class StatusSocial(models.Model):
+    """ Tabela de cadastro dos status sociais (ex: Aberto a amizades). """
+    nome = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = "Status Social"
+        verbose_name_plural = "Status Sociais"
+
+    def __str__(self):
+        return self.nome
+
 # --- Modelo de Aluno ---
 class Aluno(models.Model):
     """ Armazena dados específicos de usuários que são alunos. """
+    # --- DEFINIÇÃO DAS ESCOLHAS (CHOICES) ---
+    NIVEL_PRATICA_CHOICES = [
+        ('iniciante', 'Iniciante'),
+        ('intermediario', 'Intermediário'),
+        ('avancado', 'Avançado'),
+    ]
+
+    PERIODOS_CHOICES = [
+        ('manha', 'Manhã'),
+        ('tarde', 'Tarde'),
+        ('noite', 'Noite'),
+    ]
+
+    VIBE_CHOICES = [
+        ('sim', 'Sim'),
+        ('nao', 'Não'),
+        ('as_vezes', 'Às vezes'),
+    ]
+
+    SEXO_CHOICES = [
+        ('masculino', 'Masculino'),
+        ('feminino', 'Feminino'),
+        ('nao_informar', 'Prefiro não responder'),
+    ]
+
     # Ligação 1-para-1 com o Usuário. A PK do Aluno será a FK do Usuário.
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
 
-    afinidades = ArrayField(models.TextField(), null=True, blank=True)
-    horarios_preferidos = models.TextField(null=True, blank=True)
-    nivel_pratica = models.TextField(null=True, blank=True)
-    objetivos = models.TextField(null=True, blank=True)
-    vibe_after = models.TextField(null=True, blank=True)
+    # --- NOVOS CAMPOS DE RELAÇÃO (FK/M2M) ---
+    tipo_conta = models.ForeignKey(
+        TipoConta,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="Tipo de Conta"
+    )
+
+    preferencias_esporte = models.ManyToManyField(
+        'events.CategoriaEvento',
+        blank=True,
+        verbose_name="Preferências de Esporte"
+    )
+
+    status_social = models.ForeignKey(
+        StatusSocial,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        verbose_name="Status Social"
+    )
+
+    # --- CAMPOS MODIFICADOS (AGORA COM CHOICES) ---
+    periodos_preferidos = models.CharField(
+        max_length=20,
+        choices=PERIODOS_CHOICES,
+        null=True, blank=True,
+        verbose_name="Períodos Preferidos"
+    )
+
+    nivel_pratica = models.CharField(
+        max_length=20,
+        choices=NIVEL_PRATICA_CHOICES,
+        null=True, blank=True,
+        verbose_name="Nível de Prática"
+    )
+
+    vibe_after = models.ManyToManyField(
+        VibeAfterOpcao,
+        blank=True,
+        verbose_name="Como é o seu pós-treino?"
+    )
+
+    sexo = models.CharField(
+        max_length=20,
+        choices=SEXO_CHOICES,
+        null=True, blank=True,
+        verbose_name="Sexo"
+    )
+
+    estado = models.CharField(max_length=100, null=True, blank=True)
+    cidade = models.CharField(max_length=100, null=True, blank=True)
+    bairro = models.CharField(max_length=100, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -128,6 +239,7 @@ class Profissional(models.Model):
     """ Armazena dados específicos de usuários que são profissionais. """
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, primary_key=True)
     especialidade = models.TextField(null=True, blank=True)
+    num_conselho_classe = models.TextField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

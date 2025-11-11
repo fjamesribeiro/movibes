@@ -1,7 +1,12 @@
 from django.contrib import admin
-from .models import Usuario, Perfil, Aluno, Profissional
+from .models import Usuario, Perfil, Aluno, Profissional, UsuarioPerfil, TipoConta, \
+    StatusSocial, VibeAfterOpcao
 
 admin.site.register(Usuario)
 admin.site.register(Perfil)
+admin.site.register(UsuarioPerfil)
 admin.site.register(Aluno)
 admin.site.register(Profissional)
+admin.site.register(TipoConta)
+admin.site.register(StatusSocial)
+admin.site.register(VibeAfterOpcao)

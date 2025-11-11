@@ -5,131 +5,80 @@
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
   <div class="max-w-3xl mx-auto">
 
-    <!-- Header -->
     <div class="text-center mb-10">
-      <div class="inline-block p-3 bg-yellow-400 rounded-2xl mb-4">
-        <svg class="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-        </svg>
-      </div>
       <h1 class="text-4xl font-bold text-white mb-3">
-        Complete seu Perfil
+        Meu Perfil
       </h1>
       <p class="text-gray-400 text-lg">
-        Quase lá! Precisamos dos seus dados básicos e do seu perfil de aluno.
+        Veja e edite suas informações.
       </p>
-
-      <!-- Progress Bar -->
-      <div class="mt-6 max-w-md mx-auto">
-        <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
-          <span>Progresso</span>
-          <span>70%</span>
-        </div>
-        <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full" style="width: 70%"></div>
-        </div>
-      </div>
     </div>
 
     <form method="POST" class="space-y-6" enctype="multipart/form-data">
       {% csrf_token %}
 
-      {% if user_form.non_field_errors or profile_form.non_field_errors %}
-      <div class="bg-red-900/50 backdrop-blur border border-red-700 text-red-200 px-6 py-4 rounded-xl">
-        {% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-        {% for error in profile_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-      </div>
-      {% endif %}
-
-      <!-- Seção: Informações Pessoais -->
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">1</span>
           Informações Pessoais
         </h2>
 
-        <!-- Foto de Perfil -->
         <div class="mb-6">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ user_form.url_foto_perfil.label }}
           </label>
+          {% if user.url_foto_perfil %}
+          <div class="flex items-center space-x-4 mb-4">
+            <img src="{{ user.url_foto_perfil.url }}" alt="Foto atual" class="w-24 h-24 rounded-full object-cover border-4 border-gray-600">
+            <span class="text-gray-400 text-sm">Para alterar, envie uma nova foto abaixo:</span>
+          </div>
+          {% endif %}
           <div class="relative">
             {% render_field user_form.url_foto_perfil class="w-full p-4 bg-gray-700/50 border-2 border-dashed border-gray-600 rounded-xl text-white file:bg-yellow-400 file:border-0 file:text-gray-900 file:font-semibold file:py-2.5 file:px-5 file:rounded-lg file:cursor-pointer file:transition-all file:hover:bg-yellow-500 file:mr-4" %}
           </div>
-          {% if user_form.url_foto_perfil.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in user_form.url_foto_perfil.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Nome e Sobrenome -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label for="{{ user_form.first_name.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
               {{ user_form.first_name.label }} <span class="text-yellow-400">*</span>
             </label>
-            {% render_field user_form.first_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: James" %}
-            {% if user_form.first_name.errors %}
-            <div class="text-red-400 text-sm mt-2">
-              {% for error in user_form.first_name.errors %}{{ error }}{% endfor %}
-            </div>
-            {% endif %}
+            {% render_field user_form.first_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" %}
           </div>
-
           <div>
             <label for="{{ user_form.last_name.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
               {{ user_form.last_name.label }} <span class="text-yellow-400">*</span>
             </label>
-            {% render_field user_form.last_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: Ribeiro" %}
-            {% if user_form.last_name.errors %}
-            <div class="text-red-400 text-sm mt-2">
-              {% for error in user_form.last_name.errors %}{{ error }}{% endfor %}
-            </div>
-            {% endif %}
+            {% render_field user_form.last_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" %}
           </div>
         </div>
 
-        <!-- Bio -->
         <div class="mb-6">
           <label for="{{ user_form.bio_curta.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
             {{ user_form.bio_curta.label }}
-            <span class="text-gray-500 font-normal">(max 140 caracteres)</span>
           </label>
-          {% render_field user_form.bio_curta class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="3" placeholder="Fale um pouco sobre você..." %}
-          {% if user_form.bio_curta.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in user_form.bio_curta.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
+          {% render_field user_form.bio_curta class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="3" %}
         </div>
 
-        <!-- WhatsApp -->
         <div class="mb-6">
           <label for="{{ user_form.whatsapp.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
             {{ user_form.whatsapp.label }}
             <span class="text-gray-500 font-normal">(11 dígitos com DDD)</span>
           </label>
-          {% render_field user_form.whatsapp type="tel" id="id_whatsapp" maxlength="11" pattern="[0-9]{11}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="85999998888" %}
+          {% render_field user_form.whatsapp type="tel" id="id_whatsapp" maxlength="11" pattern="[0-9]{11}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" %}
           <p id="whatsapp_helper" class="text-xs text-gray-500 mt-1">Exemplo: 85999998888 (DDD + 9 dígitos)</p>
           <p id="whatsapp_feedback" class="text-sm mt-2 hidden"></p>
-          {% if user_form.whatsapp.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in user_form.whatsapp.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
       </div>
 
-      <!-- Seção: Perfil de Atleta -->
+
+      {% if profile_type == 'aluno' %}
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
           Perfil de Atleta
         </h2>
 
-        <!-- Sexo -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.sexo.label }}
@@ -144,14 +93,8 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.sexo.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.sexo.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Nível de Prática -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.nivel_pratica.label }}
@@ -166,14 +109,8 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.nivel_pratica.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.nivel_pratica.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Períodos Preferidos -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.periodos_preferidos.label }}
@@ -188,14 +125,8 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.periodos_preferidos.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.periodos_preferidos.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Vibe After -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.vibe_after.label }}
@@ -216,14 +147,8 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.vibe_after.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.vibe_after.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Status Social -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.status_social.label }}
@@ -238,14 +163,8 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.status_social.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.status_social.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
 
-        <!-- Preferências de Esporte -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.preferencias_esporte.label }}
@@ -266,15 +185,34 @@
             </label>
             {% endfor %}
           </div>
-          {% if profile_form.preferencias_esporte.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.preferencias_esporte.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
         </div>
       </div>
+      {% endif %}
 
-      <!-- Seção: Localização -->
+      {% if profile_type == 'profissional' %}
+      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
+          Perfil Profissional
+        </h2>
+
+        <div class="mb-6">
+          <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.especialidade.label }}
+          </label>
+          {% render_field profile_form.especialidade class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="5" %}
+        </div>
+
+        <div class="mb-6">
+          <label for="{{ profile_form.num_conselho_classe.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.num_conselho_classe.label }}
+          </label>
+          {% render_field profile_form.num_conselho_classe class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" %}
+        </div>
+      </div>
+      {% endif %}
+
+
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">3</span>
@@ -319,9 +257,8 @@
         </div>
       </div>
 
-      <!-- Botão de Submit -->
       <button type="submit" class="w-full cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-4 rounded-xl text-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl">
-        Salvar e Continuar →
+        Salvar Alterações
       </button>
     </form>
   </div>
@@ -366,67 +303,58 @@
   const cepInput = document.getElementById('cep_input');
   const statusSpan = document.getElementById('cep_status');
 
-  cepInput.addEventListener('input', function() {
-    const cleanedCep = this.value.replace(/\D/g, '');
+  if (cepInput) {
+    cepInput.addEventListener('input', function() {
+      const cleanedCep = this.value.replace(/\D/g, '');
 
-    if (cleanedCep.length !== 8) {
-      statusSpan.textContent = '';
-      return;
-    }
+      if (cleanedCep.length !== 8) {
+        statusSpan.textContent = '';
+        return;
+      }
 
-    statusSpan.textContent = 'Buscando CEP...';
-    statusSpan.className = 'text-sm text-gray-400 mt-2 block';
+      statusSpan.textContent = 'Buscando CEP...';
+      statusSpan.className = 'text-sm text-gray-400 mt-2 block';
 
-    fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.erro) {
-          statusSpan.textContent = 'CEP não encontrado.';
+      fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.erro) {
+            statusSpan.textContent = 'CEP não encontrado.';
+            statusSpan.className = 'text-sm text-red-400 mt-2 block';
+          } else {
+            document.getElementById('{{ profile_form.estado.id_for_label }}').value = data.uf;
+            document.getElementById('{{ profile_form.cidade.id_for_label }}').value = data.localidade;
+            document.getElementById('{{ profile_form.bairro.id_for_label }}').value = data.bairro;
+            statusSpan.textContent = 'Endereço preenchido!';
+            statusSpan.className = 'text-sm text-green-400 mt-2 block';
+          }
+        })
+        .catch(err => {
+          statusSpan.textContent = 'Erro ao buscar o CEP.';
           statusSpan.className = 'text-sm text-red-400 mt-2 block';
-        } else {
-          document.getElementById('{{ profile_form.estado.id_for_label }}').value = data.uf;
-          document.getElementById('{{ profile_form.cidade.id_for_label }}').value = data.localidade;
-          document.getElementById('{{ profile_form.bairro.id_for_label }}').value = data.bairro;
-          statusSpan.textContent = 'Endereço preenchido!';
-          statusSpan.className = 'text-sm text-green-400 mt-2 block';
-        }
-      })
-      .catch(err => {
-        statusSpan.textContent = 'Erro ao buscar o CEP.';
-        statusSpan.className = 'text-sm text-red-400 mt-2 block';
-      });
-  });
+        });
+    });
+  }
 
-  // Validação do WhatsApp - aceita apenas números e valida ao sair do campo
+  // Validação do WhatsApp
   const whatsappInput = document.getElementById('id_whatsapp');
   const whatsappFeedback = document.getElementById('whatsapp_feedback');
   const whatsappHelper = document.getElementById('whatsapp_helper');
 
   if (whatsappInput) {
-    // Durante a digitação: limpa caracteres não numéricos
     whatsappInput.addEventListener('input', function() {
-      // Remove tudo que não é número
       this.value = this.value.replace(/\D/g, '');
-
-      // Limita a 11 dígitos
       if (this.value.length > 11) {
         this.value = this.value.slice(0, 11);
       }
-
-      // Remove feedback anterior enquanto está digitando
       whatsappFeedback.classList.add('hidden');
       whatsappHelper.classList.remove('hidden');
-
-      // Remove a borda vermelha se estiver presente
       this.classList.remove('border-red-500', 'border-green-500');
       this.classList.add('border-gray-600');
     });
 
-    // Ao sair do campo: valida e mostra feedback
     whatsappInput.addEventListener('blur', function() {
       const value = this.value.trim();
-
-      // Se o campo estiver vazio, não mostra erro (assume que é opcional)
       if (value === '') {
         whatsappFeedback.classList.add('hidden');
         whatsappHelper.classList.remove('hidden');
@@ -434,30 +362,21 @@
         this.classList.add('border-gray-600');
         return;
       }
-
-      // Valida se tem exatamente 11 dígitos
       if (value.length !== 11) {
-        // Mostra mensagem de erro
         whatsappFeedback.textContent = `❌ O WhatsApp deve ter 11 dígitos (você digitou ${value.length})`;
         whatsappFeedback.className = 'text-sm mt-2 text-red-400 block';
         whatsappHelper.classList.add('hidden');
-
-        // Adiciona borda vermelha
         this.classList.remove('border-gray-600', 'border-green-500');
         this.classList.add('border-red-500');
       } else {
-        // Mostra mensagem de sucesso
         whatsappFeedback.textContent = '✓ WhatsApp válido!';
         whatsappFeedback.className = 'text-sm mt-2 text-green-400 block';
         whatsappHelper.classList.add('hidden');
-
-        // Adiciona borda verde
         this.classList.remove('border-gray-600', 'border-red-500');
         this.classList.add('border-green-500');
       }
     });
 
-    // Ao focar no campo novamente: remove o feedback de sucesso/erro
     whatsappInput.addEventListener('focus', function() {
       if (this.value.length === 11) {
         whatsappFeedback.classList.add('hidden');

@@ -1,10 +1,10 @@
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Evento, Inscricao, Aluno, CategoriaEvento
+from .models import Evento, Inscricao, CategoriaEvento
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from .forms import EventoForm
-
+from apps.users.models import Aluno
 
 def homepage(request):
     # Buscar todas as categorias com contagem de eventos

@@ -40,6 +40,7 @@ def complete_aluno_profile(request):
             profile_form.save()
             request.user.cadastro_completo = True
             request.user.save()
+            messages.success(request, 'Seu perfil foi salvo! Bem-vindo(a) ao Movibes.')
             return redirect('home')
     else:
         user_form = UsuarioProfileForm(instance=request.user)
@@ -67,6 +68,7 @@ def complete_profissional_profile(request):
             profile_form.save()
             request.user.cadastro_completo = True
             request.user.save()
+            messages.success(request, 'Seu perfil foi salvo! Bem-vindo(a) ao Movibes.')
             return redirect('home')
     else:
         user_form = UsuarioProfileForm(instance=request.user)

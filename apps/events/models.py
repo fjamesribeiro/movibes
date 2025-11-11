@@ -1,5 +1,5 @@
 from django.db import models
-from apps.users.models import Usuario, Aluno  # Importa nossos modelos de usuário
+from django.conf import settings
 
 
 class CategoriaEvento(models.Model):
@@ -38,7 +38,7 @@ class Evento(models.Model):
     )
 
     # Chave estrangeira para o Usuário (aluno ou profissional) que criou.
-    id_criador = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, related_name='eventos_criados')
+    id_criador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -54,7 +54,8 @@ class Evento(models.Model):
 # --- Modelo de Inscrições ---
 class Inscricao(models.Model):
     """ Tabela de ligação que registra a inscrição de um aluno em um evento. """
-    id_aluno = models.ForeignKey(Aluno, on_delete=models.CASCADE, related_name='inscricoes')
+    id_aluno = models.ForeignKey('users.Aluno', on_delete=models.CASCADE, related_name='inscricoes')
+
     id_evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='inscricoes')
 
     testemunho = models.TextField(null=True, blank=True)
