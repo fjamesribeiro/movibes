@@ -1,0 +1,39 @@
+name: 🚀 Deploy Movibes para VPS
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # Adiciona botão manual no GitHub
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🚀 Deploy via SSH
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USER }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        port: ${{ secrets.VPS_PORT }}
+        script: |
+          cd /var/www/api/movibes
+          
+          # Executa o script de deploy que você já usa
+          bash deploy.sh
+          
+          echo "✅ Deploy concluído com sucesso!"
+          echo "🌐 Aplicação disponível em: https://movibes.linexa.com.br"
+    
+    - name: ✅ Notificar sucesso
+      if: success()
+      run: |
+        echo "🎉 Deploy realizado com sucesso!"
+        echo "Commit: ${{ github.event.head_commit.message }}"
+        echo "Por: ${{ github.event.head_commit.author.name }}"
+    
+    - name: ❌ Notificar falha
+      if: failure()
+      run: |
+        echo "❌ Deploy falhou! Verifique os logs."
