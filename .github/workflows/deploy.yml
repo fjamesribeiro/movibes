@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: 🚀 Deploy via SSH
       uses: appleboy/ssh-action@v1.0.0
@@ -17,23 +17,41 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         key: ${{ secrets.VPS_SSH_KEY }}
         port: ${{ secrets.VPS_PORT }}
+        timeout: 300s # <-- Mantenha o timeout que corrigimos!
+
         script: |
           cd /var/www/api/movibes
-          
-          # Executa o script de deploy que você já usa
           bash deploy.sh
-          
-          echo "✅ Deploy concluído com sucesso!"
-          echo "🌐 Aplicação disponível em: https://movibes.linexa.com.br"
-    
+
     - name: ✅ Notificar sucesso
       if: success()
-      run: |
-        echo "🎉 Deploy realizado com sucesso!"
-        echo "Commit: ${{ github.event.head_commit.message }}"
-        echo "Por: ${{ github.event.head_commit.author.name }}"
-    
+      uses: appleboy/telegram-action@v0.1.1
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        format: markdown
+        message: |
+          🎉 *Deploy Concluído com Sucesso!*
+
+          🚀 **Projeto:** Movibes
+          👤 **Autor:** ${{ github.event.head_commit.author.name }}
+
+          *Commit:*
+          ${{ github.event.head_commit.message }}
+
+          🌐 *Aplicação disponível em:* https://movibes.linexa.com.br
+
     - name: ❌ Notificar falha
       if: failure()
-      run: |
-        echo "❌ Deploy falhou! Verifique os logs."
+      uses: appleboy/telegram-action@v0.1.1
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        format: markdown
+        message: |
+          ❌ *ERRO NO DEPLOY!*
+
+          O deploy do projeto *Movibes* falhou.
+
+          Verifique os logs na página da Action:
+          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
