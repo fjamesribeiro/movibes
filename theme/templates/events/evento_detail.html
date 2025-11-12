@@ -2,103 +2,260 @@
 {% load static %}
 
 {% block content %}
+
+<!-- Modal para visualizar foto em tamanho grande -->
+<div id="photoModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onclick="closeModal()">
+    <button onclick="closeModal()" class="absolute top-4 right-4 text-white hover:text-yellow-400 transition-colors">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+    </button>
+    <img id="modalImage" src="" alt="" class="max-w-full max-h-[90vh] object-contain rounded-lg" onclick="event.stopPropagation()">
+    <div id="modalCaption" class="absolute bottom-8 left-0 right-0 text-center text-white text-lg px-4"></div>
+</div>
+
+<script>
+function openModal(imageSrc, caption) {
+    document.getElementById('photoModal').classList.remove('hidden');
+    document.getElementById('modalImage').src = imageSrc;
+    document.getElementById('modalCaption').textContent = caption || '';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('photoModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Fechar modal com ESC
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
-    <div class="max-w-4xl mx-auto">
+    <div class="max-w-6xl mx-auto">
 
-        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl shadow-xl overflow-hidden">
+        <!-- Card Principal do Evento -->
+        <div class="bg-gray-800/40 backdrop-blur-xl border border-gray-700/50 rounded-3xl shadow-2xl overflow-hidden">
 
-            <div class="h-64 md:h-80 bg-cover bg-center" style="background-image: url('{% if evento.foto_principal %}{{ evento.foto_principal.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}')">
+            <!-- Imagem de Capa -->
+            <div class="relative h-72 md:h-96 bg-cover bg-center" style="background-image: url('{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}')">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/50 to-transparent"></div>
+
+                <!-- Badge de Status -->
+                <div class="absolute top-6 right-6">
+                    {% if evento.status %}
+                    <span class="bg-green-500/90 backdrop-blur text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
+                        {{ evento.status }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <!-- Badge de Categoria -->
+                <div class="absolute bottom-6 left-6">
+                    {% if evento.categoria %}
+                    <span class="bg-yellow-400/95 backdrop-blur text-black text-sm font-bold px-4 py-2 rounded-full uppercase tracking-wide shadow-lg">
+                        {{ evento.categoria.icone }} {{ evento.categoria.nome }}
+                    </span>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="p-8">
-                <span class="bg-yellow-400 text-black text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
-                    {{ evento.categoria.icone }} {{ evento.categoria.nome }}
-                </span>
-                <h1 class="text-4xl font-bold text-white mt-4 mb-3">
-                    {{ evento.titulo }}
+            <!-- Conteúdo Principal -->
+            <div class="p-8 md:p-12">
+
+                <!-- Título -->
+                <h1 class="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                    {{ evento.nome_evento }}
                 </h1>
 
-                <div class="flex flex-wrap gap-x-6 gap-y-2 text-gray-300 text-lg mb-6">
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
-                        {{ evento.data_e_hora|date:"d/m/Y \à\s H:i" }}
+                <!-- Grid de Informações Principais -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+                    <!-- Data e Hora -->
+                    {% if evento.data_e_hora %}
+                    <div class="bg-gray-700/30 backdrop-blur rounded-xl p-4 border border-gray-600/50">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-400 text-sm font-medium">Data & Hora</span>
+                        </div>
+                        <p class="text-white font-semibold">{{ evento.data_e_hora|date:"d/m/Y" }}</p>
+                        <p class="text-gray-300 text-sm">{{ evento.data_e_hora|date:"H:i" }}</p>
                     </div>
-                    <div class="flex items-center">
-                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
-                        {{ evento.localizacao }}
+                    {% endif %}
+
+                    <!-- Localização -->
+                    {% if evento.localizacao_cidade %}
+                    <div class="bg-gray-700/30 backdrop-blur rounded-xl p-4 border border-gray-600/50">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-400 text-sm font-medium">Localização</span>
+                        </div>
+                        <p class="text-white font-semibold">{{ evento.localizacao_cidade }}</p>
+                        {% if evento.localizacao_bairro_endereco %}
+                        <p class="text-gray-300 text-sm line-clamp-1">{{ evento.localizacao_bairro_endereco }}</p>
+                        {% endif %}
                     </div>
+                    {% endif %}
+
+                    <!-- Preço -->
+                    {% if evento.preco %}
+                    <div class="bg-gray-700/30 backdrop-blur rounded-xl p-4 border border-gray-600/50">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"></path>
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-gray-400 text-sm font-medium">Investimento</span>
+                        </div>
+                        <p class="text-white font-bold text-xl">R$ {{ evento.preco }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Vagas -->
+                    {% if evento.vagas_restantes is not None %}
+                    <div class="bg-gray-700/30 backdrop-blur rounded-xl p-4 border border-gray-600/50">
+                        <div class="flex items-center mb-2">
+                            <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+                            </svg>
+                            <span class="text-gray-400 text-sm font-medium">Vagas</span>
+                        </div>
+                        <p class="text-white font-semibold">{{ evento.vagas_restantes }} disponíveis</p>
+                        {% if evento.participantes_confirmados %}
+                        <p class="text-gray-300 text-sm">{{ evento.participantes_confirmados }} confirmados</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
                 </div>
 
-                <h2 class="text-2xl font-bold text-white mb-4">Sobre o Evento</h2>
-                <div class="prose prose-invert max-w-none text-gray-300 text-lg">
-                    {{ evento.descricao|linebreaks }}
+                <!-- Descrição -->
+                {% if evento.descricao_do_evento %}
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-4 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        Sobre o Evento
+                    </h2>
+                    <div class="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed bg-gray-700/20 rounded-xl p-6 border border-gray-600/30">
+                        {{ evento.descricao_do_evento|linebreaks }}
+                    </div>
                 </div>
+                {% endif %}
 
                 <hr class="border-gray-700 my-8">
 
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-gray-400 text-xs">Organizado por</p>
-                        <a href="{% url 'public_profile' evento.id_criador.id %}" class="block group">
-                            <p class="text-white text-lg font-semibold group-hover:text-yellow-400 transition-colors">
-                                {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
-                            </p>
-                        </a>
-                        {% if evento.id_criador.profissional %}
-                            <p class="text-xs text-yellow-400 font-medium mt-0.5">Evento profissional</p>
-                        {% elif evento.id_criador.aluno %}
-                            <p class="text-xs text-gray-400 mt-0.5">Evento criado por aluno</p>
-                        {% endif %}
+                <!-- Organizador -->
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 bg-gray-700/30 rounded-xl p-6 border border-gray-600/50">
+                    <div class="flex items-center gap-4">
+                        <img src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                             alt="{{ evento.id_criador.first_name }}"
+                             class="w-20 h-20 rounded-full object-cover border-4 border-yellow-400 shadow-lg">
+                        <div>
+                            <p class="text-gray-400 text-xs uppercase tracking-wide mb-1">Organizado por</p>
+                            <a href="{% url 'public_profile' evento.id_criador.id %}" class="block group">
+                                <p class="text-white text-xl font-bold group-hover:text-yellow-400 transition-colors">
+                                    {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
+                                </p>
+                            </a>
+                            {% if evento.id_criador.profissional %}
+                                <span class="inline-block text-xs text-yellow-400 font-medium mt-1 bg-yellow-400/10 px-2 py-1 rounded">
+                                    ⭐ Evento Profissional
+                                </span>
+                            {% elif evento.id_criador.aluno %}
+                                <span class="inline-block text-xs text-gray-400 mt-1 bg-gray-600/30 px-2 py-1 rounded">
+                                    👤 Evento Comunitário
+                                </span>
+                            {% endif %}
+                        </div>
                     </div>
-                    <img src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
-                         alt="{{ evento.id_criador.first_name }}"
-                         class="w-16 h-16 rounded-full object-cover border-2 border-yellow-400">
+
+                    <!-- Link de Pagamento -->
+                    {% if evento.link_pagamento %}
+                    <a href="{{ evento.link_pagamento }}" target="_blank"
+                       class="inline-block bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-3 rounded-xl hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-105 transition-all shadow-lg">
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            Link de Pagamento
+                        </span>
+                    </a>
+                    {% endif %}
                 </div>
+
             </div>
 
-            <div class="bg-gray-900/50 p-6 pt-4" id="subscribe-button-{{ evento.id }}">
+            <!-- Botão de Inscrição -->
+            <div class="bg-gray-900/60 backdrop-blur p-6" id="subscribe-button-{{ evento.id }}">
                 {% include "partials/subscribe_button.html" with evento=evento is_subscribed=is_subscribed %}
             </div>
 
         </div>
+
+        <!-- Galeria de Fotos (se o evento já passou) -->
         {% if is_past %}
-        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl mt-8">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold text-white">Galeria do Evento</h2>
+        <div class="bg-gray-800/40 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-8 md:p-12 shadow-2xl mt-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                <h2 class="text-3xl font-bold text-white flex items-center">
+                    <svg class="w-8 h-8 mr-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                    </svg>
+                    Galeria do Evento
+                </h2>
 
                 {% if evento.id_criador == request.user %}
                     <a href="{% url 'account_galeria_evento' evento.id %}"
-                       class="inline-block cursor-pointer bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-xl text-sm hover:bg-yellow-500 transform hover:scale-[1.02] transition-all shadow-lg">
-                        Gerenciar Galeria
+                       class="inline-block bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-xl hover:bg-yellow-500 transform hover:scale-105 transition-all shadow-lg">
+                        <span class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                            </svg>
+                            Gerenciar Galeria
+                        </span>
                     </a>
                 {% endif %}
             </div>
 
             {% if fotos_galeria %}
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {% for foto in fotos_galeria %}
-                    <div class="relative group">
+                    <div class="relative group overflow-hidden rounded-xl cursor-pointer" onclick="openModal('{{ foto.imagem.url }}', '{{ foto.legenda|default:""|escapejs }}')">
                         <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda|default:'Foto do evento' }}"
-                             class="w-full h-48 object-cover rounded-lg shadow-lg">
+                             class="w-full h-56 object-cover transform group-hover:scale-110 transition-transform duration-300">
 
-                        {% if foto.legenda or foto.usuario %}
-                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-end p-3">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                             {% if foto.legenda %}
-                                <p class="text-white text-sm line-clamp-2">{{ foto.legenda }}</p>
+                                <p class="text-white text-sm font-medium line-clamp-2 mb-1">{{ foto.legenda }}</p>
                             {% endif %}
                             {% if foto.usuario %}
-                                <p class="text-xs text-gray-300 mt-1">Por: {{ foto.usuario.first_name }}</p>
+                                <p class="text-xs text-gray-300">📸 {{ foto.usuario.first_name }}</p>
                             {% endif %}
                         </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-gray-400 text-center">Nenhuma foto foi enviada para este evento ainda.</p>
+                <div class="text-center py-12">
+                    <svg class="w-16 h-16 mx-auto text-gray-600 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                    </svg>
+                    <p class="text-gray-400 text-lg">Nenhuma foto foi enviada para este evento ainda.</p>
+                </div>
             {% endif %}
         </div>
         {% endif %}
-        </div>
+
+    </div>
 </div>
 {% endblock %}
