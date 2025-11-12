@@ -1,9 +1,9 @@
-from django.http import HttpRequest, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm
-from .models import Aluno, Profissional, Perfil
+from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm, \
+    FotoUsuarioForm
+from .models import Aluno, Profissional, Perfil, Usuario
 from django.contrib import messages
 
 
@@ -160,3 +160,58 @@ def profile_view(request):
     }
 
     return render(request, 'account/profile.html', context)
+
+
+@login_required
+def gerenciar_galeria(request):
+    if request.method == 'POST':
+        form = FotoUsuarioForm(request.POST, request.FILES)
+        if form.is_valid():
+            foto = form.save(commit=False)
+            foto.usuario = request.user
+            foto.save()
+            messages.success(request, 'Foto adicionada com sucesso!')
+
+            # --- CORRIGIDO AQUI ---
+            return redirect('account_galeria')
+    else:
+        form = FotoUsuarioForm()
+
+    # Pega todas as fotos do usuário para listar na galeria
+    fotos_do_usuario = request.user.galeria.all()
+
+    return render(request, 'account/galeria.html', {
+        'form': form,
+        'fotos': fotos_do_usuario
+    })
+
+
+def public_profile_view(request, usuario_id):
+    """
+    Mostra a página de perfil público (somente leitura)
+    de qualquer usuário (Aluno ou Profissional).
+    """
+    # 1. Busca o usuário pelo ID da URL. Se não encontrar, dá erro 404.
+    usuario = get_object_or_404(Usuario, pk=usuario_id)
+
+    # 2. Inicializa variáveis
+    profile_type = None
+    fotos_galeria = None
+
+    # 3. Descobre se é Aluno ou Profissional e busca dados
+    if hasattr(usuario, 'aluno'):
+        profile_type = 'aluno'
+        # Busca todas as fotos da galeria deste aluno
+        fotos_galeria = usuario.galeria.all()  #
+    elif hasattr(usuario, 'profissional'):
+        profile_type = 'profissional'
+        # Profissionais (por enquanto) não têm galeria
+
+    context = {
+        'perfil_usuario': usuario,  # O usuário que estamos vendo (ex: Jônatas)
+        'profile_type': profile_type,  # 'aluno' ou 'profissional'
+        'fotos_galeria': fotos_galeria,  # A lista de fotos da galeria
+    }
+
+    # 4. Renderiza um NOVO template
+    return render(request, 'account/public_profile.html', context)

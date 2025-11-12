@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+
+            <div class="flex flex-col items-center md:flex-row md:items-start text-center md:text-left">
+                <img src="{% if perfil_usuario.url_foto_perfil %}{{ perfil_usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                     alt="{{ perfil_usuario.first_name }}"
+                     class="w-32 h-32 rounded-full object-cover border-4 border-yellow-400 shadow-lg md:mr-8 mb-4 md:mb-0">
+
+                <div class="flex-1">
+                    <h1 class="text-4xl font-bold text-white mb-2">
+                        {{ perfil_usuario.first_name }} {{ perfil_usuario.last_name }}
+                    </h1>
+
+                    {% if profile_type == 'profissional' %}
+                        <p class="text-yellow-400 font-semibold text-lg mb-3">Profissional da Movibes</p>
+                    {% elif profile_type == 'aluno' %}
+                        <p class="text-blue-400 font-semibold text-lg mb-3">Aluno da Movibes</p>
+                    {% endif %}
+
+                    <p class="text-gray-300 text-lg leading-relaxed">
+                        {{ perfil_usuario.bio_curta|default:"Este usuário ainda não escreveu uma bio." }}
+                    </p>
+                </div>
+            </div>
+
+            <hr class="border-gray-700 my-8">
+
+            {% if profile_type == 'aluno' %}
+
+                <div class="mb-8">
+                    <h2 class="text-2xl font-bold text-white mb-6">Detalhes do Atleta</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
+                            <span class="text-sm text-gray-400">Nível</span>
+                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.get_nivel_pratica_display|default:"Não informado" }}</p>
+                        </div>
+                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
+                            <span class="text-sm text-gray-400">Período</span>
+                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.get_periodos_preferidos_display|default:"Não informado" }}</p>
+                        </div>
+                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
+                            <span class="text-sm text-gray-400">Status</span>
+                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.status_social.nome|default:"Não informado" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-6">Galeria de Fotos</h2>
+                    {% if fotos_galeria %}
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            {% for foto in fotos_galeria %}
+                            <div class="relative group">
+                                <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda|default:'Foto da galeria' }}"
+                                     class="w-full h-48 object-cover rounded-lg shadow-lg">
+                                {% if foto.legenda %}
+                                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-end p-3">
+                                    <p class="text-white text-sm line-clamp-2">{{ foto.legenda }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-gray-400 text-center">Este aluno ainda não adicionou fotos à galeria.</p>
+                    {% endif %}
+                </div>
+
+            {% elif profile_type == 'profissional' %}
+                <div>
+                    <h2 class="text-2xl font-bold text-white mb-6">Informações Profissionais</h2>
+
+                    <div class="bg-gray-700/50 p-6 rounded-xl">
+                        <h3 class="text-lg font-semibold text-yellow-400 mb-2">Especialidade</h3>
+                        <p class="text-gray-300 whitespace-pre-line">{{ perfil_usuario.profissional.especialidade }}</p>
+
+                        <hr class="border-gray-600 my-4">
+
+                        <h3 class="text-lg font-semibold text-yellow-400 mb-2">Nº Conselho de classe</h3>
+                        <p class="text-gray-300">{{ perfil_usuario.profissional.num_conselho_classe }}</p>
+                    </div>
+                </div>
+            {% endif %}
+
+        </div> </div>
+</div>
+{% endblock %}

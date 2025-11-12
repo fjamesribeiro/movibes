@@ -34,7 +34,7 @@ jobs:
           🎉 *Deploy Concluído com Sucesso!*
 
           🚀 **Projeto:** Movibes
-          👤 **Autor:** ${{ github.event.head_commit.author.name }}
+          👤 **Autor:** James Ribeiro
 
           *Commit:*
           ${{ github.event.head_commit.message }}

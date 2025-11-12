@@ -71,12 +71,20 @@
         </div>
       </div>
 
+      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl text-center">
+          <h2 class="text-2xl font-bold text-white mb-4">Minha Galeria</h2>
+          <p class="text-gray-400 mb-6">Adicione e gerencie as fotos que aparecem no seu perfil.</p>
+          <a href="{% url 'account_galeria' %}"
+             class="inline-block cursor-pointer bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-xl text-base hover:bg-yellow-500 transform hover:scale-[1.02] transition-all shadow-lg">
+              Gerenciar Galeria
+          </a>
+      </div>
 
       {% if profile_type == 'aluno' %}
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
-          Perfil de Atleta
+          Perfil de Aluno
         </h2>
 
         <div class="mb-8">

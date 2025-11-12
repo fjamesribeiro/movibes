@@ -1,6 +1,9 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from PIL import Image
+import io
+from django.core.files.base import ContentFile
+from django.conf import settings
 from django.db import models
-
 
 # --- 1. ADICIONE ESTE NOVO MODELO (TABELA) ---
 class VibeAfterOpcao(models.Model):
@@ -101,6 +104,55 @@ class Usuario(AbstractUser):
     def __str__(self):
         return self.email
 
+
+class FotoUsuario(models.Model):
+    # Vincula esta foto ao modelo de Usuário principal do seu projeto
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="galeria"  # Assim você pode fazer: request.user.galeria.all()
+    )
+
+    # O campo para a imagem
+    imagem = models.ImageField(
+        upload_to='galerias_usuarios/%Y/%m/%d/',
+        help_text="Foto da galeria do usuário"
+    )
+
+    legenda = models.CharField(max_length=255, blank=True, null=True)
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Foto da Galeria"
+        verbose_name_plural = "Fotos da Galeria"
+        ordering = ['-data_upload']  # Mais nova primeiro
+
+    def save(self, *args, **kwargs):
+        # Se for uma imagem nova, redimensiona
+        if self.pk is None and self.imagem:
+            # Abrir a imagem em memória
+            img = Image.open(self.imagem)
+
+            # Definir tamanho máximo (ex: 1920px de largura)
+            max_width = 1920
+            if img.width > max_width:
+                # Calcular a nova altura mantendo a proporção
+                new_height = int((max_width / img.width) * img.height)
+                img = img.resize((max_width, new_height),
+                                 Image.LANCZOS)  # Usa um algoritmo de alta qualidade
+
+            # Salvar a imagem otimizada de volta no campo
+            img_io = io.BytesIO()
+            img.save(img_io, format='JPEG',
+                     quality=85)  # Salva como JPEG com 85% de qualidade
+
+            # Reescreve o 'self.imagem' com a versão otimizada
+            self.imagem.file = ContentFile(img_io.getvalue(), name=self.imagem.name)
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"Foto de {self.usuario.username} - {self.data_upload.strftime('%d/%m/%Y')}"
 
 # --- Tabela de Ligação Usuário-Perfil (RBAC) ---
 class UsuarioPerfil(models.Model):

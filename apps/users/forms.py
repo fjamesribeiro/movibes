@@ -1,5 +1,5 @@
 from django import forms
-from .models import Aluno, Profissional, Usuario, VibeAfterOpcao
+from .models import Aluno, Profissional, Usuario, VibeAfterOpcao, FotoUsuario
 from ..events.models import CategoriaEvento
 
 
@@ -104,4 +104,16 @@ class ProfissionalProfileForm(forms.ModelForm):
         ]
         labels = {
             'num_conselho_classe': 'Nº Conselho de classe',
+        }
+
+class FotoUsuarioForm(forms.ModelForm):
+    """
+    Formulário para fazer upload de uma nova foto para a galeria.
+    """
+    class Meta:
+        model = FotoUsuario
+        fields = ['imagem', 'legenda'] # O 'usuario' será definido na view
+        labels = {
+            'imagem': 'Nova Foto',
+            'legenda': 'Legenda (opcional)',
         }
