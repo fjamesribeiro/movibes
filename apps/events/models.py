@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 
+from apps.users.models import ImageResizingMixin
+
 
 class CategoriaEvento(models.Model):
     """ Tabela de cadastro das categorias (ex: Corrida, Yoga, Vôlei). """
@@ -75,3 +77,42 @@ class Inscricao(models.Model):
 
     def __str__(self):
         return f"{self.id_aluno} @ {self.id_evento}"
+
+
+class FotoEvento(ImageResizingMixin, models.Model):
+    """
+    Armazena uma foto da galeria de um Evento,
+    enviada por um usuário.
+    Reutiliza o ImageResizingMixin para otimização.
+    """
+    # Relacionamentos
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE,
+        related_name="galeria"
+    )
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="fotos_enviadas_evento"
+    )
+
+    # Campos da Foto
+    imagem = models.ImageField(upload_to='event_gallery/')
+    legenda = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Foto de Evento"
+        verbose_name_plural = "Fotos de Eventos"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Foto de {self.evento.titulo} por {self.usuario.first_name}"
+
+    def save(self, *args, **kwargs):
+        # Chama a função de redimensionamento do Mixin
+        if self.imagem:
+            self.imagem = self.resize_image(self.imagem)
+        super().save(*args, **kwargs)

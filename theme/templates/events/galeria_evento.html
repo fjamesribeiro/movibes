@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-white mb-3">
+                Galeria do Evento
+            </h1>
+            <p class="text-gray-400 text-lg">
+                Fotos do evento: {{ evento.titulo }}
+            </p>
+        </div>
+
+        {% if is_creator %}
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl mb-8">
+            <h2 class="text-2xl font-bold text-white mb-6">Adicionar Nova Foto</h2>
+            <p class="text-gray-400 mb-6 -mt-4">Como criador do evento, você pode adicionar fotos à galeria.</p>
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-semibold text-gray-300 mb-3">{{ form.imagem.label }}</label>
+                    <div class="relative">
+                        {% render_field form.imagem class="w-full p-4 bg-gray-700/50 border-2 border-dashed border-gray-600 rounded-xl text-white file:bg-yellow-400 file:border-0 file:text-gray-900 file:font-semibold file:py-2.5 file:px-5 file:rounded-lg file:cursor-pointer file:transition-all file:hover:bg-yellow-500 file:mr-4" %}
+                    </div>
+                </div>
+                <div>
+                    <label for="{{ form.legenda.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">{{ form.legenda.label }}</slabel>
+                    {% render_field form.legenda class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="2" placeholder="Descreva a foto..." %}
+                </div>
+                <button type="submit" class="w-full cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-4 rounded-xl text-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl">
+                    Adicionar à Galeria
+                </button>
+            </form>
+        </div>
+        {% endif %}
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+            <h2 class="text-2xl font-bold text-white mb-6">Fotos do Evento</h2>
+            {% if not fotos %}
+                <p class="text-gray-400 text-center">Nenhuma foto foi enviada para este evento ainda.</p>
+            {% else %}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for foto in fotos %}
+                    <div class="relative group">
+                        <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda|default:'Foto do evento' }}"
+                             class="w-full h-48 object-cover rounded-lg shadow-lg">
+
+                        {% if foto.legenda or foto.usuario %}
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-end p-3">
+                            {% if foto.legenda %}
+                                <p class="text-white text-sm line-clamp-2">{{ foto.legenda }}</p>
+                            {% endif %}
+                            {% if foto.usuario %}
+                                <p class="text-xs text-gray-300 mt-1">Por: {{ foto.usuario.first_name }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

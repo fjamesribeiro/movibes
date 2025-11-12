@@ -2,7 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.events.views import home, subscribe_to_event, create_event
+from apps.events.views import home, subscribe_to_event, create_event, \
+    gerenciar_galeria_evento, evento_detail_view
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
     set_profile_type, profile_view, gerenciar_galeria, public_profile_view
 
@@ -18,6 +19,8 @@ urlpatterns = [
     path('subscribe-event/<int:event_id>/', subscribe_to_event, name='subscribe_event'),
     path('events/create/', create_event, name='create_event'),
     path('perfil/<int:usuario_id>/', public_profile_view, name='public_profile'),
+    path('evento/<int:evento_id>/galeria/', gerenciar_galeria_evento, name='account_galeria_evento'),
+    path('evento/<int:evento_id>/', evento_detail_view, name='evento_detail'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -24,20 +24,20 @@
   <div
     class="bg-[#1F2937] rounded-xl shadow-xl overflow-hidden flex flex-col justify-between hover:transform hover:scale-[1.02] transition-all duration-300 hover:shadow-2xl border border-gray-700/50">
 
-    <!-- Imagem com overlays -->
+    <!-- Imagem -->
     <div class="relative h-56 overflow-hidden">
-      <img
-        src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
-        alt="{{ evento.nome_evento }}"
-        class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500">
-
-      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+      <a href="{% url 'evento_detail' evento.id %}">
+        <img
+          src="{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}"
+          alt="{{ evento.nome_evento }}"
+          class="w-full h-full object-cover transform hover:scale-110 transition-transform duration-500">
+      </a>
 
       {% if evento.categoria %}
       <span
         class="absolute top-4 left-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wide">
-                {{ evento.categoria.nome }}
-            </span>
+    {{ evento.categoria.nome }}
+  </span>
       {% endif %}
 
       {% if evento.data_e_hora %}
@@ -51,10 +51,12 @@
 
     <!-- Conteúdo -->
     <div class="p-6 flex-grow">
-      <h4 class="text-xl font-bold mb-3 text-white leading-tight line-clamp-2">
-        {{ evento.nome_evento }}
-      </h4>
-
+      <a href="{% url 'evento_detail' evento.id %}" class="block group">
+        <h4
+          class="text-xl font-bold mb-3 text-white leading-tight line-clamp-2 group-hover:text-yellow-400 transition-colors">
+          {{ evento.nome_evento }}
+        </h4>
+      </a>
       {% if evento.descricao_do_evento %}
       <p class="text-sm text-gray-400 mb-4 line-clamp-2">
         {{ evento.descricao_do_evento }}
@@ -129,19 +131,19 @@
             src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
             alt="{{ evento.id_criador.first_name }}"
             class="w-10 h-10 rounded-full mr-3 object-cover border-2 border-yellow-400 shadow-lg">
-            <div>
-              <p class="text-gray-400 text-xs">Organizado por</p>
-              <a href="{% url 'public_profile' evento.id_criador.id %}" class="block group">
-                  <p class="text-white font-semibold group-hover:text-yellow-400 transition-colors">
-                      {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
-                  </p>
-              </a>
-              {% if evento.id_criador.profissional %}
-                  <p class="text-xs text-yellow-400 font-medium mt-0.5">Evento profissional</p>
-              {% elif evento.id_criador.aluno %}
-                  <p class="text-xs text-gray-400 mt-0.5">Evento criado por aluno</p>
-              {% endif %}
-            </div>
+          <div>
+            <p class="text-gray-400 text-xs">Organizado por</p>
+            <a href="{% url 'public_profile' evento.id_criador.id %}" class="block group">
+              <p class="text-white font-semibold group-hover:text-yellow-400 transition-colors">
+                {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
+              </p>
+            </a>
+            {% if evento.id_criador.profissional %}
+            <p class="text-xs text-yellow-400 font-medium mt-0.5">Evento profissional</p>
+            {% elif evento.id_criador.aluno %}
+            <p class="text-xs text-gray-400 mt-0.5">Evento criado por aluno</p>
+            {% endif %}
+          </div>
 
         </div>
       </div>
@@ -197,32 +199,32 @@
         </a>
         {% endif %}
       </div>
-      </div>
     </div>
-    {% endfor %}
   </div>
-  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
 
-  <style>
-    .line-clamp-1 {
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+<style>
+  .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+  }
 
-    .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
+  .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+  }
 
-    .htmx-indicator {
-        display: none;
-    }
+  .htmx-indicator {
+      display: none;
+  }
 
-    .htmx-request .htmx-indicator {
-        display: flex;
-    }
-  </style>
+  .htmx-request .htmx-indicator {
+      display: flex;
+  }
+</style>

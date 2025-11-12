@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Evento, Inscricao, CategoriaEvento
+from .models import Evento, Inscricao, CategoriaEvento, FotoEvento
 
 
 @admin.register(CategoriaEvento)
@@ -26,3 +26,5 @@ class InscricaoAdmin(admin.ModelAdmin):
     list_display = ['id_aluno', 'id_evento', 'created_at']
     list_filter = ['created_at']
     search_fields = ['id_aluno__usuario__email', 'id_evento__nome_evento']
+
+admin.site.register(FotoEvento)

@@ -1,12 +1,13 @@
 from datetime import datetime, timedelta
-
+from django.utils import timezone
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Evento, Inscricao, CategoriaEvento
+from .models import Evento, Inscricao, CategoriaEvento, FotoEvento
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
-from .forms import EventoForm
+from .forms import EventoForm, FotoEventoForm
 from apps.users.models import Aluno
+from django.contrib import messages
 
 
 def home(request):
@@ -159,3 +160,82 @@ def create_event(request):
 
     # Vamos criar este template no próximo passo
     return render(request, 'events/create_event.html', {'form': form})
+
+
+def evento_detail_view(request, evento_id):
+    """
+    Mostra a página de detalhes de um evento específico.
+    """
+    evento = get_object_or_404(Evento, pk=evento_id)
+
+    # 1. Verifica se o evento já passou
+    is_past = evento.data_e_hora < timezone.now()
+
+    # 2. Se já passou, busca as fotos da galeria
+    fotos_galeria = []
+    if is_past:
+        fotos_galeria = evento.galeria.all()  # (Graças ao related_name="galeria")
+
+    # 3. Verifica se o usuário logado (se for aluno) está inscrito
+    is_subscribed = False
+    if request.user.is_authenticated and hasattr(request.user, 'aluno'):
+        try:
+            # Checa se existe uma inscrição para este aluno e este evento
+            is_subscribed = Inscricao.objects.filter(
+                id_aluno=request.user.aluno,
+                id_evento=evento
+            ).exists()
+        except Aluno.DoesNotExist:
+            is_subscribed = False  # Segurança caso o perfil não esteja completo
+
+    context = {
+        'evento': evento,
+        'is_past': is_past,
+        'fotos_galeria': fotos_galeria,
+        'is_subscribed': is_subscribed
+    }
+
+    return render(request, 'events/evento_detail.html', context)
+
+@login_required
+def gerenciar_galeria_evento(request, evento_id):
+    evento = get_object_or_404(Evento, pk=evento_id)
+    # Definimos quem é o criador
+    is_creator = (evento.id_criador == request.user)
+
+    # REGRA DE NEGÓCIO 1: Só pode adicionar fotos a eventos passados
+    if evento.data_e_hora >= timezone.now():
+        messages.error(request,
+                       'Você só pode gerenciar a galeria de eventos que já ocorreram.')
+        # TODO: Redirecionar para a página pública do evento quando ela existir
+        return redirect('home')
+
+    # REGRA DE NEGÓCIOS 2: Apenas o criador pode fazer UPLOAD (POST)
+    if request.method == 'POST':
+        # Se não for o criador, bloqueia a tentativa de POST
+        if not is_creator:
+            messages.error(request,
+                           'Você não tem permissão para adicionar fotos a este evento.')
+            return redirect('account_galeria_evento', evento_id=evento.id)
+
+        form = FotoEventoForm(request.POST, request.FILES)
+        if form.is_valid():
+            foto = form.save(commit=False)
+            foto.evento = evento
+            foto.usuario = request.user  # Salva quem enviou
+            foto.save()
+            messages.success(request, 'Foto adicionada à galeria do evento!')
+            return redirect('account_galeria_evento', evento_id=evento.id)
+    else:
+        # Se for um GET, apenas prepara o formulário
+        form = FotoEventoForm()
+
+    # Pega todas as fotos existentes para mostrar na página
+    fotos_galeria = evento.galeria.all()
+
+    return render(request, 'events/galeria_evento.html', {
+        'form': form,
+        'evento': evento,
+        'fotos': fotos_galeria,
+        'is_creator': is_creator  # Passa a permissão para o template
+    })

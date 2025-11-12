@@ -17,7 +17,9 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'uma-chave-secreta-padrao-caso-nao-ache-no-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = ['movibes.linexa.com.br', '127.0.0.1', '192.168.56.1', '192.168.0.163']
+# ALLOWED_HOSTS = ['movibes.linexa.com.br', '127.0.0.1', '192.168.56.1', '192.168.0.163']
+
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = ['https://movibes.linexa.com.br']
 

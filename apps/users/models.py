@@ -1,11 +1,50 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from PIL import Image
 import io
-from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db import models
+from io import BytesIO
+from django.core.files.base import ContentFile
+from PIL import Image
 
-# --- 1. ADICIONE ESTE NOVO MODELO (TABELA) ---
+
+class ImageResizingMixin:
+    """
+    Mixin de modelo para redimensionar imagens antes de salvar.
+    Requer a biblioteca 'Pillow'.
+    """
+    MAX_IMAGE_WIDTH = 1024  # Largura máxima em pixels
+    MAX_IMAGE_HEIGHT = 1024  # Altura máxima em pixels
+    IMAGE_QUALITY = 85  # Qualidade do JPEG (0-100)
+
+    def resize_image(self, image_field):
+        """ Redimensiona e otimiza a imagem. """
+        try:
+            # Abre a imagem em memória
+            img = Image.open(image_field)
+
+            # Converte para RGB se for RGBA (remove transparência)
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+
+            # Checa o tamanho
+            if img.width > self.MAX_IMAGE_WIDTH or img.height > self.MAX_IMAGE_HEIGHT:
+                img.thumbnail((self.MAX_IMAGE_WIDTH, self.MAX_IMAGE_HEIGHT),
+                              Image.LANCZOS)
+
+            # Salva a imagem otimizada em um buffer de memória
+            thumb_io = BytesIO()
+            img.save(thumb_io, format='JPEG', quality=self.IMAGE_QUALITY)
+
+            # Cria um novo ContentFile do Django com a imagem otimizada
+            new_image = ContentFile(thumb_io.getvalue(), name=image_field.name)
+            return new_image
+
+        except Exception as e:
+            # Se a imagem for inválida (ex: SVG), apenas retorne a original
+            print(f"Erro ao redimensionar imagem: {e}")
+            return image_field
+
+
 class VibeAfterOpcao(models.Model):
     """ Tabela de cadastro das opções de pós-treino. """
     nome = models.CharField(max_length=200, unique=True)
@@ -105,13 +144,33 @@ class Usuario(AbstractUser):
         return self.email
 
 
-class FotoUsuario(models.Model):
-    # Vincula esta foto ao modelo de Usuário principal do seu projeto
+class FotoUsuario(ImageResizingMixin, models.Model):
+    """ Armazena fotos da galeria de um usuário (ex: Aluno). """
+    # Relacionamentos
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="galeria"  # Assim você pode fazer: request.user.galeria.all()
+        related_name="galeria"
     )
+
+    # Campos da Foto
+    imagem = models.ImageField(upload_to='user_gallery/')
+    legenda = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Foto do Usuário"
+        verbose_name_plural = "Fotos dos Usuários"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Foto de {self.usuario.first_name} ({self.id})"
+
+    def save(self, *args, **kwargs):
+        # Chama a função de redimensionamento do Mixin
+        if self.imagem:
+            self.imagem = self.resize_image(self.imagem)
+        super().save(*args, **kwargs)
 
     # O campo para a imagem
     imagem = models.ImageField(

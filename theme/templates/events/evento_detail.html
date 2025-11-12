@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+    <div class="max-w-4xl mx-auto">
+
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl shadow-xl overflow-hidden">
+
+            <div class="h-64 md:h-80 bg-cover bg-center" style="background-image: url('{% if evento.foto_principal %}{{ evento.foto_principal.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}')">
+            </div>
+
+            <div class="p-8">
+                <span class="bg-yellow-400 text-black text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wide">
+                    {{ evento.categoria.icone }} {{ evento.categoria.nome }}
+                </span>
+                <h1 class="text-4xl font-bold text-white mt-4 mb-3">
+                    {{ evento.titulo }}
+                </h1>
+
+                <div class="flex flex-wrap gap-x-6 gap-y-2 text-gray-300 text-lg mb-6">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path></svg>
+                        {{ evento.data_e_hora|date:"d/m/Y \à\s H:i" }}
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 mr-2 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                        {{ evento.localizacao }}
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold text-white mb-4">Sobre o Evento</h2>
+                <div class="prose prose-invert max-w-none text-gray-300 text-lg">
+                    {{ evento.descricao|linebreaks }}
+                </div>
+
+                <hr class="border-gray-700 my-8">
+
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-400 text-xs">Organizado por</p>
+                        <a href="{% url 'public_profile' evento.id_criador.id %}" class="block group">
+                            <p class="text-white text-lg font-semibold group-hover:text-yellow-400 transition-colors">
+                                {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
+                            </p>
+                        </a>
+                        {% if evento.id_criador.profissional %}
+                            <p class="text-xs text-yellow-400 font-medium mt-0.5">Evento profissional</p>
+                        {% elif evento.id_criador.aluno %}
+                            <p class="text-xs text-gray-400 mt-0.5">Evento criado por aluno</p>
+                        {% endif %}
+                    </div>
+                    <img src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                         alt="{{ evento.id_criador.first_name }}"
+                         class="w-16 h-16 rounded-full object-cover border-2 border-yellow-400">
+                </div>
+            </div>
+
+            <div class="bg-gray-900/50 p-6 pt-4" id="subscribe-button-{{ evento.id }}">
+                {% include "partials/subscribe_button.html" with evento=evento is_subscribed=is_subscribed %}
+            </div>
+
+        </div>
+        {% if is_past %}
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl mt-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-white">Galeria do Evento</h2>
+
+                {% if evento.id_criador == request.user %}
+                    <a href="{% url 'account_galeria_evento' evento.id %}"
+                       class="inline-block cursor-pointer bg-yellow-400 text-gray-900 font-bold px-5 py-2 rounded-xl text-sm hover:bg-yellow-500 transform hover:scale-[1.02] transition-all shadow-lg">
+                        Gerenciar Galeria
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if fotos_galeria %}
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {% for foto in fotos_galeria %}
+                    <div class="relative group">
+                        <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda|default:'Foto do evento' }}"
+                             class="w-full h-48 object-cover rounded-lg shadow-lg">
+
+                        {% if foto.legenda or foto.usuario %}
+                        <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col justify-end p-3">
+                            {% if foto.legenda %}
+                                <p class="text-white text-sm line-clamp-2">{{ foto.legenda }}</p>
+                            {% endif %}
+                            {% if foto.usuario %}
+                                <p class="text-xs text-gray-300 mt-1">Por: {{ foto.usuario.first_name }}</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-gray-400 text-center">Nenhuma foto foi enviada para este evento ainda.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        </div>
+</div>
+{% endblock %}

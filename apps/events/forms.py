@@ -1,5 +1,5 @@
 from django import forms
-from .models import Evento
+from .models import Evento, FotoEvento
 
 class EventoForm(forms.ModelForm):
     class Meta:
@@ -27,4 +27,13 @@ class EventoForm(forms.ModelForm):
             'localizacao_cidade': 'Cidade',
             'localizacao_bairro_endereco': 'Endereço com Bairro',
             'categoria': 'Categoria'
+        }
+
+class FotoEventoForm(forms.ModelForm):
+    class Meta:
+        model = FotoEvento
+        fields = ['imagem', 'legenda']
+        labels = {
+            'imagem': 'Adicionar Foto',
+            'legenda': 'Legenda (opcional)',
         }

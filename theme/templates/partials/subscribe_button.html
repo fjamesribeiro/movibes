@@ -1,0 +1,39 @@
+{% load static %}
+
+{% if user.is_authenticated %}
+
+    {% if evento.id_criador == user %}
+        <div class="text-center">
+            <span class="text-sm font-semibold text-gray-400">Você é o organizador deste evento.</span>
+        </div>
+
+    {% elif user.profissional %}
+        <div class="text-center">
+            <span class="text-sm font-semibold text-gray-400">Perfis profissionais não podem se inscrever.</span>
+        </div>
+
+    {% elif is_subscribed %}
+        <a href="{% url 'subscribe_event' evento.id %}"
+           hx-post="{% url 'subscribe_event' evento.id %}"
+           hx-target="#subscribe-button-{{ evento.id }}"
+           hx-swap="outerHTML"
+           class="block w-full cursor-pointer bg-red-600 text-white font-bold px-6 py-3 rounded-xl text-lg text-center hover:bg-red-700 transform hover:scale-[1.02] transition-all shadow-lg">
+            Cancelar Inscrição
+        </a>
+
+    {% else %}
+        <a href="{% url 'subscribe_event' evento.id %}"
+           hx-post="{% url 'subscribe_event' evento.id %}"
+           hx-target="#subscribe-button-{{ evento.id }}"
+           hx-swap="outerHTML"
+           class="block w-full cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-3 rounded-xl text-lg text-center hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl">
+            Inscrever-se
+        </a>
+    {% endif %}
+
+{% else %}
+    <a href="{% url 'account_login' %}?next={% url 'evento_detail' evento.id %}"
+       class="block w-full cursor-pointer bg-yellow-400 text-gray-900 font-bold px-6 py-3 rounded-xl text-lg text-center hover:bg-yellow-500 transition-all shadow-lg">
+        Fazer login para se inscrever
+    </a>
+{% endif %}

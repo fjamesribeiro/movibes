@@ -1,93 +1,521 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block title %}{{ perfil_usuario.first_name }} {{ perfil_usuario.last_name }} - Movibes{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
-    <div class="max-w-4xl mx-auto">
+<style>
+    .stat-card {
+        transition: transform 0.2s;
+    }
+    .stat-card:hover {
+        transform: translateY(-2px);
+    }
+    .photo-grid-item {
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+        aspect-ratio: 1;
+    }
+    .photo-grid-item img {
+        transition: transform 0.3s;
+    }
+    .photo-grid-item:hover img {
+        transform: scale(1.1);
+    }
+    .photo-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .photo-grid-item:hover .photo-overlay {
+        opacity: 1;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.95);
+        animation: fadeIn 0.2s;
+    }
+    .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .modal-content {
+        max-width: 90%;
+        max-height: 90vh;
+        animation: zoomIn 0.3s;
+    }
+    @keyframes zoomIn {
+        from { transform: scale(0.8); }
+        to { transform: scale(1); }
+    }
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    .tab-content {
+        display: none;
+    }
+    .tab-content.active {
+        display: block;
+        animation: slideIn 0.3s;
+    }
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 
-        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-6 md:py-12 px-4">
+    <div class="max-w-5xl mx-auto">
 
-            <div class="flex flex-col items-center md:flex-row md:items-start text-center md:text-left">
-                <img src="{% if perfil_usuario.url_foto_perfil %}{{ perfil_usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
-                     alt="{{ perfil_usuario.first_name }}"
-                     class="w-32 h-32 rounded-full object-cover border-4 border-yellow-400 shadow-lg md:mr-8 mb-4 md:mb-0">
+        <!-- Cabeçalho do Perfil (estilo Instagram) -->
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-3xl p-4 md:p-6 mb-6">
+            <div class="flex flex-col md:flex-row gap-6 md:gap-8">
 
-                <div class="flex-1">
-                    <h1 class="text-4xl font-bold text-white mb-2">
-                        {{ perfil_usuario.first_name }} {{ perfil_usuario.last_name }}
-                    </h1>
-
-                    {% if profile_type == 'profissional' %}
-                        <p class="text-yellow-400 font-semibold text-lg mb-3">Profissional da Movibes</p>
-                    {% elif profile_type == 'aluno' %}
-                        <p class="text-blue-400 font-semibold text-lg mb-3">Aluno da Movibes</p>
-                    {% endif %}
-
-                    <p class="text-gray-300 text-lg leading-relaxed">
-                        {{ perfil_usuario.bio_curta|default:"Este usuário ainda não escreveu uma bio." }}
-                    </p>
-                </div>
-            </div>
-
-            <hr class="border-gray-700 my-8">
-
-            {% if profile_type == 'aluno' %}
-
-                <div class="mb-8">
-                    <h2 class="text-2xl font-bold text-white mb-6">Detalhes do Atleta</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
-                            <span class="text-sm text-gray-400">Nível</span>
-                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.get_nivel_pratica_display|default:"Não informado" }}</p>
-                        </div>
-                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
-                            <span class="text-sm text-gray-400">Período</span>
-                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.get_periodos_preferidos_display|default:"Não informado" }}</p>
-                        </div>
-                        <div class="bg-gray-700/50 p-4 rounded-xl text-center">
-                            <span class="text-sm text-gray-400">Status</span>
-                            <p class="text-white font-semibold text-lg">{{ perfil_usuario.aluno.status_social.nome|default:"Não informado" }}</p>
-                        </div>
+                <!-- Foto de Perfil -->
+                <div class="flex flex-col items-center md:items-start">
+                    <div class="relative">
+                        <img src="{% if perfil_usuario.url_foto_perfil %}{{ perfil_usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                             alt="{{ perfil_usuario.first_name }}"
+                             class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-yellow-400 shadow-2xl">
+                        {% if perfil_usuario.is_active %}
+                        <div class="absolute bottom-2 right-2 w-5 h-5 bg-green-500 rounded-full border-2 border-gray-800"></div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-6">Galeria de Fotos</h2>
-                    {% if fotos_galeria %}
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            {% for foto in fotos_galeria %}
-                            <div class="relative group">
-                                <img src="{{ foto.imagem.url }}" alt="{{ foto.legenda|default:'Foto da galeria' }}"
-                                     class="w-full h-48 object-cover rounded-lg shadow-lg">
-                                {% if foto.legenda %}
-                                <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-end p-3">
-                                    <p class="text-white text-sm line-clamp-2">{{ foto.legenda }}</p>
+                <!-- Informações do Perfil -->
+                <div class="flex-1">
+                    <!-- Nome e Badge -->
+                    <div class="flex flex-col md:flex-row md:items-center gap-4 mb-4">
+                        <h1 class="text-3xl md:text-4xl font-bold text-white">
+                            {{ perfil_usuario.first_name }} {{ perfil_usuario.last_name }}
+                        </h1>
+
+                        {% if profile_type == 'profissional' %}
+                            <span class="badge bg-gradient-to-r from-yellow-500 to-orange-500 text-white">
+                                <i class="fas fa-star"></i>
+                                Profissional
+                            </span>
+                        {% elif profile_type == 'aluno' %}
+                            {% if perfil_usuario.aluno.tipo_conta %}
+                                {% if perfil_usuario.aluno.tipo_conta.nome == 'Premium' %}
+                                    <span class="badge bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                                        <i class="fas fa-crown"></i>
+                                        {{ perfil_usuario.aluno.tipo_conta.nome }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-gray-600 text-white">
+                                        <i class="fas fa-user"></i>
+                                        {{ perfil_usuario.aluno.tipo_conta.nome }}
+                                    </span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="flex gap-6 mb-6">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">{{ fotos_galeria|length }}</div>
+                            <div class="text-sm text-gray-400">Fotos</div>
+                        </div>
+                        {% if profile_type == 'aluno' and perfil_usuario.aluno.preferencias_esporte.exists %}
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">{{ perfil_usuario.aluno.preferencias_esporte.count }}</div>
+                            <div class="text-sm text-gray-400">Esportes</div>
+                        </div>
+                        {% endif %}
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">-</div>
+                            <div class="text-sm text-gray-400">Eventos</div>
+                        </div>
+                    </div>
+
+                    <!-- Bio -->
+                    {% if perfil_usuario.bio_curta %}
+                    <p class="text-gray-300 mb-4 leading-relaxed whitespace-pre-line">
+                        {{ perfil_usuario.bio_curta }}
+                    </p>
+                    {% else %}
+                    <p class="text-gray-500 italic mb-4">
+                        Este usuário ainda não escreveu uma bio.
+                    </p>
+                    {% endif %}
+
+                    <!-- Localização -->
+                    {% if profile_type == 'aluno' %}
+                        {% if perfil_usuario.aluno.cidade or perfil_usuario.aluno.estado %}
+                        <p class="text-gray-400 text-sm mb-4">
+                            <i class="fas fa-map-marker-alt mr-2"></i>
+                            {% if perfil_usuario.aluno.cidade %}{{ perfil_usuario.aluno.cidade }}{% endif %}{% if perfil_usuario.aluno.cidade and perfil_usuario.aluno.estado %}, {% endif %}{% if perfil_usuario.aluno.estado %}{{ perfil_usuario.aluno.estado }}{% endif %}
+                        </p>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- Botões de Ação -->
+                    <div class="flex flex-wrap gap-3">
+                        {% if user.is_authenticated and user != perfil_usuario %}
+                        <button class="flex-1 md:flex-none bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 px-6 rounded-xl transition-all">
+                            <i class="fas fa-user-plus mr-2"></i>Seguir
+                        </button>
+                        <button class="flex-1 md:flex-none bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all">
+                            <i class="fas fa-comment mr-2"></i>Mensagem
+                        </button>
+                        {% endif %}
+
+                        {% if perfil_usuario.whatsapp %}
+                        <a href="https://wa.me/{{ perfil_usuario.whatsapp }}" target="_blank"
+                           class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all">
+                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if profile_type == 'aluno' %}
+        <!-- Cards de Informações Rápidas (ALUNO) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            {% if perfil_usuario.aluno.nivel_pratica %}
+            <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-chart-line text-2xl text-white/80"></i>
+                </div>
+                <div class="text-white text-sm mb-1">Nível</div>
+                <div class="text-white text-xl font-bold">{{ perfil_usuario.aluno.get_nivel_pratica_display }}</div>
+            </div>
+            {% endif %}
+
+            {% if perfil_usuario.aluno.periodos_preferidos %}
+            <div class="stat-card bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-clock text-2xl text-white/80"></i>
+                </div>
+                <div class="text-white text-sm mb-1">Período</div>
+                <div class="text-white text-xl font-bold">{{ perfil_usuario.aluno.get_periodos_preferidos_display }}</div>
+            </div>
+            {% endif %}
+
+            {% if perfil_usuario.aluno.status_social %}
+            <div class="stat-card bg-gradient-to-br from-pink-600 to-pink-700 p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-heart text-2xl text-white/80"></i>
+                </div>
+                <div class="text-white text-sm mb-1">Status</div>
+                <div class="text-white text-xl font-bold">{{ perfil_usuario.aluno.status_social.nome }}</div>
+            </div>
+            {% endif %}
+
+            {% if perfil_usuario.aluno.vibe_after.exists %}
+            <div class="stat-card bg-gradient-to-br from-yellow-600 to-yellow-700 p-4 rounded-2xl shadow-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-fire text-2xl text-white/80"></i>
+                </div>
+                <div class="text-white text-sm mb-1">Vibe After</div>
+                <div class="text-white text-lg font-bold">{{ perfil_usuario.aluno.vibe_after.first.nome }}</div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Tabs de Navegação -->
+        <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-t-2xl">
+            <div class="flex border-b border-gray-700">
+                <button onclick="switchTab('fotos')" class="tab-btn flex-1 py-4 px-4 md:px-6 text-gray-400 hover:text-white transition-colors border-b-2 border-yellow-400 font-semibold text-white">
+                    <i class="fas fa-th mr-2"></i>Fotos
+                </button>
+                <button onclick="switchTab('info')" class="tab-btn flex-1 py-4 px-4 md:px-6 text-gray-400 hover:text-white transition-colors border-b-2 border-transparent">
+                    <i class="fas fa-info-circle mr-2"></i>Info
+                </button>
+            </div>
+        </div>
+
+        <!-- Conteúdo das Tabs -->
+        <div class="bg-gray-800/50 backdrop-blur border-x border-b border-gray-700 rounded-b-2xl p-4 md:p-6">
+
+            <!-- Tab Fotos -->
+            <div id="fotos-tab" class="tab-content active">
+                {% if fotos_galeria %}
+                <div class="grid grid-cols-3 gap-1 md:gap-2">
+                    {% for foto in fotos_galeria %}
+                    <div class="photo-grid-item" onclick="openModal({{ forloop.counter0 }})">
+                        <img src="{{ foto.imagem.url }}"
+                             alt="{{ foto.legenda|default:'Foto da galeria' }}"
+                             class="w-full h-full object-cover">
+                        <div class="photo-overlay">
+                            <div class="text-white text-center">
+                                <i class="fas fa-search-plus text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12">
+                    <i class="fas fa-images text-6xl text-gray-600 mb-4"></i>
+                    <p class="text-gray-400">Este usuário ainda não adicionou fotos à galeria.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tab Informações -->
+            <div id="info-tab" class="tab-content">
+                <div class="space-y-6">
+
+                    {% if profile_type == 'aluno' %}
+
+                        <!-- Preferências de Esporte -->
+                        {% if perfil_usuario.aluno.preferencias_esporte.exists %}
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-dumbbell text-yellow-400 mr-3"></i>
+                                Preferências de Esporte
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for esporte in perfil_usuario.aluno.preferencias_esporte.all %}
+                                <span class="badge bg-blue-600 text-white">
+                                    {{ esporte.nome }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Vibe After -->
+                        {% if perfil_usuario.aluno.vibe_after.exists %}
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-coffee text-yellow-400 mr-3"></i>
+                                Pós-Treino
+                            </h3>
+                            <div class="flex flex-wrap gap-2">
+                                {% for vibe in perfil_usuario.aluno.vibe_after.all %}
+                                <span class="badge bg-purple-600 text-white">
+                                    {{ vibe.nome }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Localização -->
+                        {% if perfil_usuario.aluno.cidade or perfil_usuario.aluno.estado or perfil_usuario.aluno.bairro %}
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-map-marker-alt text-yellow-400 mr-3"></i>
+                                Localização
+                            </h3>
+                            <div class="bg-gray-700/50 p-4 rounded-xl">
+                                {% if perfil_usuario.aluno.estado %}
+                                <p class="text-gray-300 mb-2">
+                                    <i class="fas fa-map mr-2"></i>
+                                    <strong>Estado:</strong> {{ perfil_usuario.aluno.estado }}
+                                </p>
+                                {% endif %}
+                                {% if perfil_usuario.aluno.cidade %}
+                                <p class="text-gray-300 mb-2">
+                                    <i class="fas fa-city mr-2"></i>
+                                    <strong>Cidade:</strong> {{ perfil_usuario.aluno.cidade }}
+                                </p>
+                                {% endif %}
+                                {% if perfil_usuario.aluno.bairro %}
+                                <p class="text-gray-300">
+                                    <i class="fas fa-location-dot mr-2"></i>
+                                    <strong>Bairro:</strong> {{ perfil_usuario.aluno.bairro }}
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Sexo (se informado) -->
+                        {% if perfil_usuario.aluno.sexo and perfil_usuario.aluno.sexo != 'nao_informar' %}
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-user text-yellow-400 mr-3"></i>
+                                Informações Pessoais
+                            </h3>
+                            <div class="bg-gray-700/50 p-4 rounded-xl">
+                                <p class="text-gray-300">
+                                    <strong>Sexo:</strong> {{ perfil_usuario.aluno.get_sexo_display }}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    {% elif profile_type == 'profissional' %}
+
+                        <!-- Informações Profissionais -->
+                        <div>
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-briefcase text-yellow-400 mr-3"></i>
+                                Informações Profissionais
+                            </h3>
+
+                            <div class="bg-gray-700/50 p-6 rounded-xl space-y-4">
+                                {% if perfil_usuario.profissional.especialidade %}
+                                <div>
+                                    <h4 class="text-lg font-semibold text-yellow-400 mb-2">Especialidade</h4>
+                                    <p class="text-gray-300 whitespace-pre-line">{{ perfil_usuario.profissional.especialidade }}</p>
+                                </div>
+                                {% endif %}
+
+                                {% if perfil_usuario.profissional.num_conselho_classe %}
+                                <div>
+                                    <h4 class="text-lg font-semibold text-yellow-400 mb-2">Nº Conselho de Classe</h4>
+                                    <p class="text-gray-300">{{ perfil_usuario.profissional.num_conselho_classe }}</p>
                                 </div>
                                 {% endif %}
                             </div>
-                            {% endfor %}
                         </div>
-                    {% else %}
-                        <p class="text-gray-400 text-center">Este aluno ainda não adicionou fotos à galeria.</p>
+
+                    {% endif %}
+
+                    <!-- Sobre (Bio detalhada) -->
+                    {% if perfil_usuario.bio_curta %}
+                    <div>
+                        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
+                            <i class="fas fa-info-circle text-yellow-400 mr-3"></i>
+                            Sobre
+                        </h3>
+                        <div class="bg-gray-700/50 p-4 rounded-xl">
+                            <p class="text-gray-300 leading-relaxed whitespace-pre-line">
+                                {{ perfil_usuario.bio_curta }}
+                            </p>
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
-
-            {% elif profile_type == 'profissional' %}
-                <div>
-                    <h2 class="text-2xl font-bold text-white mb-6">Informações Profissionais</h2>
-
-                    <div class="bg-gray-700/50 p-6 rounded-xl">
-                        <h3 class="text-lg font-semibold text-yellow-400 mb-2">Especialidade</h3>
-                        <p class="text-gray-300 whitespace-pre-line">{{ perfil_usuario.profissional.especialidade }}</p>
-
-                        <hr class="border-gray-600 my-4">
-
-                        <h3 class="text-lg font-semibold text-yellow-400 mb-2">Nº Conselho de classe</h3>
-                        <p class="text-gray-300">{{ perfil_usuario.profissional.num_conselho_classe }}</p>
-                    </div>
-                </div>
-            {% endif %}
-
-        </div> </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal de Visualização de Foto -->
+<div id="photoModal" class="modal">
+    <span onclick="closeModal()" class="absolute top-4 right-4 text-white text-4xl font-bold cursor-pointer hover:text-gray-300 z-50">
+        &times;
+    </span>
+
+    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 z-50">
+        <button onclick="prevPhoto()" class="text-white text-3xl hover:text-gray-300 bg-black/50 rounded-full w-12 h-12 flex items-center justify-center">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+    </div>
+
+    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 z-50">
+        <button onclick="nextPhoto()" class="text-white text-3xl hover:text-gray-300 bg-black/50 rounded-full w-12 h-12 flex items-center justify-center">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="modal-content">
+        <img id="modalImage" src="" alt="Foto ampliada" class="max-w-full max-h-[90vh] rounded-lg shadow-2xl">
+        <div class="bg-gray-800 p-4 rounded-b-lg">
+            <p id="modalLegenda" class="text-white text-center"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Dados das fotos vindos do Django
+    const photos = [
+        {% for foto in fotos_galeria %}
+        {
+            src: '{{ foto.imagem.url }}',
+            legenda: '{{ foto.legenda|default:""|escapejs }}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    let currentPhotoIndex = 0;
+
+    function openModal(index) {
+        if (photos.length === 0) return;
+
+        currentPhotoIndex = index;
+        const modal = document.getElementById('photoModal');
+        const modalImg = document.getElementById('modalImage');
+        const modalLegenda = document.getElementById('modalLegenda');
+
+        modalImg.src = photos[index].src;
+        modalLegenda.textContent = photos[index].legenda || 'Foto da galeria';
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('photoModal');
+        modal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    function nextPhoto() {
+        if (photos.length === 0) return;
+        currentPhotoIndex = (currentPhotoIndex + 1) % photos.length;
+        openModal(currentPhotoIndex);
+    }
+
+    function prevPhoto() {
+        if (photos.length === 0) return;
+        currentPhotoIndex = (currentPhotoIndex - 1 + photos.length) % photos.length;
+        openModal(currentPhotoIndex);
+    }
+
+    // Fechar modal com ESC e navegar com setas
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowRight') nextPhoto();
+        if (e.key === 'ArrowLeft') prevPhoto();
+    });
+
+    // Sistema de Tabs
+    function switchTab(tabName) {
+        // Remove active de todos os botões e conteúdos
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-yellow-400', 'text-white', 'font-semibold');
+            btn.classList.add('border-transparent', 'text-gray-400');
+        });
+
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+
+        // Ativa o tab selecionado
+        event.target.classList.add('border-yellow-400', 'text-white', 'font-semibold');
+        event.target.classList.remove('border-transparent', 'text-gray-400');
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+    }
+</script>
+
 {% endblock %}
