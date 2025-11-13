@@ -2400,6 +2400,11 @@
       }
     }
   }
+  .focus\:ring-yellow-500 {
+    &:focus {
+      --tw-ring-color: var(--color-yellow-500);
+    }
+  }
   .focus\:outline-none {
     &:focus {
       --tw-outline-style: none;

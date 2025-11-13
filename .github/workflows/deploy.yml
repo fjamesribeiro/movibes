@@ -34,12 +34,9 @@ jobs:
           🎉 *Deploy Concluído com Sucesso!*
 
           🚀 **Projeto:** Movibes
-          👤 **Autor:** James Ribeiro
 
-          *Commit:*
+          *Nova(s) Feature(s):*
           ${{ github.event.head_commit.message }}
-
-          🌐 *Aplicação disponível em:* https://movibes.linexa.com.br
 
     - name: ❌ Notificar falha
       if: failure()
