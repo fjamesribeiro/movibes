@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load widget_tweaks %}
 {% load static %}
 
 {% block title %}{{ perfil_usuario.first_name }} {{ perfil_usuario.last_name }} - Movibes{% endblock %}
@@ -91,6 +92,24 @@
             transform: translateY(0);
         }
     }
+    .star-rating {
+        display: inline-flex;
+        gap: 0.25rem;
+    }
+    .star {
+        color: #fbbf24;
+        font-size: 1.25rem;
+    }
+    .star.empty {
+        color: #4b5563;
+    }
+    .review-card {
+        transition: all 0.3s;
+    }
+    .review-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
 </style>
 
 <div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-6 md:py-12 px-4">
@@ -142,16 +161,41 @@
                         {% endif %}
                     </div>
 
+                    <!-- Avaliação Média (apenas para profissionais) -->
+                    {% if profile_type == 'profissional' and total_avaliacoes > 0 %}
+                    <div class="mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="star-rating">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= avg_nota %}
+                                        <i class="fas fa-star star"></i>
+                                    {% else %}
+                                        <i class="fas fa-star star empty"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <span class="text-white font-semibold text-lg">{{ avg_nota|floatformat:1 }}</span>
+                            <span class="text-gray-400 text-sm">({{ total_avaliacoes }} avaliação{% if total_avaliacoes != 1 %}ões{% endif %})</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Stats -->
                     <div class="flex gap-6 mb-6">
                         <div class="text-center">
-                            <div class="text-2xl font-bold text-white">{{ fotos_galeria|length }}</div>
+                            <div class="text-2xl font-bold text-white">{{ fotos_galeria|length|default:0 }}</div>
                             <div class="text-sm text-gray-400">Fotos</div>
                         </div>
                         {% if profile_type == 'aluno' and perfil_usuario.aluno.preferencias_esporte.exists %}
                         <div class="text-center">
                             <div class="text-2xl font-bold text-white">{{ perfil_usuario.aluno.preferencias_esporte.count }}</div>
                             <div class="text-sm text-gray-400">Esportes</div>
+                        </div>
+                        {% endif %}
+                        {% if profile_type == 'profissional' and total_avaliacoes > 0 %}
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-white">{{ total_avaliacoes }}</div>
+                            <div class="text-sm text-gray-400">Avaliações</div>
                         </div>
                         {% endif %}
                         <div class="text-center">
@@ -257,6 +301,11 @@
                 <button onclick="switchTab('info')" class="tab-btn flex-1 py-4 px-4 md:px-6 text-gray-400 hover:text-white transition-colors border-b-2 border-transparent">
                     <i class="fas fa-info-circle mr-2"></i>Info
                 </button>
+                {% if profile_type == 'profissional' %}
+                <button onclick="switchTab('avaliacoes')" class="tab-btn flex-1 py-4 px-4 md:px-6 text-gray-400 hover:text-white transition-colors border-b-2 border-transparent">
+                    <i class="fas fa-star mr-2"></i>Avaliações
+                </button>
+                {% endif %}
             </div>
         </div>
 
@@ -398,25 +447,125 @@
                                 {% endif %}
                             </div>
                         </div>
-
-                    {% endif %}
-
-                    <!-- Sobre (Bio detalhada) -->
-                    {% if perfil_usuario.bio_curta %}
-                    <div>
-                        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-                            <i class="fas fa-info-circle text-yellow-400 mr-3"></i>
-                            Sobre
-                        </h3>
-                        <div class="bg-gray-700/50 p-4 rounded-xl">
-                            <p class="text-gray-300 leading-relaxed whitespace-pre-line">
-                                {{ perfil_usuario.bio_curta }}
-                            </p>
-                        </div>
-                    </div>
                     {% endif %}
                 </div>
             </div>
+
+            {% if profile_type == 'profissional' %}
+            <!-- Tab Avaliações -->
+            <div id="avaliacoes-tab" class="tab-content">
+                <div class="space-y-6">
+
+                    <!-- Formulário de Nova Avaliação -->
+                    {% if can_review %}
+                         {% if perfil_usuario.profissional and profissional %}
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-2xl p-6">
+                            <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                                <i class="fas fa-pen text-yellow-400 mr-3"></i>
+                                Deixe sua Avaliação
+                            </h3>
+
+                            <form method="POST" action="{% url 'adicionar_avaliacao' profissional_id=profissional.usuario.pk %}" class="space-y-6">
+                                {% csrf_token %}
+
+                                <div class="mb-4">
+                                    <label class="block text-white font-semibold mb-2">Sua Nota</label>
+                                    {{ avaliacao_form.nota }}
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-white font-semibold mb-2">Seu Comentário (opcional)</label>
+                                    {{ avaliacao_form.comentario }}
+                                </div>
+
+                                <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-4 px-6 rounded-xl transition-all transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-2">
+                                    <i class="fas fa-paper-plane mr-2"></i>Enviar Avaliação
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+                    {% elif user.is_authenticated %}
+                    <div class="bg-gray-700/50 border border-gray-600 rounded-2xl p-6 text-center">
+                        <i class="fas fa-info-circle text-blue-500 text-4xl mb-3"></i>
+                        <p class="text-gray-300 text-lg">Apenas alunos podem avaliar profissionais.</p>
+                    </div>
+                    {% elif not user.is_authenticated %}
+                    <div class="bg-gray-700/50 border border-gray-600 rounded-2xl p-6 text-center">
+                        <i class="fas fa-sign-in-alt text-yellow-400 text-4xl mb-3"></i>
+                        <p class="text-gray-300 text-lg mb-4">Faça login para avaliar este profissional.</p>
+                        <a href="{% url 'account_login' %}" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-3 px-6 rounded-xl transition-all">
+                            Fazer Login
+                        </a>
+                    </div>
+                    {% endif %}
+
+                    <!-- Lista de Avaliações -->
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-4 flex items-center">
+                            <i class="fas fa-comments text-yellow-400 mr-3"></i>
+                            Avaliações Recebidas
+                            <span class="ml-3 text-gray-400 text-lg">({{ total_avaliacoes }})</span>
+                        </h3>
+
+                        {% if lista_avaliacoes %}
+                        <div class="space-y-4">
+                            {% for avaliacao in lista_avaliacoes %}
+                            <div class="review-card bg-gray-700/50 border border-gray-600 rounded-xl p-6">
+                                <!-- Cabeçalho da Avaliação -->
+                                <div class="flex items-start gap-4 mb-4">
+                                    <img src="{% if avaliacao.autor.usuario.url_foto_perfil %}{{ avaliacao.autor.usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                                         alt="{{ avaliacao.autor.usuario.first_name }}"
+                                         class="w-12 h-12 rounded-full object-cover border-2 border-yellow-400">
+
+                                    <div class="flex-1">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div>
+                                                <h4 class="text-white font-semibold">
+                                                    {{ avaliacao.autor.usuario.first_name }} {{ avaliacao.autor.usuario.last_name }}
+                                                </h4>
+                                                <p class="text-gray-400 text-sm">
+                                                    {{ avaliacao.created_at|date:"d/m/Y às H:i" }}
+                                                </p>
+                                            </div>
+
+                                            <div class="star-rating">
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= avaliacao.nota %}
+                                                        <i class="fas fa-star star"></i>
+                                                    {% else %}
+                                                        <i class="fas fa-star star empty"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+
+                                        {% if avaliacao.comentario %}
+                                        <p class="text-gray-300 leading-relaxed">
+                                            {{ avaliacao.comentario }}
+                                        </p>
+                                        {% else %}
+                                        <p class="text-gray-500 italic">
+                                            Sem comentário adicional.
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center py-12">
+                            <i class="fas fa-star-half-alt text-6xl text-gray-600 mb-4"></i>
+                            <p class="text-gray-400 text-lg">Este profissional ainda não recebeu avaliações.</p>
+                            {% if can_review %}
+                            <p class="text-gray-500 mt-2">Seja o primeiro a avaliar!</p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>

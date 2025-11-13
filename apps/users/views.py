@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm, \
-    FotoUsuarioForm
-from .models import Aluno, Profissional, Perfil, Usuario
+    FotoUsuarioForm, AvaliacaoForm
+from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao
 from django.contrib import messages
-
+from django.db import models
 
 @login_required
 def complete_aluno_profile(request):
@@ -191,27 +191,99 @@ def public_profile_view(request, usuario_id):
     Mostra a página de perfil público (somente leitura)
     de qualquer usuário (Aluno ou Profissional).
     """
-    # 1. Busca o usuário pelo ID da URL. Se não encontrar, dá erro 404.
     usuario = get_object_or_404(Usuario, pk=usuario_id)
-
-    # 2. Inicializa variáveis
     profile_type = None
     fotos_galeria = None
 
-    # 3. Descobre se é Aluno ou Profissional e busca dados
+    # --- NOVAS VARIÁVEIS ---
+    lista_avaliacoes = None
+    avaliacao_form = None
+    can_review = False
+    avg_nota = 0
+    total_avaliacoes = 0
+
+    # --- CORREÇÃO 1: INICIALIZAR 'profissional' COMO None ---
+    # Isso corrige o 'UnboundLocalError' em perfis de Aluno
+    profissional = None
+
     if hasattr(usuario, 'aluno'):
         profile_type = 'aluno'
-        # Busca todas as fotos da galeria deste aluno
-        fotos_galeria = usuario.galeria.all()  #
+        fotos_galeria = usuario.galeria.all()
+
     elif hasattr(usuario, 'profissional'):
         profile_type = 'profissional'
-        # Profissionais (por enquanto) não têm galeria
+        profissional = usuario.profissional  # 'profissional' é definido AQUI
+
+        # Busca todas as avaliações
+        lista_avaliacoes = profissional.avaliacoes.all().order_by('-created_at')
+        total_avaliacoes = lista_avaliacoes.count()
+
+        # Calcula a média de notas
+        if total_avaliacoes > 0:
+            avg_nota = lista_avaliacoes.aggregate(models.Avg('nota'))['nota__avg']
+
+        # Lógica para mostrar o formulário de avaliação:
+        if request.user.is_authenticated and hasattr(request.user, 'aluno'):
+            # CORREÇÃO 2: Comparar PKs, não objetos
+            if request.user.pk != profissional.pk:  # Não pode avaliar a si mesmo
+                if not Avaliacao.objects.filter(
+                    autor=request.user.aluno,
+                    profissional_avaliado=profissional
+                ).exists():
+                    can_review = True
+                    avaliacao_form = AvaliacaoForm()  # Prepara um formulário em branco
 
     context = {
-        'perfil_usuario': usuario,  # O usuário que estamos vendo (ex: Jônatas)
-        'profile_type': profile_type,  # 'aluno' ou 'profissional'
-        'fotos_galeria': fotos_galeria,  # A lista de fotos da galeria
+        'perfil_usuario': usuario,
+        'profile_type': profile_type,
+        'fotos_galeria': fotos_galeria,
+        'lista_avaliacoes': lista_avaliacoes,
+        'avaliacao_form': avaliacao_form,
+        'can_review': can_review,
+        'total_avaliacoes': total_avaliacoes,
+        'avg_nota': avg_nota,
+        'profissional': profissional,
     }
 
-    # 4. Renderiza um NOVO template
     return render(request, 'account/public_profile.html', context)
+
+
+@login_required
+def adicionar_avaliacao_view(request, profissional_id):
+    """
+    View dedicada a RECEBER O POST do formulário de avaliação.
+    """
+    # Garante que o usuário logado é um Aluno
+    if not hasattr(request.user, 'aluno'):
+        messages.error(request, 'Apenas alunos podem deixar avaliações.')
+        return redirect('home')  # Redireciona se não for aluno
+
+    profissional = get_object_or_404(Profissional, pk=profissional_id)
+    autor_aluno = request.user.aluno
+
+    # Redireciona de volta para a página de perfil (para onde o formulário foi enviado)
+    redirect_url = redirect('public_profile', usuario_id=profissional.usuario.id)
+
+    # Verifica se o aluno já avaliou este profissional
+    if Avaliacao.objects.filter(autor=autor_aluno,
+                                profissional_avaliado=profissional).exists():
+        messages.error(request, 'Você já avaliou este profissional.')
+        return redirect_url
+
+    if request.method == 'POST':
+        form = AvaliacaoForm(request.POST)
+        if form.is_valid():
+            avaliacao = form.save(commit=False)
+            avaliacao.autor = autor_aluno
+            avaliacao.profissional_avaliado = profissional
+            avaliacao.save()
+            messages.success(request, 'Sua avaliação foi enviada com sucesso!')
+            return redirect_url
+        else:
+            # Se o formulário for inválido, é difícil mostrar o erro,
+            # então apenas redirecionamos com uma mensagem genérica.
+            messages.error(request, 'Erro ao enviar sua avaliação. Verifique os dados.')
+            return redirect_url
+
+    # Se alguém tentar acessar esta URL via GET, apenas redireciona
+    return redirect_url

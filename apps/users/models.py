@@ -5,7 +5,7 @@ from django.db import models
 from io import BytesIO
 from django.core.files.base import ContentFile
 from PIL import Image
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 class ImageResizingMixin:
     """
@@ -361,3 +361,43 @@ class Profissional(models.Model):
 
     def __str__(self):
         return self.usuario.email
+
+
+class Avaliacao(models.Model):
+    """
+    Armazena uma avaliação (nota e comentário) que um Aluno
+    faz sobre um Profissional.
+    """
+    # Relacionamentos
+    autor = models.ForeignKey(
+        Aluno,
+        on_delete=models.CASCADE,
+        related_name="avaliacoes_feitas"
+    )
+    profissional_avaliado = models.ForeignKey(
+        Profissional,
+        on_delete=models.CASCADE,
+        related_name="avaliacoes"
+    )
+
+    # Campos da Avaliação
+    nota = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
+    comentario = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Avaliação"
+        verbose_name_plural = "Avaliações"
+        ordering = ['-created_at']
+        # Garante que um aluno só pode avaliar um profissional uma única vez
+        constraints = [
+            models.UniqueConstraint(
+                fields=['autor', 'profissional_avaliado'],
+                name='unique_avaliacao_aluno_profissional'
+            )
+        ]
+
+    def __str__(self):
+        return f"Avaliação de {self.autor.usuario.first_name} para {self.profissional_avaliado.usuario.first_name}: {self.nota} estrelas"

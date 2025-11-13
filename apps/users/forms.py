@@ -1,5 +1,5 @@
 from django import forms
-from .models import Aluno, Profissional, Usuario, VibeAfterOpcao, FotoUsuario
+from .models import Aluno, Profissional, Usuario, VibeAfterOpcao, FotoUsuario, Avaliacao
 from ..events.models import CategoriaEvento
 
 
@@ -116,4 +116,41 @@ class FotoUsuarioForm(forms.ModelForm):
         labels = {
             'imagem': 'Nova Foto',
             'legenda': 'Legenda (opcional)',
+        }
+
+class AvaliacaoForm(forms.ModelForm):
+    """
+    Formulário para um Aluno avaliar um Profissional.
+    """
+    # Definindo as escolhas de nota de forma amigável
+    NOTA_CHOICES = (
+        (5, '★★★★★ (5 Estrelas)'),
+        (4, '★★★★☆ (4 Estrelas)'),
+        (3, '★★★☆☆ (3 Estrelas)'),
+        (2, '★★☆☆☆ (2 Estrelas)'),
+        (1, '★☆☆☆☆ (1 Estrela)'),
+    )
+
+    nota = forms.ChoiceField(
+        choices=NOTA_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white ...'}),
+        label="Sua Nota"
+    )
+
+    class Meta:
+        model = Avaliacao
+        # Apenas os campos que o usuário preenche
+        fields = ['nota', 'comentario']
+        labels = {
+            'comentario': 'Seu Comentário (opcional)',
+        }
+        widgets = {
+            'comentario': forms.Textarea(
+                attrs={
+                    'rows': 4,
+                    'placeholder': 'Descreva sua experiência com este profissional...',
+                    'class': 'w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none'
+                }
+            ),
         }
