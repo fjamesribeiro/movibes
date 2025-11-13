@@ -225,24 +225,23 @@
                         {% endif %}
                     {% endif %}
 
-                    <!-- Botões de Ação -->
-                    <div class="flex flex-wrap gap-3">
-                        {% if user.is_authenticated and user != perfil_usuario %}
-                        <button class="flex-1 md:flex-none bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold py-2.5 px-6 rounded-xl transition-all">
-                            <i class="fas fa-user-plus mr-2"></i>Seguir
-                        </button>
-                        <button class="flex-1 md:flex-none bg-gray-700 hover:bg-gray-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all">
-                            <i class="fas fa-comment mr-2"></i>Mensagem
-                        </button>
-                        {% endif %}
-
-                        {% if perfil_usuario.whatsapp %}
-                        <a href="https://wa.me/{{ perfil_usuario.whatsapp }}" target="_blank"
-                           class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-6 rounded-xl transition-all">
-                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                        </a>
-                        {% endif %}
+                    {% if request.user.is_authenticated and request.user.aluno and profile_type == 'aluno' and request.user.pk != perfil_usuario.pk %}
+                    <div class="mt-6 text-center md:text-left">
+                        <form action="{% url 'solicitar_conexao' perfil_usuario.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit"
+                               class="inline-flex items-center bg-yellow-400 text-black font-bold px-6 py-3 rounded-lg text-base hover:bg-yellow-500 transition-all transform hover:scale-105 shadow-lg">
+                                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M3.5 4.75A.75.75 0 003 5.5v9a.75.75 0 00.75.75h13.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75H3.5Z" clip-rule="evenodd" fill-rule="evenodd"/>
+                                  <path d="M3.5 4.75A.75.75 0 003 5.5v9a.75.75 0 00.75.75h13.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75H3.5Z" clip-rule="evenodd" fill-rule="evenodd"/>
+                                  <path d="M11.25 6.5a.75.75 0 01.75.75v5a.75.75 0 01-1.5 0v-5a.75.75 0 01.75-.75ZM8.75 8a.75.75 0 01.75.75v3a.75.75 0 01-1.5 0v-3A.75.75 0 018.75 8ZM6.25 9.5A.75.75 0 017 10.25v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 016.25 9.5ZM13.75 9.5a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75Z" clip-rule="evenodd" fill-rule="evenodd"/>
+                                </svg>
+                                Solicitar WhatsApp
+                            </button>
+                        </form>
                     </div>
+                    {% endif %}
+
                 </div>
             </div>
         </div>
@@ -251,7 +250,7 @@
         <!-- Cards de Informações Rápidas (ALUNO) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {% if perfil_usuario.aluno.nivel_pratica %}
-            <div class="stat-card bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-2xl shadow-lg">
+            <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-4 rounded-2xl shadow-lg">
                 <div class="flex items-center justify-between mb-2">
                     <i class="fas fa-chart-line text-2xl text-white/80"></i>
                 </div>
@@ -261,7 +260,7 @@
             {% endif %}
 
             {% if perfil_usuario.aluno.periodos_preferidos %}
-            <div class="stat-card bg-gradient-to-br from-purple-600 to-purple-700 p-4 rounded-2xl shadow-lg">
+            <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-4 rounded-2xl shadow-lg">
                 <div class="flex items-center justify-between mb-2">
                     <i class="fas fa-clock text-2xl text-white/80"></i>
                 </div>
@@ -271,7 +270,7 @@
             {% endif %}
 
             {% if perfil_usuario.aluno.status_social %}
-            <div class="stat-card bg-gradient-to-br from-pink-600 to-pink-700 p-4 rounded-2xl shadow-lg">
+            <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-4 rounded-2xl shadow-lg">
                 <div class="flex items-center justify-between mb-2">
                     <i class="fas fa-heart text-2xl text-white/80"></i>
                 </div>
@@ -281,7 +280,7 @@
             {% endif %}
 
             {% if perfil_usuario.aluno.vibe_after.exists %}
-            <div class="stat-card bg-gradient-to-br from-yellow-600 to-yellow-700 p-4 rounded-2xl shadow-lg">
+            <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-4 rounded-2xl shadow-lg">
                 <div class="flex items-center justify-between mb-2">
                     <i class="fas fa-fire text-2xl text-white/80"></i>
                 </div>

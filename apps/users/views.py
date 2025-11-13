@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm, \
     FotoUsuarioForm, AvaliacaoForm
-from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao
+from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao, SolicitacaoConexao
 from django.contrib import messages
 from django.db import models
+from django.db.models import Q
+
 
 @login_required
 def complete_aluno_profile(request):
@@ -287,3 +289,99 @@ def adicionar_avaliacao_view(request, profissional_id):
 
     # Se alguém tentar acessar esta URL via GET, apenas redireciona
     return redirect_url
+
+
+@login_required
+def solicitar_conexao_view(request, usuario_id):
+    """
+    Cria uma nova SolicitacaoConexao (um pedido de WhatsApp).
+    Esta view é chamada via POST (HTMX).
+    """
+    if request.method == 'POST':
+        solicitado = get_object_or_404(Usuario, pk=usuario_id)
+        solicitante = request.user
+
+        # Regras de Negócio
+        if solicitado == solicitante:
+            messages.error(request, 'Você não pode solicitar seu próprio WhatsApp.')
+        elif not hasattr(solicitado, 'aluno'):
+            messages.error(request, 'Você só pode solicitar conexões de Alunos.')
+        elif SolicitacaoConexao.objects.filter(solicitante=solicitante,
+                                               solicitado=solicitado).exists():
+            messages.warning(request,
+                             'Você já enviou uma solicitação para este usuário.')
+        else:
+            SolicitacaoConexao.objects.create(solicitante=solicitante,
+                                              solicitado=solicitado, status='pendente')
+            messages.success(request, 'Solicitação de conexão enviada!')
+
+    # Redireciona de volta para o perfil que o usuário estava vendo
+    return redirect('public_profile', usuario_id=usuario_id)
+
+
+@login_required
+def listar_notificacoes_view(request):
+    """
+    Mostra a página do "sininho" e marca as novas
+    notificações de "aceito" como lidas.
+    """
+    usuario = request.user
+    # 1. Pedidos que EU RECEBI e preciso responder
+    pedidos_pendentes = SolicitacaoConexao.objects.filter(
+        solicitado=usuario,
+        status='pendente'
+    ).select_related('solicitante')
+    # 2. Pedidos que EU FIZ e foram aceitos (para eu ver o WhatsApp)
+    pedidos_aceitos_para_mim = SolicitacaoConexao.objects.filter(
+        solicitante=usuario,
+        status='aceita'
+    ).select_related('solicitado')
+    # Pega os IDs dos pedidos que estão sendo vistos e ainda não lidos
+    ids_para_marcar_como_lido = list(
+        pedidos_aceitos_para_mim.filter(lida_pelo_solicitante=False).values_list('id',
+                                                                                 flat=True)
+    )
+    # Atualiza o banco de dados
+    if ids_para_marcar_como_lido:
+        SolicitacaoConexao.objects.filter(pk__in=ids_para_marcar_como_lido).update(
+            lida_pelo_solicitante=True)
+    # 3. Histórico (pedidos que eu fiz e foram recusados, ou que eu respondi)
+    historico = SolicitacaoConexao.objects.filter(
+        Q(solicitado=usuario) & ~Q(status='pendente') |
+        Q(solicitante=usuario) & ~Q(status='pendente')
+    ).select_related('solicitante', 'solicitado').order_by('-updated_at')
+
+    context = {
+        'pedidos_pendentes': pedidos_pendentes,
+        'pedidos_aceitos_para_mim': pedidos_aceitos_para_mim,
+        'historico': historico,
+        'novos_pedidos_aceitos_ids': ids_para_marcar_como_lido
+    }
+    return render(request, 'account/notificacoes.html', context)
+
+
+@login_required
+def responder_solicitacao_view(request, solicitacao_id, acao):
+    """
+    Aceita ou Recusa uma solicitação pendente.
+    Esta view é chamada via POST (HTMX).
+    """
+    # Garante que o usuário logado é o DONO do pedido
+    solicitacao = get_object_or_404(
+        SolicitacaoConexao,
+        pk=solicitacao_id,
+        solicitado=request.user
+    )
+
+    if solicitacao.status == 'pendente' and request.method == 'POST':
+        if acao == 'aceitar':
+            solicitacao.status = 'aceita'
+            messages.success(request,
+                             f'Você aceitou a conexão de {solicitacao.solicitante.first_name}.')
+        elif acao == 'recusar':
+            solicitacao.status = 'recusada'
+            messages.success(request,
+                             f'Você recusou a conexão de {solicitacao.solicitante.first_name}.')
+        solicitacao.save()
+
+    return redirect('listar_notificacoes')

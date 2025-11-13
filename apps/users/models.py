@@ -401,3 +401,60 @@ class Avaliacao(models.Model):
 
     def __str__(self):
         return f"Avaliação de {self.autor.usuario.first_name} para {self.profissional_avaliado.usuario.first_name}: {self.nota} estrelas"
+
+
+class SolicitacaoConexao(models.Model):
+    """
+    Rastreia um pedido de um usuário (solicitante) para ver
+    o WhatsApp de outro usuário (solicitado).
+    Esta tabela também alimenta o "sininho" de notificações.
+    """
+
+    # --- Status Choices ---
+    STATUS_CHOICES = [
+        ('pendente', 'Pendente'),
+        ('aceita', 'Aceita'),
+        ('recusada', 'Recusada'),
+    ]
+
+    # --- Relacionamentos ---
+    solicitante = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="conexoes_solicitadas"
+    )
+    solicitado = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="conexoes_recebidas"
+    )
+
+    # --- Campos ---
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pendente'
+    )
+
+    lida_pelo_solicitante = models.BooleanField(
+        default=False,
+        help_text="Indica se o solicitante já viu a notificação de 'aceita'."
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Solicitação de Conexão"
+        verbose_name_plural = "Solicitações de Conexão"
+        ordering = ['-updated_at']
+        # Garante que um usuário só pode pedir o WhatsApp de outro uma única vez
+        constraints = [
+            models.UniqueConstraint(
+                fields=['solicitante', 'solicitado'],
+                name='unique_solicitacao_conexao'
+            )
+        ]
+
+    def __str__(self):
+        return f"Pedido de {self.solicitante.email} para {self.solicitado.email} ({self.status})"

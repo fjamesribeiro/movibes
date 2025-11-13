@@ -6,26 +6,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- SEO -->
   <meta name="description"
         content="Movibes - Conecte-se com pessoas através do estilo de vida. Encontre eventos, treinos e atividades para fazer conexões reais.">
   <meta name="keywords" content="eventos, lifestyle, conexões, treinos, atividades">
   <meta name="author" content="Movibes">
 
-  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://movibes.com/">
   <meta property="og:title" content="Movibes - Conectando Lifestyles">
   <meta property="og:description" content="Encontre eventos e faça conexões através do estilo de vida">
   <meta property="og:image" content="{% static 'images/og-image.jpg' %}">
 
-  <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:title" content="Movibes - Conectando Lifestyles">
 
   <title>{% block title %}Movibes - Conectando Lifestyles{% endblock %}</title>
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 
   {% tailwind_css %}
@@ -40,21 +36,62 @@
 
     @media (max-width: 768px) {
         body {
-            padding-top: 60px; /* Apenas altura do header fixo */
+            padding-top: 60px;
             {% if user.is_authenticated %}
-            padding-bottom: 56px; /* Menu inferior altura - apenas para usuários logados */
+            padding-bottom: 56px;
             {% else %}
-            padding-bottom: 0; /* Sem menu inferior para usuários não logados */
+            padding-bottom: 0;
             {% endif %}
         }
+    }
+
+    /* Animação suave para o dropdown */
+    .dropdown-menu {
+        transform-origin: top right;
+        animation: slideDown 0.2s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Estilo para o avatar com borda animada */
+    .avatar-wrapper {
+        position: relative;
+        transition: transform 0.2s ease;
+    }
+
+    .avatar-wrapper:hover {
+        transform: scale(1.05);
+    }
+
+    .avatar-wrapper::after {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #fbbf24, #f59e0b);
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .avatar-wrapper:hover::after {
+        opacity: 1;
     }
   </style>
 </head>
 
 <body class="bg-[#111827] text-white font-sans">
 
-<!-- HEADER DESKTOP (mantém original) -->
-<header class="hidden md:block bg-[#111827] border-b border-gray-700" x-data="{ open: false }">
+<header class="hidden md:block bg-[#111827] border-b border-gray-700" x-data="{ profileOpen: false }">
   <nav class="container mx-auto flex items-center justify-between p-4">
 
     <a href="/" class="flex items-center space-x-2">
@@ -62,57 +99,252 @@
     </a>
 
     <div class="flex items-center space-x-6 text-sm">
-      <a href="#" class="text-gray-300 hover:text-white">Preços</a>
-      <a href="#" class="text-gray-300 hover:text-white">Saiba mais</a>
-      <a href="#" class="text-gray-300 hover:text-white">Contato</a>
+      <a href="#" class="text-gray-300 hover:text-white transition-colors">Preços</a>
+      <a href="#" class="text-gray-300 hover:text-white transition-colors">Saiba mais</a>
+      <a href="#" class="text-gray-300 hover:text-white transition-colors">Contato</a>
 
       {% if user.is_authenticated %}
-      <a href="{% url 'create_event' %}" class="text-yellow-400 font-semibold hover:text-yellow-300">
+      <a href="{% url 'create_event' %}" class="text-yellow-400 font-semibold hover:text-yellow-300 transition-colors">
         Criar Evento
       </a>
       {% endif %}
     </div>
 
-    <div class="flex">
+    <div class="flex items-center">
       {% if user.is_authenticated %}
       <div class="flex items-center space-x-4">
-        <span class="text-white font-medium text-sm">Olá, {{ user.first_name|default:user.email }}!</span>
-        <a href="{% url 'account_logout' %}" class="text-gray-300 hover:text-white text-sm hover:underline">Sair</a>
+        <a href="{% url 'listar_notificacoes' %}" class="relative text-gray-400 hover:text-white transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341A6 6 0 006 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+          </svg>
+          {% if contagem_notificacoes > 0 %}
+          <span
+            class="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-xs font-bold text-white">
+            {{ contagem_notificacoes }}
+          </span>
+          {% endif %}
+        </a>
+
+        <div class="relative" @click.away="profileOpen = false">
+          <button @click="profileOpen = !profileOpen" class="flex items-center space-x-3 focus:outline-none group">
+            <span class="text-white font-semibold group-hover:text-yellow-400 transition-colors">
+              {{ user.first_name|default:user.email }}
+            </span>
+            <div class="avatar-wrapper">
+              {% if user.url_foto_perfil %}
+              <img src="{{ user.url_foto_perfil.url }}" alt="{{ user.first_name }}"
+                   class="w-10 h-10 rounded-full object-cover border-2 border-gray-600">
+              {% else %}
+              <div
+                class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center border-2 border-gray-600">
+                <span class="text-gray-900 font-bold text-lg">
+                  {{ user.first_name.0|upper|default:user.email.0|upper }}
+                </span>
+              </div>
+              {% endif %}
+            </div>
+            <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': profileOpen }" fill="none"
+                 stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </button>
+
+          <div x-show="profileOpen"
+               x-transition
+               class="dropdown-menu absolute right-0 mt-3 w-72 bg-[#1F2937] border border-gray-700 rounded-2xl shadow-2xl py-2 z-50"
+               style="display: none;">
+
+            <div class="px-4 py-3 border-b border-gray-700">
+              <p class="text-sm text-gray-400">Logado como</p>
+              <p class="font-semibold text-white truncate">{{ user.email }}</p>
+            </div>
+
+            <div class="py-2">
+              <div class="px-4 py-2">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Meu Perfil</p>
+              </div>
+
+              <a href="{% url 'profile' %}"
+                 class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-yellow-400 transition-colors group">
+                <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-yellow-400" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                <span class="text-sm font-medium">Ver Perfil</span>
+              </a>
+
+              <a href="{% url 'account_galeria' %}"
+                 class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-yellow-400 transition-colors group">
+                <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-yellow-400" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-sm font-medium">Minha Galeria</span>
+              </a>
+
+              <a href="{% url 'listar_notificacoes' %}"
+                 class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-yellow-400 transition-colors group">
+                <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-yellow-400" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                <span class="text-sm font-medium">Minhas Conexões</span>
+                {% if contagem_notificacoes > 0 %}
+                <span class="ml-auto bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {{ contagem_notificacoes }}
+                </span>
+                {% endif %}
+              </a>
+            </div>
+
+            <div class="border-t border-gray-700"></div>
+
+            <div class="py-2">
+              <div class="px-4 py-2">
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Configurações</p>
+              </div>
+
+              <a href="{% url 'account_email' %}"
+                 class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-yellow-400 transition-colors group">
+                <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-yellow-400" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                <span class="text-sm font-medium">Gerenciar E-mails</span>
+              </a>
+
+              <a href="{% url 'account_change_password' %}"
+                 class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800 hover:text-yellow-400 transition-colors group">
+                <svg class="w-5 h-5 mr-3 text-gray-500 group-hover:text-yellow-400" fill="none" stroke="currentColor"
+                     viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <span class="text-sm font-medium">Alterar Senha</span>
+              </a>
+            </div>
+
+            <div class="border-t border-gray-700"></div>
+
+            <div class="py-2">
+              <a href="{% url 'account_logout' %}"
+                 class="flex items-center px-4 py-2.5 text-red-400 hover:bg-red-900/20 transition-colors group">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                <span class="text-sm font-semibold">Sair da Conta</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </div>
       {% else %}
       <div class="flex items-center space-x-4">
-        <a href="{% url 'account_login' %}" class="text-gray-300 hover:text-white font-medium text-sm">Entrar</a>
+        <a href="{% url 'account_login' %}"
+           class="text-gray-300 hover:text-white font-medium text-sm transition-colors">Entrar</a>
         <a href="{% url 'account_signup' %}"
-           class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md text-sm hover:bg-yellow-500">Quero me
-          cadastrar</a>
+           class="bg-yellow-400 text-black font-semibold px-4 py-2 rounded-md text-sm hover:bg-yellow-500 transition-colors">
+          Quero me cadastrar
+        </a>
       </div>
       {% endif %}
     </div>
   </nav>
 </header>
 
-<!-- HEADER MOBILE (simplificado) -->
-<header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#1F2937] border-b border-gray-700">
-  <!-- Logo e Saudação -->
+<header class="md:hidden fixed top-0 left-0 right-0 z-50 bg-[#1F2937] border-b border-gray-700"
+        x-data="{ profileOpen: false }">
   <div class="flex items-center justify-between px-4 py-3">
     <a href="/" class="flex items-center">
       <img src="{% static 'images/logo.png' %}" alt="Movibes Logo" class="h-8">
     </a>
 
     {% if user.is_authenticated %}
-    <span class="text-white text-sm font-medium">Olá, {{ user.first_name|default:user.email }}</span>
+    <div class="relative" @click.away="profileOpen = false">
+      <button @click="profileOpen = !profileOpen" class="flex items-center space-x-2">
+        {% if user.url_foto_perfil %}
+        <img src="{{ user.url_foto_perfil.url }}" alt="{{ user.first_name }}"
+             class="w-8 h-8 rounded-full object-cover border-2 border-yellow-400">
+        {% else %}
+        <div
+          class="w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center border-2 border-yellow-400">
+          <span class="text-gray-900 font-bold text-sm">
+            {{ user.first_name.0|upper|default:user.email.0|upper }}
+          </span>
+        </div>
+        {% endif %}
+      </button>
+
+      <div x-show="profileOpen"
+           x-transition
+           class="dropdown-menu absolute right-0 mt-2 w-64 bg-[#1F2937] border border-gray-700 rounded-xl shadow-2xl py-2"
+           style="display: none;">
+
+        <div class="px-4 py-3 border-b border-gray-700">
+          <p class="text-xs text-gray-400">Logado como</p>
+          <p class="font-semibold text-white text-sm truncate">{{ user.first_name|default:user.email }}</p>
+        </div>
+
+        <a href="{% url 'profile' %}" class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800">
+          <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+          <span class="text-sm">Meu Perfil</span>
+        </a>
+
+        <a href="{% url 'account_galeria' %}" class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800">
+          <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          <span class="text-sm">Galeria</span>
+        </a>
+
+        <a href="{% url 'account_email' %}" class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800">
+          <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          <span class="text-sm">E-mails</span>
+        </a>
+
+        <a href="{% url 'account_change_password' %}"
+           class="flex items-center px-4 py-2.5 text-gray-300 hover:bg-gray-800">
+          <svg class="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          <span class="text-sm">Senha</span>
+        </a>
+
+        <div class="border-t border-gray-700 my-2"></div>
+
+        <a href="{% url 'account_logout' %}" class="flex items-center px-4 py-2.5 text-red-400 hover:bg-red-900/20">
+          <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          <span class="text-sm font-semibold">Sair</span>
+        </a>
+      </div>
+    </div>
     {% else %}
     <a href="{% url 'account_login' %}" class="text-gray-400 hover:text-yellow-400 text-sm font-medium">Entrar</a>
     {% endif %}
   </div>
 </header>
 
-<!-- MENU INFERIOR MOBILE (versão ultra compacta estilo Airbnb) -->
 {% if user.is_authenticated %}
 <nav id="bottom-nav"
      class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#1F2937] border-t border-gray-700/50 transition-transform duration-300">
   <div class="grid grid-cols-4 h-14">
-    <!-- Explorar -->
     <a href="{% url 'home' %}"
        class="flex flex-col items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors py-1.5">
       <svg class="w-[22px] h-[22px] mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -122,7 +354,6 @@
       <span class="text-[9px] font-medium mt-0.5">Explorar</span>
     </a>
 
-    <!-- Eventos -->
     <a href="#"
        class="flex flex-col items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors py-1.5">
       <svg class="w-[22px] h-[22px] mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -131,32 +362,33 @@
       <span class="text-[9px] font-medium mt-0.5">Eventos</span>
     </a>
 
-    <!-- Notificações -->
-    <a href="#"
+    <a href="{% url 'listar_notificacoes' %}"
        class="relative flex flex-col items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors py-1.5">
-      <span class="absolute top-1.5 right-1/4 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
       <svg class="w-[22px] h-[22px] mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341A6 6 0 006 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
       </svg>
-      <span class="text-[9px] font-medium mt-0.5">Alertas</span>
+      <span class="text-[9px] font-medium mt-0.5">Conexões</span>
+      {% if contagem_notificacoes > 0 %}
+      <span
+        class="absolute top-1 right-6 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white">
+        {{ contagem_notificacoes }}
+      </span>
+      {% endif %}
     </a>
 
-    <!-- Menu -->
-    <button
-      @click="mobileMenu = true"
-      x-data="{ mobileMenu: false }"
-      class="flex flex-col items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors py-1.5">
+    <a href="{% url 'profile' %}"
+       class="flex flex-col items-center justify-center text-gray-400 hover:text-yellow-400 transition-colors py-1.5">
       <svg class="w-[22px] h-[22px] mb-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
       </svg>
-      <span class="text-[9px] font-medium mt-0.5">Menu</span>
-    </button>
+      <span class="text-[9px] font-medium mt-0.5">Perfil</span>
+    </a>
   </div>
 </nav>
 {% endif %}
 
-<!-- MAIN CONTENT -->
 <main class="container mx-auto px-0 md:px-0 lg:px-0 py-0">
 
   {% if messages %}
@@ -190,16 +422,13 @@
   {% endblock %}
 </main>
 
-<!-- FOOTER (mantém original, só aparece no desktop ou no final da página) -->
 {% load static %}
 
 <footer class="mt-6 border-t border-gray-700 bg-[#0F172A]">
   <div class="container mx-auto px-4 py-12">
 
-    <!-- Grid Principal - 4 Colunas -->
     <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-6">
 
-      <!-- Coluna 1: Sobre a Movibes -->
       <div class="col-span-2 md:col-span-1">
         <p class="text-gray-400 text-sm leading-relaxed mb-4">
           Conectando pessoas através do estilo de vida. Encontre eventos, treinos e atividades para sair de casa e fazer
@@ -215,7 +444,6 @@
         </div>
       </div>
 
-      <!-- Coluna 2: Links Rápidos -->
       <div>
         <h5 class="text-white font-semibold text-lg mb-4">Links Rápidos</h5>
         <ul class="space-y-3">
@@ -271,7 +499,6 @@
         </ul>
       </div>
 
-      <!-- Coluna 3: Legal -->
       <div>
         <h5 class="text-white font-semibold text-lg mb-4">Informações Legais</h5>
         <ul class="space-y-3">
@@ -314,11 +541,9 @@
         </ul>
       </div>
 
-      <!-- Coluna 4: Contato e Redes Sociais -->
       <div>
         <h5 class="text-white font-semibold text-lg mb-4">Fale Conosco</h5>
 
-        <!-- Informações de Contato -->
         <ul class="space-y-3 mb-6">
           <li>
             <a href="mailto:contato@movibes.com"
@@ -343,11 +568,9 @@
         </ul>
       </div>
       <div>
-        <!-- Redes Sociais -->
         <div>
           <h6 class="text-white text-sm font-semibold mb-3">Siga-nos</h6>
           <div class="flex space-x-3">
-            <!-- WhatsApp -->
             <a href="https://wa.me/5585991148263"
                target="_blank"
                rel="noopener noreferrer"
@@ -359,7 +582,6 @@
               </svg>
             </a>
 
-            <!-- Instagram -->
             <a href="https://instagram.com/movibes"
                target="_blank"
                rel="noopener noreferrer"
@@ -371,7 +593,6 @@
               </svg>
             </a>
 
-            <!-- TikTok -->
             <a href="https://tiktok.com/@movibes"
                target="_blank"
                rel="noopener noreferrer"
@@ -387,7 +608,6 @@
       </div>
     </div>
 
-    <!-- Seção de Apps (Em Breve) -->
     <div class="border-t border-gray-700 pt-8 pb-8">
       <div class="text-center mb-6">
         <h4 class="text-xl font-bold text-white mb-2">
@@ -399,7 +619,6 @@
       </div>
 
       <div class="flex flex-col-2 sm:flex-row items-center justify-center gap-4">
-        <!-- App Store Badge -->
         <div class="relative group cursor-not-allowed">
           <img src="{% static 'images/app-store-badge.png' %}"
                alt="Em breve na App Store"
@@ -412,7 +631,6 @@
           </div>
         </div>
 
-        <!-- Google Play Badge -->
         <div class="relative group cursor-not-allowed">
           <img src="{% static 'images/google-play-badge.png' %}"
                alt="Em breve no Google Play"
@@ -427,7 +645,6 @@
       </div>
     </div>
 
-    <!-- Newsletter (Opcional) -->
     <div class="border-t border-gray-700 pt-8 pb-8">
       <div class="max-w-2xl mx-auto text-center">
         <h5 class="text-white font-semibold text-lg mb-2">
@@ -453,7 +670,6 @@
       </div>
     </div>
 
-    <!-- Copyright e Links Finais -->
     <div class="border-t border-gray-700 pt-8">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <p class="text-gray-500 text-sm text-center md:text-left">
@@ -478,9 +694,7 @@
   </div>
 </footer>
 
-<!-- Modal Menu Mobile (slide lateral) -->
 <div x-data="{ menuOpen: false }" @keydown.escape.window="menuOpen = false">
-  <!-- Overlay -->
   <div x-show="menuOpen"
        x-transition:enter="transition-opacity ease-linear duration-300"
        x-transition:enter-start="opacity-0"
@@ -493,7 +707,6 @@
        style="display: none;">
   </div>
 
-  <!-- Menu Sidebar -->
   <div x-show="menuOpen"
        x-transition:enter="transition ease-in-out duration-300 transform"
        x-transition:enter-start="translate-x-full"
@@ -504,7 +717,6 @@
        class="fixed right-0 top-0 bottom-0 w-80 bg-[#1F2937] z-50 overflow-y-auto md:hidden"
        style="display: none;">
 
-    <!-- Header do Menu -->
     <div class="p-6 border-b border-gray-700">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-xl font-bold text-white">Menu</h3>
@@ -538,7 +750,6 @@
       {% endif %}
     </div>
 
-    <!-- Navegação -->
     <div class="p-6">
       <nav class="space-y-2">
         {% if not user.is_authenticated %}
@@ -626,7 +837,6 @@
     </div>
   </div>
 
-  <!-- Botão do Menu (conecta com o Alpine.js) -->
   <script>
     document.addEventListener('alpine:init', () => {
       Alpine.store('mobileMenu', {
@@ -640,45 +850,45 @@
 </div>
 
 <script>
-// Comportamento de scroll do menu inferior (estilo Airbnb)
-(function() {
-  // Verificar se estamos no mobile
-  if (window.innerWidth >= 768) return;
+  // Comportamento de scroll do menu inferior (estilo Airbnb)
+  (function() {
+    // Verificar se estamos no mobile
+    if (window.innerWidth >= 768) return;
 
-  const bottomNav = document.getElementById('bottom-nav');
+    const bottomNav = document.getElementById('bottom-nav');
 
-  // Se o menu não existe (usuário não logado), não fazer nada
-  if (!bottomNav) return;
+    // Se o menu não existe (usuário não logado), não fazer nada
+    if (!bottomNav) return;
 
-  let lastScrollY = window.scrollY;
-  let ticking = false;
+    let lastScrollY = window.scrollY;
+    let ticking = false;
 
-  function updateNavVisibility() {
-    const currentScrollY = window.scrollY;
+    function updateNavVisibility() {
+      const currentScrollY = window.scrollY;
 
-    if (currentScrollY < 100) {
-      bottomNav.style.transform = 'translateY(0)';
+      if (currentScrollY < 100) {
+        bottomNav.style.transform = 'translateY(0)';
+      }
+      else if (currentScrollY > lastScrollY) {
+        bottomNav.style.transform = 'translateY(100%)';
+      }
+      else {
+        bottomNav.style.transform = 'translateY(0)';
+      }
+
+      lastScrollY = currentScrollY;
+      ticking = false;
     }
-    else if (currentScrollY > lastScrollY) {
-      bottomNav.style.transform = 'translateY(100%)';
-    }
-    else {
-      bottomNav.style.transform = 'translateY(0)';
-    }
 
-    lastScrollY = currentScrollY;
-    ticking = false;
-  }
+    window.addEventListener('scroll', function() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateNavVisibility);
+        ticking = true;
+      }
+    });
 
-  window.addEventListener('scroll', function() {
-    if (!ticking) {
-      window.requestAnimationFrame(updateNavVisibility);
-      ticking = true;
-    }
-  });
-
-  bottomNav.style.transform = 'translateY(0)';
-})();
+    bottomNav.style.transform = 'translateY(0)';
+  })();
 </script>
 </body>
 </html>

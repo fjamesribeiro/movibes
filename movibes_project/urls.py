@@ -5,7 +5,9 @@ from django.conf.urls.static import static
 from apps.events.views import home, subscribe_to_event, create_event, \
     gerenciar_galeria_evento, evento_detail_view
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
-    set_profile_type, profile_view, gerenciar_galeria, public_profile_view, adicionar_avaliacao_view
+    set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
+    adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
+    responder_solicitacao_view
 
 urlpatterns = [
     path('', home, name='home'),
@@ -22,6 +24,11 @@ urlpatterns = [
     path('evento/<int:evento_id>/galeria/', gerenciar_galeria_evento, name='account_galeria_evento'),
     path('evento/<int:evento_id>/', evento_detail_view, name='evento_detail'),
     path('perfil/profissional/<int:profissional_id>/avaliar/', adicionar_avaliacao_view, name='adicionar_avaliacao'),
+    # --- NOVOS PATHS PARA CONEXÕES ---
+    path('solicitar-conexao/<int:usuario_id>/', solicitar_conexao_view, name='solicitar_conexao'),
+    path('notificacoes/', listar_notificacoes_view, name='listar_notificacoes'),
+    path('notificacoes/responder/<int:solicitacao_id>/<str:acao>/', responder_solicitacao_view, name='responder_solicitacao'),
+
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
