@@ -1,7 +1,7 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from django.shortcuts import resolve_url
 from django.urls import reverse
-
+from django.contrib import messages
 
 class MyAccountAdapter(DefaultAccountAdapter):
     """
@@ -50,3 +50,23 @@ class MyAccountAdapter(DefaultAccountAdapter):
 
         # Senão, manda para escolher o tipo de perfil
         return reverse('account_select_profile_type')
+
+    # --- 2. ADICIONE ESTE NOVO MÉTODO ---
+    def add_message(self, request, level, message_template, message_context=None,
+                    extra_tags=""):
+        """
+        Intercepta e bloqueia mensagens específicas do allauth.
+        """
+        # Lista de mensagens que não queremos mostrar
+        blocked_messages = [
+            "account/messages/logged_in.txt",  # "Conectado com sucesso..."
+            "account/messages/logged_out.txt",  # "Você saiu."
+        ]
+
+        if message_template in blocked_messages:
+            return  # Não faz nada (bloqueia a mensagem)
+
+        # Deixa todas as outras mensagens (ex: "Perfil salvo") passarem
+        return super().add_message(
+            request, level, message_template, message_context, extra_tags
+        )
