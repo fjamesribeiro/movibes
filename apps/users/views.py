@@ -15,6 +15,10 @@ def complete_aluno_profile(request):
     View para forçar o aluno a completar o cadastro
     após o primeiro login.
     """
+    if request.user.cadastro_completo:
+        messages.warning(request, 'Seu perfil já está completo.')
+        return redirect('home')
+
     try:
         aluno_profile = request.user.aluno
     except Aluno.DoesNotExist:
@@ -43,6 +47,11 @@ def complete_aluno_profile(request):
 
 @login_required
 def complete_profissional_profile(request):
+
+    if request.user.cadastro_completo:
+        messages.warning(request, 'Seu perfil já está completo.')
+        return redirect('home')
+
     try:
         profile = request.user.profissional
     except Profissional.DoesNotExist:
