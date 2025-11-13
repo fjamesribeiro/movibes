@@ -3,13 +3,15 @@
 
 {% block content %}
 
-<!-- Barra de Busca e Ações Rápidas - Visível em todos os tamanhos -->
-<!-- Barra de Busca e Ações Rápidas - VERSÃO ULTRA COMPACTA -->
+<!-- Barra de Busca e Ações Rápidas - APENAS PARA USUÁRIOS LOGADOS -->
+{% if user.is_authenticated %}
 <section class="md:hidden bg-[#1F2937] px-4 py-3 space-y-2.5 border-b border-gray-700">
   <!-- Barra de Busca -->
   <div class="relative">
-    <svg class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    <svg class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none"
+         stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
     </svg>
     <input
       type="text"
@@ -17,39 +19,43 @@
       class="w-full pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400">
   </div>
 
-  <!-- 3 Botões de Ação - VERSÃO ULTRA COMPACTA -->
+  <!-- 3 Botões de Ação -->
   <div class="grid grid-cols-3 gap-2">
-    <!-- Meus Eventos -->
-    <a href="#" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+    <a href="#"
+       class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
       <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
       </svg>
       <span class="text-white text-[9px] font-semibold text-center leading-tight">Meus Eventos</span>
     </a>
 
-    <!-- Criar Evento (Premium) -->
-    <a href="{% url 'create_event' %}" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
-      {% if user.is_authenticated %}
-      <span class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[8px] font-bold px-1 py-0.5 rounded-full leading-none">Premium</span>
-      {% endif %}
+    <a href="{% url 'create_event' %}"
+       class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+      <span
+        class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[8px] font-bold px-1 py-0.5 rounded-full leading-none">Premium</span>
       <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
       </svg>
       <span class="text-white text-[9px] font-semibold text-center leading-tight">Criar Evento</span>
     </a>
 
-    <!-- Conexões -->
-    <a href="#" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+    <a href="#"
+       class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
       <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
       </svg>
       <span class="text-white text-[9px] font-semibold text-center leading-tight">Conexões</span>
     </a>
   </div>
 </section>
+{% endif %}
 
+{% if not user.is_authenticated %}
 <!-- Hero Section - Oculto no Mobile, Visível no Desktop -->
-<section class="hidden md:block overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl"
+<section class="overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl"
          style="background-image: url('{% static 'images/hero-bg.jpg' %}'); background-size: cover; background-position: center;">
   <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
 
@@ -98,7 +104,7 @@
 </section>
 
 <!-- Seção Principal de Eventos -->
-<section class="hidden md:block overflow-hidden py-4 md:py-4 px-2 md:px-2 lg:px-2">
+<section class="overflow-hidden py-2 md:py-4 px-2 md:px-2 lg:px-2">
   <div class="max-w-12xl ">
     <div class="text-center mb-6 md:mb-10">
       <h3 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
@@ -111,17 +117,18 @@
   </div>
 </section>
 
-<section class="py-6 py-4 md:py-4 px-2 md:px-2 lg:px-2" id="eventos">
-  <!-- Seção de Filtros Avançados -->
-  <div class="mb-6 md:mb-10 px-0 md:px-0" x-data="{
+{% endif %}
+
+
+<section class="py-2 md:py-4 px-2 md:px-2 lg:px-2" id="eventos">
+  <!-- Seção de Filtros Avançados - AJUSTADA -->
+  <div class="mb-6 md:mb-10 px-4" x-data="{
     filtrosOpen: false,
     activeTab: 'categoria',
     filtrosAtivos: 0,
     calcularFiltros() {
         let count = 0;
-        // Contar categorias selecionadas
         count += document.querySelectorAll('input[name=categorias]:checked').length;
-        // Contar outros filtros
         if(document.querySelector('input[name=cidade]')?.value) count++;
         if(document.querySelector('input[name=bairro]')?.value) count++;
         if(document.querySelector('input[name=data_inicio]')?.value) count++;
@@ -129,15 +136,15 @@
         count += document.querySelectorAll('input[name=after]:checked').length;
         this.filtrosAtivos = count;
         return count;
-    }
-}" x-init="$watch('filtrosOpen', value => { if(value) calcularFiltros(); })">
+      }
+    }" x-init="$watch('filtrosOpen', value => { if(value) calcularFiltros(); })">
 
     <!-- Botão Principal de Filtros -->
     <div class="flex items-center gap-3 mb-6">
       <button
         @click="filtrosOpen = !filtrosOpen; calcularFiltros();"
         type="button"
-        class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 md:px-6 py-3 rounded-xl font-semibold transition-all border-2 border-gray-700 hover:border-yellow-400 group">
+        class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 md:px-6 py-2 rounded-xl font-semibold transition-all border-2 border-gray-700 hover:border-yellow-400 group">
         <svg class="w-5 h-5 text-yellow-400 group-hover:rotate-180 transition-transform duration-300" fill="none"
              stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
