@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Evento, Inscricao, CategoriaEvento, FotoEvento
+from .models import Evento, Inscricao, CategoriaEvento, FotoEvento, InteracaoPresenca
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
 from .forms import EventoForm, FotoEventoForm
@@ -163,39 +163,76 @@ def create_event(request):
 
 
 def evento_detail_view(request, evento_id):
-    """
-    Mostra a página de detalhes de um evento específico.
-    """
     evento = get_object_or_404(Evento, pk=evento_id)
-
-    # 1. Verifica se o evento já passou
+    # Verifica se o evento já passou (lógica existente)
     is_past = evento.data_e_hora < timezone.now()
 
-    # 2. Se já passou, busca as fotos da galeria
     fotos_galeria = []
     if is_past:
-        fotos_galeria = evento.galeria.all()  # (Graças ao related_name="galeria")
+        fotos_galeria = evento.galeria.all()
 
-    # 3. Verifica se o usuário logado (se for aluno) está inscrito
+    # 1. Pega todas as inscrições (participantes) deste evento
+    inscricoes = evento.inscricoes.all().select_related('id_aluno__usuario')
+
+    # 2. [NOVO] Verifica quais inscrições o usuário logado JÁ curtiu
+    # Isso serve para desabilitar o botão ou mostrar "Curtida enviada"
+    interacoes_ids = []
+    if request.user.is_authenticated:
+        interacoes_ids = InteracaoPresenca.objects.filter(
+            autor=request.user,
+            inscricao_alvo__in=inscricoes
+        ).values_list('inscricao_alvo_id', flat=True)
+
+    # Verifica se o próprio usuário está inscrito (lógica existente)
     is_subscribed = False
     if request.user.is_authenticated and hasattr(request.user, 'aluno'):
-        try:
-            # Checa se existe uma inscrição para este aluno e este evento
-            is_subscribed = Inscricao.objects.filter(
-                id_aluno=request.user.aluno,
-                id_evento=evento
-            ).exists()
-        except Aluno.DoesNotExist:
-            is_subscribed = False  # Segurança caso o perfil não esteja completo
+        is_subscribed = Inscricao.objects.filter(
+            id_aluno=request.user.aluno,
+            id_evento=evento
+        ).exists()
 
     context = {
         'evento': evento,
         'is_past': is_past,
         'fotos_galeria': fotos_galeria,
-        'is_subscribed': is_subscribed
+        'is_subscribed': is_subscribed,
+        'inscricoes': inscricoes,
+        'interacoes_ids': interacoes_ids,  # Passamos a lista de IDs curtidos
     }
 
     return render(request, 'events/evento_detail.html', context)
+
+
+@login_required
+def processar_curtida_presenca_view(request, inscricao_id):
+    """
+    Chamada via HTMX quando o usuário clica em "Curtir" na lista de participantes.
+    Cria a interação de presença.
+    """
+    # Apenas Alunos podem curtir (regra de negócio)
+    if not hasattr(request.user, 'aluno'):
+        return HttpResponseForbidden("Apenas alunos podem interagir.")
+
+    inscricao_alvo = get_object_or_404(Inscricao, pk=inscricao_id)
+
+    # Impede curtir a si mesmo
+    if inscricao_alvo.id_aluno.usuario == request.user:
+        return HttpResponse("Você não pode curtir a si mesmo.", status=400)
+
+    # Cria a interação (get_or_create evita duplicatas)
+    # O default é status_retorno='pendente' e lida_pelo_alvo=False
+    InteracaoPresenca.objects.get_or_create(
+        autor=request.user,
+        inscricao_alvo=inscricao_alvo
+    )
+
+    # Retorna o botão atualizado (estado "Curtida enviada")
+    # Vamos criar este pequeno template parcial no próximo passo
+    return render(request, 'partials/botao_curtida_estado.html', {
+        'inscricao': inscricao_alvo,
+        'ja_curtiu': True
+    })
+
 
 @login_required
 def gerenciar_galeria_evento(request, evento_id):
@@ -239,3 +276,42 @@ def gerenciar_galeria_evento(request, evento_id):
         'fotos': fotos_galeria,
         'is_creator': is_creator  # Passa a permissão para o template
     })
+
+
+@login_required
+def like_inscricao_view(request, inscricao_id):
+    """
+    Adiciona ou remove uma 'curtida' de uma inscrição (presença).
+    Esta view é chamada via HTMX.
+    """
+    # Só alunos podem curtir
+    if not hasattr(request.user, 'aluno'):
+        messages.error(request, 'Apenas alunos podem interagir.')
+        return redirect(request.META.get('HTTP_REFERER', 'home')) # Volta para onde estava
+
+    inscricao = get_object_or_404(Inscricao, pk=inscricao_id)
+
+    # Tenta encontrar uma curtida existente
+    try:
+        curtida_existente = CurtidaInscricao.objects.get(
+            usuario=request.user,
+            inscricao=inscricao
+        )
+        # Se encontrou, o usuário está "descurtindo"
+        curtida_existente.delete()
+        is_liked = False
+    except CurtidaInscricao.DoesNotExist:
+        # Se não encontrou, o usuário está "curtindo"
+        CurtidaInscricao.objects.create(
+            usuario=request.user,
+            inscricao=inscricao
+        )
+        is_liked = True
+
+    # Prepara o contexto para o partial do botão
+    context = {
+        'inscricao': inscricao,
+        'is_liked': is_liked # Passa o novo status
+    }
+    # Retorna SÓ o botão atualizado
+    return render(request, 'partials/like_button.html', context)

@@ -1,8 +1,7 @@
 from django.db import models
 from django.conf import settings
-
+from django.db.models import UniqueConstraint
 from apps.users.models import ImageResizingMixin
-
 
 class CategoriaEvento(models.Model):
     """ Tabela de cadastro das categorias (ex: Corrida, Yoga, Vôlei). """
@@ -116,3 +115,62 @@ class FotoEvento(ImageResizingMixin, models.Model):
         if self.imagem:
             self.imagem = self.resize_image(self.imagem)
         super().save(*args, **kwargs)
+
+
+class InteracaoPresenca(models.Model):
+    """
+    Rastreia uma "curtida" (like) que um usuário (autor) dá
+    na presença (Inscricao) de outro usuário.
+    Também rastreia o "like de volta" (status_retorno).
+    """
+
+    # --- Status Choices ---
+    STATUS_RETORNO_CHOICES = [
+        ('pendente', 'Pendente'),  # O "like de volta" ainda não foi dado
+        ('aceito', 'Aceito'),  # O "like de volta" foi dado
+    ]
+
+    # --- Relacionamentos ---
+    autor = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="curtidas_dadas"
+    )
+    inscricao_alvo = models.ForeignKey(
+        Inscricao,
+        on_delete=models.CASCADE,
+        related_name="curtidas_recebidas"
+    )
+
+    # --- Campos de Estado ---
+    status_retorno = models.CharField(
+        max_length=10,
+        choices=STATUS_RETORNO_CHOICES,
+        default='pendente'
+    )
+    lida_pelo_alvo = models.BooleanField(
+        default=False,
+        help_text="Notificação lida pelo dono da inscrição (quem recebeu o 1º like)"
+    )
+    lida_pelo_autor = models.BooleanField(
+        default=False,
+        help_text="Notificação lida pelo autor (quem recebeu o 'like de volta')"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Interação de Presença"
+        verbose_name_plural = "Interações de Presença"
+        ordering = ['-updated_at']
+        # Garante que um usuário só pode curtir uma inscrição uma única vez
+        constraints = [
+            UniqueConstraint(
+                fields=['autor', 'inscricao_alvo'],
+                name='unique_curtida_presenca'
+            )
+        ]
+
+    def __str__(self):
+        return f"Interação de {self.autor.email} para {self.inscricao_alvo.id_aluno.usuario.email}"

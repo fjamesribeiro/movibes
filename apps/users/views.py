@@ -7,6 +7,7 @@ from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao, Solicitacao
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q
+from apps.events.models import InteracaoPresenca
 
 
 @login_required
@@ -33,7 +34,6 @@ def complete_aluno_profile(request):
             profile_form.save()
             request.user.cadastro_completo = True
             request.user.save()
-            messages.success(request, 'Seu perfil foi salvo! Bem-vindo(a) ao Movibes.')
             return redirect('home')
     else:
         user_form = UsuarioProfileForm(instance=request.user)
@@ -332,42 +332,85 @@ def solicitar_conexao_view(request, usuario_id):
 def listar_notificacoes_view(request):
     """
     Mostra a página do "sininho" e marca as novas
-    notificações de "aceito" como lidas.
+    notificações como lidas (Conexões e Curtidas),
+    mas exibe o histórico permanente de todas elas.
     """
     usuario = request.user
+
+    # === PARTE A: CONEXÕES (WhatsApp) ===
+
     # 1. Pedidos que EU RECEBI e preciso responder
     pedidos_pendentes = SolicitacaoConexao.objects.filter(
         solicitado=usuario,
         status='pendente'
     ).select_related('solicitante')
-    # 2. Pedidos que EU FIZ e foram aceitos (para eu ver o WhatsApp)
+
+    # 2. Histórico de Pedidos que EU FIZ e foram aceitos
     pedidos_aceitos_para_mim = SolicitacaoConexao.objects.filter(
         solicitante=usuario,
         status='aceita'
-    ).select_related('solicitado')
-    # Pega os IDs dos pedidos que estão sendo vistos e ainda não lidos
-    ids_para_marcar_como_lido = list(
+    ).select_related('solicitado').order_by('-updated_at')
+
+    # 2.1. Descobre quais são NOVOS e marca como lidos
+    ids_novos_aceitos = list(
         pedidos_aceitos_para_mim.filter(lida_pelo_solicitante=False).values_list('id',
                                                                                  flat=True)
     )
-    # Atualiza o banco de dados
-    if ids_para_marcar_como_lido:
-        SolicitacaoConexao.objects.filter(pk__in=ids_para_marcar_como_lido).update(
+    if ids_novos_aceitos:
+        SolicitacaoConexao.objects.filter(pk__in=ids_novos_aceitos).update(
             lida_pelo_solicitante=True)
-    # 3. Histórico (pedidos que eu fiz e foram recusados, ou que eu respondi)
-    historico = SolicitacaoConexao.objects.filter(
+
+    # 3. Histórico de conexões (outros status)
+    historico_conexoes = SolicitacaoConexao.objects.filter(
         Q(solicitado=usuario) & ~Q(status='pendente') |
         Q(solicitante=usuario) & ~Q(status='pendente')
     ).select_related('solicitante', 'solicitado').order_by('-updated_at')
 
+    # === PARTE B: INTERAÇÕES DE PRESENÇA (Lógica Corrigida) ===
+
+    # 4. Histórico de Curtidas que RECEBI
+    curtidas_recebidas_historico = InteracaoPresenca.objects.filter(
+        inscricao_alvo__id_aluno__usuario=usuario
+    ).select_related('autor', 'inscricao_alvo__id_evento').order_by('-updated_at')
+
+    # 4.1. Descobre quais são NOVAS e marca como lidas
+    ids_novas_curtidas = list(
+        curtidas_recebidas_historico.filter(lida_pelo_alvo=False).values_list('id',
+                                                                              flat=True)
+    )
+    if ids_novas_curtidas:
+        InteracaoPresenca.objects.filter(pk__in=ids_novas_curtidas).update(
+            lida_pelo_alvo=True)
+
+    # 5. Histórico de "Likes de Volta" que RECEBI
+    likes_back_historico = InteracaoPresenca.objects.filter(
+        autor=usuario,
+        status_retorno='aceito'
+    ).select_related('inscricao_alvo__id_aluno__usuario').order_by('-updated_at')
+
+    # 5.1. Descobre quais são NOVOS e marca como lidos
+    ids_novos_likes_back = list(
+        likes_back_historico.filter(lida_pelo_autor=False).values_list('id', flat=True)
+    )
+    if ids_novos_likes_back:
+        InteracaoPresenca.objects.filter(pk__in=ids_novos_likes_back).update(
+            lida_pelo_autor=True)
+
     context = {
+        # Contextos de Conexão
         'pedidos_pendentes': pedidos_pendentes,
         'pedidos_aceitos_para_mim': pedidos_aceitos_para_mim,
-        'historico': historico,
-        'novos_pedidos_aceitos_ids': ids_para_marcar_como_lido
+        'historico': historico_conexoes,  # Renomeado para clareza
+        'novos_pedidos_aceitos_ids': ids_novos_aceitos,  # Renomeado para clareza
+
+        # Novos Contextos de Curtida (Histórico + IDs novos)
+        'curtidas_recebidas': curtidas_recebidas_historico,
+        'novas_curtidas_ids': ids_novas_curtidas,
+
+        'likes_back_recebidos': likes_back_historico,
+        'novos_likes_back_ids': ids_novos_likes_back,
     }
     return render(request, 'account/notificacoes.html', context)
-
 
 @login_required
 def responder_solicitacao_view(request, solicitacao_id, acao):
@@ -393,4 +436,28 @@ def responder_solicitacao_view(request, solicitacao_id, acao):
                              f'Você recusou a conexão de {solicitacao.solicitante.first_name}.')
         solicitacao.save()
 
+    return redirect('listar_notificacoes')
+
+
+@login_required
+def processar_like_back_view(request, interacao_id):
+    """
+    Chamada quando o usuário clica em "Curtir de Volta" na tela de notificações.
+    Aceita o 'match' de presença.
+    """
+    if request.method == 'POST':
+        # Busca a interação onde o usuário logado é o ALVO (quem recebeu o like original)
+        interacao = get_object_or_404(
+            InteracaoPresenca,
+            pk=interacao_id,
+            inscricao_alvo__id_aluno__usuario=request.user
+        )
+        # Atualiza o status para aceito
+        interacao.status_retorno = 'aceito'
+        # Define que o autor original (quem deu o 1º like) ainda NÃO leu essa novidade
+        # Isso fará o sininho dele tocar
+        interacao.lida_pelo_autor = False
+        interacao.save()
+        messages.success(request,
+                         f"Você curtiu {interacao.autor.first_name} de volta! ⚡")
     return redirect('listar_notificacoes')

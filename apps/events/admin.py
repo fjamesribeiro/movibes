@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Evento, Inscricao, CategoriaEvento, FotoEvento
+from .models import Evento, Inscricao, CategoriaEvento, FotoEvento, InteracaoPresenca
 
 
 @admin.register(CategoriaEvento)
@@ -28,3 +28,4 @@ class InscricaoAdmin(admin.ModelAdmin):
     search_fields = ['id_aluno__usuario__email', 'id_evento__nome_evento']
 
 admin.site.register(FotoEvento)
+admin.site.register(InteracaoPresenca)
