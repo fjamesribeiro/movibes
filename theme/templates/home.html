@@ -2,8 +2,54 @@
 {% load static %}
 
 {% block content %}
-<!-- Hero Section-->
-<section class="overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl"
+
+<!-- Barra de Busca e Ações Rápidas - Visível em todos os tamanhos -->
+<!-- Barra de Busca e Ações Rápidas - VERSÃO ULTRA COMPACTA -->
+<section class="md:hidden bg-[#1F2937] px-4 py-3 space-y-2.5 border-b border-gray-700">
+  <!-- Barra de Busca -->
+  <div class="relative">
+    <svg class="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+    </svg>
+    <input
+      type="text"
+      placeholder="Buscar eventos, profissionais..."
+      class="w-full pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-400 focus:outline-none focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400">
+  </div>
+
+  <!-- 3 Botões de Ação - VERSÃO ULTRA COMPACTA -->
+  <div class="grid grid-cols-3 gap-2">
+    <!-- Meus Eventos -->
+    <a href="#" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+      <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <span class="text-white text-[9px] font-semibold text-center leading-tight">Meus Eventos</span>
+    </a>
+
+    <!-- Criar Evento (Premium) -->
+    <a href="{% url 'create_event' %}" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+      {% if user.is_authenticated %}
+      <span class="absolute -top-1 -right-1 bg-yellow-400 text-black text-[8px] font-bold px-1 py-0.5 rounded-full leading-none">Premium</span>
+      {% endif %}
+      <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+      </svg>
+      <span class="text-white text-[9px] font-semibold text-center leading-tight">Criar Evento</span>
+    </a>
+
+    <!-- Conexões -->
+    <a href="#" class="relative flex flex-col items-center justify-center bg-gray-800 hover:bg-gray-700 rounded-lg p-2.5 transition-colors border border-gray-700">
+      <svg class="w-5 h-5 text-yellow-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <span class="text-white text-[9px] font-semibold text-center leading-tight">Conexões</span>
+    </a>
+  </div>
+</section>
+
+<!-- Hero Section - Oculto no Mobile, Visível no Desktop -->
+<section class="hidden md:block overflow-hidden relative h-[550px] flex items-center bg-cover bg-center shadow-5xl"
          style="background-image: url('{% static 'images/hero-bg.jpg' %}'); background-size: cover; background-position: center;">
   <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
 
@@ -48,24 +94,26 @@
         <span class="relative z-10">Quero ser Profissional</span>
       </a>
     </div>
-
+  </div>
 </section>
 
 <!-- Seção Principal de Eventos -->
-<section class="py-12 md:py-12 px-4 md:px-6 lg:px-8" id="eventos">
-  <div class="max-w-7xl mx-auto">
-    <!-- Título centralizado -->
-    <div class="text-center mb-8 md:mb-10">
-      <h3 class="text-4xl md:text-5xl font-bold mb-4">
+<section class="hidden md:block overflow-hidden py-4 md:py-4 px-2 md:px-2 lg:px-2">
+  <div class="max-w-12xl ">
+    <div class="text-center mb-6 md:mb-10">
+      <h3 class="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4">
         Próximos eventos, <span class="text-yellow-400">agendados</span>
       </h3>
-      <p class="text-gray-300 text-lg md:text-xl">
+      <p class="text-gray-300 text-sm md:text-lg lg:text-xl px-4">
         Aqui é vida real. Encontre treinos e atividades para sair de casa, treinar e fazer conexões
       </p>
     </div>
+  </div>
+</section>
 
-    <!-- Seção de Filtros Avançados -->
-    <div class="mb-10 px-4 md:px-0" x-data="{
+<section class="py-6 py-4 md:py-4 px-2 md:px-2 lg:px-2" id="eventos">
+  <!-- Seção de Filtros Avançados -->
+  <div class="mb-6 md:mb-10 px-0 md:px-0" x-data="{
     filtrosOpen: false,
     activeTab: 'categoria',
     filtrosAtivos: 0,
@@ -84,29 +132,29 @@
     }
 }" x-init="$watch('filtrosOpen', value => { if(value) calcularFiltros(); })">
 
-      <!-- Botão Principal de Filtros -->
-      <div class="flex items-center gap-3 mb-6">
-        <button
-          @click="filtrosOpen = !filtrosOpen; calcularFiltros();"
-          type="button"
-          class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all border-2 border-gray-700 hover:border-yellow-400 group">
-          <svg class="w-5 h-5 text-yellow-400 group-hover:rotate-180 transition-transform duration-300" fill="none"
-               stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
-          </svg>
-          <span>Filtrar</span>
-          <span x-show="filtrosAtivos > 0" x-text="filtrosAtivos"
-                class="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full"></span>
-          <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': filtrosOpen }" fill="none"
-               stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-          </svg>
-        </button>
+    <!-- Botão Principal de Filtros -->
+    <div class="flex items-center gap-3 mb-6">
+      <button
+        @click="filtrosOpen = !filtrosOpen; calcularFiltros();"
+        type="button"
+        class="flex items-center gap-2 bg-gray-800 hover:bg-gray-700 text-white px-4 md:px-6 py-3 rounded-xl font-semibold transition-all border-2 border-gray-700 hover:border-yellow-400 group">
+        <svg class="w-5 h-5 text-yellow-400 group-hover:rotate-180 transition-transform duration-300" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+        </svg>
+        <span>Filtrar</span>
+        <span x-show="filtrosAtivos > 0" x-text="filtrosAtivos"
+              class="bg-yellow-400 text-black text-xs font-bold px-2 py-1 rounded-full"></span>
+        <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': filtrosOpen }" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
 
-        <button
-          x-show="filtrosAtivos > 0"
-          @click="
+      <button
+        x-show="filtrosAtivos > 0"
+        @click="
                 document.querySelectorAll('input[name=categorias]').forEach(el => el.checked = false);
                 document.querySelectorAll('input[name=status]').forEach(el => el.checked = false);
                 document.querySelectorAll('input[name=after]').forEach(el => el.checked = false);
@@ -116,248 +164,248 @@
                 document.querySelector('input[name=data_fim]').value = '';
                 calcularFiltros();
             "
-          hx-get="{% url 'home' %}"
-          hx-target="#eventos-list"
-          hx-indicator="#loading"
+        hx-get="{% url 'home' %}"
+        hx-target="#eventos-list"
+        hx-indicator="#loading"
+        type="button"
+        class="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-1">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        <span class="hidden sm:inline">Limpar filtros</span>
+      </button>
+    </div>
+
+    <!-- Modal de Filtros -->
+    <div x-show="filtrosOpen"
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="opacity-0 transform scale-95"
+         x-transition:enter-end="opacity-100 transform scale-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-95"
+         class="bg-gray-900 rounded-2xl shadow-2xl border-2 border-gray-800 overflow-hidden">
+
+      <!-- Tabs Navigation -->
+      <div class="flex border-b border-gray-800 bg-gray-900/50 overflow-x-auto">
+        <button
+          @click="activeTab = 'categoria'"
           type="button"
-          class="text-sm text-gray-400 hover:text-yellow-400 transition-colors flex items-center gap-1">
+          :class="activeTab === 'categoria' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
+          class="flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold transition-all border-b-2 whitespace-nowrap text-sm md:text-base">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
           </svg>
-          Limpar filtros
+          Categoria
+        </button>
+
+        <button
+          @click="activeTab = 'localizacao'"
+          type="button"
+          :class="activeTab === 'localizacao' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
+          class="flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold transition-all border-b-2 whitespace-nowrap text-sm md:text-base">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Localização
+        </button>
+
+        <button
+          @click="activeTab = 'data'"
+          type="button"
+          :class="activeTab === 'data' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
+          class="flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold transition-all border-b-2 whitespace-nowrap text-sm md:text-base">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Data
+        </button>
+
+        <button
+          @click="activeTab = 'status'"
+          type="button"
+          :class="activeTab === 'status' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
+          class="flex items-center gap-2 px-4 md:px-6 py-3 md:py-4 font-semibold transition-all border-b-2 whitespace-nowrap text-sm md:text-base">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          Status
         </button>
       </div>
 
-      <!-- Modal de Filtros -->
-      <div x-show="filtrosOpen"
-           x-transition:enter="transition ease-out duration-200"
-           x-transition:enter-start="opacity-0 transform scale-95"
-           x-transition:enter-end="opacity-100 transform scale-100"
-           x-transition:leave="transition ease-in duration-150"
-           x-transition:leave-start="opacity-100 transform scale-100"
-           x-transition:leave-end="opacity-0 transform scale-95"
-           class="bg-gray-900 rounded-2xl shadow-2xl border-2 border-gray-800 overflow-hidden">
-
-        <!-- Tabs Navigation -->
-        <div class="flex border-b border-gray-800 bg-gray-900/50 overflow-x-auto">
-          <button
-            @click="activeTab = 'categoria'"
-            type="button"
-            :class="activeTab === 'categoria' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
-            class="flex items-center gap-2 px-6 py-4 font-semibold transition-all border-b-2 whitespace-nowrap">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
-            Categoria
-          </button>
-
-          <button
-            @click="activeTab = 'localizacao'"
-            type="button"
-            :class="activeTab === 'localizacao' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
-            class="flex items-center gap-2 px-6 py-4 font-semibold transition-all border-b-2 whitespace-nowrap">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            Localização
-          </button>
-
-          <button
-            @click="activeTab = 'data'"
-            type="button"
-            :class="activeTab === 'data' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
-            class="flex items-center gap-2 px-6 py-4 font-semibold transition-all border-b-2 whitespace-nowrap">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-            </svg>
-            Data
-          </button>
-
-          <button
-            @click="activeTab = 'status'"
-            type="button"
-            :class="activeTab === 'status' ? 'border-yellow-400 text-yellow-400 bg-yellow-400/10' : 'border-transparent text-gray-400 hover:text-white hover:bg-gray-800/50'"
-            class="flex items-center gap-2 px-6 py-4 font-semibold transition-all border-b-2 whitespace-nowrap">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-            Status
-          </button>
+      <!-- Tab Content -->
+      <div class="p-4 md:p-6">
+        <!-- Tab Categoria -->
+        <div x-show="activeTab === 'categoria'">
+          <h3 class="text-base md:text-lg font-bold text-white mb-4">Selecione as categorias</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 md:gap-3">
+            {% for categoria in categorias %}
+            <label class="cursor-pointer">
+              <input
+                type="checkbox"
+                name="categorias"
+                value="{{ categoria.id }}"
+                class="peer hidden"
+                @change="calcularFiltros()">
+              <div
+                class="flex flex-col items-center justify-center gap-1 md:gap-2 p-3 md:p-4 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400">
+                <span class="text-xl md:text-2xl">{{ categoria.icone|default:"🏃" }}</span>
+                <span class="text-xs md:text-sm text-center">{{ categoria.nome }}</span>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
         </div>
 
-        <!-- Tab Content -->
-        <div class="p-6">
-          <!-- Tab Categoria -->
-          <div x-show="activeTab === 'categoria'">
-            <h3 class="text-lg font-bold text-white mb-4">Selecione as categorias</h3>
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {% for categoria in categorias %}
+        <!-- Tab Localização -->
+        <div x-show="activeTab === 'localizacao'" class="space-y-4">
+          <div>
+            <label class="block text-white font-semibold mb-2 text-sm md:text-base">Cidade</label>
+            <div class="relative">
+              <svg
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                type="text"
+                name="cidade"
+                list="cidades-list"
+                placeholder="Digite ou selecione uma cidade..."
+                @input="calcularFiltros()"
+                class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 text-sm md:text-base">
+              <datalist id="cidades-list">
+                {% for cidade in cidades_disponiveis %}
+                <option value="{{ cidade }}">
+                  {% endfor %}
+              </datalist>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-white font-semibold mb-2 text-sm md:text-base">Bairro</label>
+            <div class="relative">
+              <svg
+                class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <input
+                type="text"
+                name="bairro"
+                list="bairros-list"
+                placeholder="Digite ou selecione um bairro..."
+                @input="calcularFiltros()"
+                class="w-full pl-10 pr-4 py-2 md:py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 text-sm md:text-base">
+              <datalist id="bairros-list">
+                {% for bairro in bairros_disponiveis %}
+                <option value="{{ bairro }}">
+                  {% endfor %}
+              </datalist>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Data -->
+        <div x-show="activeTab === 'data'" class="space-y-4 md:space-y-6">
+          <div>
+            <h3 class="text-base md:text-lg font-bold text-white mb-3 md:mb-4">Atalhos Rápidos</h3>
+            <div class="grid grid-cols-2 gap-2 md:gap-3">
               <label class="cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="categorias"
-                  value="{{ categoria.id }}"
-                  class="peer hidden"
-                  @change="calcularFiltros()">
+                <input type="checkbox" name="after" value="hoje" class="peer hidden" @change="calcularFiltros()">
                 <div
-                  class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400">
-                  <span class="text-2xl">{{ categoria.icone|default:"🏃" }}</span>
-                  <span class="text-sm">{{ categoria.nome }}</span>
+                  class="px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center text-sm md:text-base">
+                  Hoje
                 </div>
               </label>
-              {% endfor %}
+              <label class="cursor-pointer">
+                <input type="checkbox" name="after" value="amanha" class="peer hidden" @change="calcularFiltros()">
+                <div
+                  class="px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center text-sm md:text-base">
+                  Amanhã
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="checkbox" name="after" value="esta_semana" class="peer hidden"
+                       @change="calcularFiltros()">
+                <div
+                  class="px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center text-sm md:text-base">
+                  Esta Semana
+                </div>
+              </label>
+              <label class="cursor-pointer">
+                <input type="checkbox" name="after" value="proximo_mes" class="peer hidden"
+                       @change="calcularFiltros()">
+                <div
+                  class="px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center text-sm md:text-base">
+                  Próximo Mês
+                </div>
+              </label>
             </div>
           </div>
 
-          <!-- Tab Localização -->
-          <div x-show="activeTab === 'localizacao'" class="space-y-4">
-            <div>
-              <label class="block text-white font-semibold mb-2">Cidade</label>
-              <div class="relative">
-                <svg
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+          <div class="border-t border-gray-800 pt-4 md:pt-6">
+            <h3 class="text-base md:text-lg font-bold text-white mb-3 md:mb-4">Ou escolha um período</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+              <div>
+                <label class="block text-white font-semibold mb-2 text-sm md:text-base">Data Inicial</label>
                 <input
-                  type="text"
-                  name="cidade"
-                  list="cidades-list"
-                  placeholder="Digite ou selecione uma cidade..."
-                  @input="calcularFiltros()"
-                  class="w-full pl-10 pr-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400">
-                <datalist id="cidades-list">
-                  {% for cidade in cidades_disponiveis %}
-                  <option value="{{ cidade }}">
-                    {% endfor %}
-                </datalist>
+                  type="date"
+                  name="data_inicio"
+                  @change="calcularFiltros()"
+                  class="w-full px-3 md:px-4 py-2 md:py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:border-yellow-400 text-sm md:text-base">
               </div>
-            </div>
-
-            <div>
-              <label class="block text-white font-semibold mb-2">Bairro</label>
-              <div class="relative">
-                <svg
-                  class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10"
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                </svg>
+              <div>
+                <label class="block text-white font-semibold mb-2 text-sm md:text-base">Data Final</label>
                 <input
-                  type="text"
-                  name="bairro"
-                  list="bairros-list"
-                  placeholder="Digite ou selecione um bairro..."
-                  @input="calcularFiltros()"
-                  class="w-full pl-10 pr-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400">
-                <datalist id="bairros-list">
-                  {% for bairro in bairros_disponiveis %}
-                  <option value="{{ bairro }}">
-                    {% endfor %}
-                </datalist>
+                  type="date"
+                  name="data_fim"
+                  @change="calcularFiltros()"
+                  class="w-full px-3 md:px-4 py-2 md:py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:border-yellow-400 text-sm md:text-base">
               </div>
-            </div>
-          </div>
-
-          <!-- Tab Data -->
-          <div x-show="activeTab === 'data'" class="space-y-6">
-            <div>
-              <h3 class="text-lg font-bold text-white mb-4">Atalhos Rápidos</h3>
-              <div class="grid grid-cols-2 gap-3">
-                <label class="cursor-pointer">
-                  <input type="checkbox" name="after" value="hoje" class="peer hidden" @change="calcularFiltros()">
-                  <div
-                    class="px-4 py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center">
-                    Hoje
-                  </div>
-                </label>
-                <label class="cursor-pointer">
-                  <input type="checkbox" name="after" value="amanha" class="peer hidden" @change="calcularFiltros()">
-                  <div
-                    class="px-4 py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center">
-                    Amanhã
-                  </div>
-                </label>
-                <label class="cursor-pointer">
-                  <input type="checkbox" name="after" value="esta_semana" class="peer hidden"
-                         @change="calcularFiltros()">
-                  <div
-                    class="px-4 py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center">
-                    Esta Semana
-                  </div>
-                </label>
-                <label class="cursor-pointer">
-                  <input type="checkbox" name="after" value="proximo_mes" class="peer hidden"
-                         @change="calcularFiltros()">
-                  <div
-                    class="px-4 py-3 rounded-xl font-semibold transition-all peer-checked:bg-yellow-400 peer-checked:text-black peer-checked:border-yellow-400 bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 text-center">
-                    Próximo Mês
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <div class="border-t border-gray-800 pt-6">
-              <h3 class="text-lg font-bold text-white mb-4">Ou escolha um período</h3>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-white font-semibold mb-2">Data Inicial</label>
-                  <input
-                    type="date"
-                    name="data_inicio"
-                    @change="calcularFiltros()"
-                    class="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:border-yellow-400">
-                </div>
-                <div>
-                  <label class="block text-white font-semibold mb-2">Data Final</label>
-                  <input
-                    type="date"
-                    name="data_fim"
-                    @change="calcularFiltros()"
-                    class="w-full px-4 py-3 bg-gray-800 border-2 border-gray-700 rounded-xl text-white focus:outline-none focus:border-yellow-400">
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Tab Status -->
-          <div x-show="activeTab === 'status'">
-            <h3 class="text-lg font-bold text-white mb-4">Status do evento</h3>
-            <div class="space-y-3">
-              <label
-                class="flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
-                <input type="checkbox" name="status" value="vagas_disponiveis" @change="calcularFiltros()"
-                       class="w-5 h-5 accent-black">
-                <span class="font-semibold">Vagas Disponíveis</span>
-              </label>
-              <label
-                class="flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
-                <input type="checkbox" name="status" value="quase_lotado" @change="calcularFiltros()"
-                       class="w-5 h-5 accent-black">
-                <span class="font-semibold">Quase Lotado</span>
-              </label>
-              <label
-                class="flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
-                <input type="checkbox" name="status" value="confirmado" @change="calcularFiltros()"
-                       class="w-5 h-5 accent-black">
-                <span class="font-semibold">Confirmado</span>
-              </label>
             </div>
           </div>
         </div>
 
-        <!-- Footer com Ações -->
-        <div class="flex items-center justify-between p-6 bg-gray-900/50 border-t border-gray-800">
-          <button
-            type="button"
-            @click="
+        <!-- Tab Status -->
+        <div x-show="activeTab === 'status'">
+          <h3 class="text-base md:text-lg font-bold text-white mb-4">Status do evento</h3>
+          <div class="space-y-2 md:space-y-3">
+            <label
+              class="flex items-center gap-3 p-3 md:p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
+              <input type="checkbox" name="status" value="vagas_disponiveis" @change="calcularFiltros()"
+                     class="w-4 h-4 md:w-5 md:h-5 accent-black">
+              <span class="font-semibold text-sm md:text-base">Vagas Disponíveis</span>
+            </label>
+            <label
+              class="flex items-center gap-3 p-3 md:p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
+              <input type="checkbox" name="status" value="quase_lotado" @change="calcularFiltros()"
+                     class="w-4 h-4 md:w-5 md:h-5 accent-black">
+              <span class="font-semibold text-sm md:text-base">Quase Lotado</span>
+            </label>
+            <label
+              class="flex items-center gap-3 p-3 md:p-4 rounded-xl cursor-pointer transition-all bg-gray-800 text-white border-2 border-gray-700 hover:border-yellow-400 has-[:checked]:bg-yellow-400 has-[:checked]:text-black has-[:checked]:border-yellow-400">
+              <input type="checkbox" name="status" value="confirmado" @change="calcularFiltros()"
+                     class="w-4 h-4 md:w-5 md:h-5 accent-black">
+              <span class="font-semibold text-sm md:text-base">Confirmado</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer com Ações -->
+      <div class="flex items-center justify-between p-4 md:p-6 bg-gray-900/50 border-t border-gray-800 gap-3">
+        <button
+          type="button"
+          @click="
                     document.querySelectorAll('input[name=categorias]').forEach(el => el.checked = false);
                     document.querySelectorAll('input[name=status]').forEach(el => el.checked = false);
                     document.querySelectorAll('input[name=after]').forEach(el => el.checked = false);
@@ -367,40 +415,40 @@
                     document.querySelector('input[name=data_fim]').value = '';
                     calcularFiltros();
                 "
-            class="text-gray-400 hover:text-white font-semibold transition-colors">
-            Limpar tudo
-          </button>
-          <button
-            type="button"
-            hx-get="{% url 'home' %}"
-            hx-target="#eventos-list"
-            hx-include="[name='categorias']:checked, [name='cidade'], [name='bairro'], [name='status']:checked, [name='after']:checked, [name='data_inicio'], [name='data_fim']"
-            hx-indicator="#loading"
-            @click="filtrosOpen = false"
-            class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-8 py-3 rounded-xl transition-all">
-            Aplicar Filtros
-          </button>
-        </div>
+          class="text-gray-400 hover:text-white font-semibold transition-colors text-sm md:text-base">
+          Limpar tudo
+        </button>
+        <button
+          type="button"
+          hx-get="{% url 'home' %}"
+          hx-target="#eventos-list"
+          hx-include="[name='categorias']:checked, [name='cidade'], [name='bairro'], [name='status']:checked, [name='after']:checked, [name='data_inicio'], [name='data_fim']"
+          hx-indicator="#loading"
+          @click="filtrosOpen = false"
+          class="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 md:px-8 py-2 md:py-3 rounded-xl transition-all text-sm md:text-base">
+          Aplicar Filtros
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- Loading indicator -->
-    <div id="loading" class="htmx-indicator flex justify-center items-center py-12">
-      <div class="flex items-center space-x-2">
-        <svg class="animate-spin h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-             viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <span class="text-gray-400 font-semibold">Carregando eventos...</span>
-      </div>
+  <!-- Loading indicator -->
+  <div id="loading" class="htmx-indicator flex justify-center items-center py-12">
+    <div class="flex items-center space-x-2">
+      <svg class="animate-spin h-8 w-8 text-yellow-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+           viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-gray-400 font-semibold">Carregando eventos...</span>
     </div>
+  </div>
 
-    <!-- Lista de Eventos -->
-    <section class="px-4 md:px-6 lg:px-8 pb-4 md:pb-6" id="eventos-list">
-      {% include 'partials/eventos_list.html' %}
-    </section>
+  <!-- Lista de Eventos -->
+  <section class="px-4 md:px-6 lg:px-8 pb-4 md:pb-6" id="eventos-list">
+    {% include 'partials/eventos_list.html' %}
+  </section>
   </div>
 </section>
 
