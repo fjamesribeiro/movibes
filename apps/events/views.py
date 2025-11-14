@@ -320,10 +320,7 @@ def evento_detail_view(request, evento_id):
         if is_aluno:
             # Verifica se é premium
             try:
-                is_premium = (
-                    request.user.aluno.tipo_conta and
-                    request.user.aluno.tipo_conta.nome == 'Premium'
-                )
+                is_premium = request.user.eh_premium()
             except:
                 is_premium = False
 

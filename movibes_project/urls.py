@@ -9,7 +9,8 @@ from apps.users.views import complete_aluno_profile, complete_profissional_profi
     set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
     adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
     responder_solicitacao_view, processar_like_back_view, mock_premium_checkout_view, \
-    process_premium_payment_view
+    process_premium_payment_view, escolher_plano_view, checkout_assinatura_view, \
+    processar_assinatura_view, cancelar_assinatura_view, historico_assinaturas_view
 
 urlpatterns = [
     path('', home, name='home'),
@@ -53,5 +54,11 @@ urlpatterns = [
     path('premium/checkout/', mock_premium_checkout_view, name='mock_premium_checkout'),
     path('premium/process-payment/', process_premium_payment_view,
          name='process_premium_payment'),
+    # URLs para Sistema de Assinaturas
+    path('assinatura/escolher-plano/', escolher_plano_view, name='escolher_plano'),
+    path('assinatura/checkout/<int:plano_id>/', checkout_assinatura_view, name='checkout_assinatura'),
+    path('assinatura/processar/<int:plano_id>/', processar_assinatura_view, name='processar_assinatura'),
+    path('assinatura/cancelar/', cancelar_assinatura_view, name='cancelar_assinatura'),
+    path('assinatura/historico/', historico_assinaturas_view, name='historico_assinaturas'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

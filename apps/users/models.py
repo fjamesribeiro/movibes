@@ -1,11 +1,14 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 import io
-from django.conf import settings
-from django.db import models
 from io import BytesIO
 from django.core.files.base import ContentFile
 from PIL import Image
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db import models
+from django.conf import settings
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
+
 
 class ImageResizingMixin:
     """
@@ -142,6 +145,68 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.email
+
+    def tem_assinatura_ativa(self):
+        """
+        Verifica se o usuário tem qualquer assinatura ativa.
+        Funciona tanto para Alunos Premium quanto Profissionais Pro.
+        """
+        return self.assinaturas_premium.filter(
+            status='ativa',
+            data_inicio__lte=timezone.now(),
+            data_expiracao__gte=timezone.now(),
+            cancelada_pelo_usuario=False
+        ).exists()
+
+
+    def obter_assinatura_ativa(self):
+        """
+        Retorna a assinatura ativa do usuário, se houver.
+        """
+        return self.assinaturas_premium.filter(
+            status='ativa',
+            data_inicio__lte=timezone.now(),
+            data_expiracao__gte=timezone.now(),
+            cancelada_pelo_usuario=False
+        ).first()
+
+
+    def eh_premium(self):
+        """
+        Verifica se o usuário é um Aluno Premium ativo.
+        """
+        if not hasattr(self, 'aluno'):
+            return False
+
+        assinatura = self.obter_assinatura_ativa()
+        if not assinatura:
+            return False
+
+        return assinatura.tipo_plano.tipo_usuario == 'aluno'
+
+
+    def eh_profissional_ativo(self):
+        """
+        Verifica se o usuário é um Profissional com assinatura Pro ativa.
+        IMPORTANTE: Profissionais SÓ podem acessar o sistema se tiverem assinatura ativa.
+        """
+        if not hasattr(self, 'profissional'):
+            return False
+
+        assinatura = self.obter_assinatura_ativa()
+        if not assinatura:
+            return False
+
+        return assinatura.tipo_plano.tipo_usuario == 'profissional'
+
+
+    def precisa_assinatura(self):
+        """
+        Verifica se este usuário PRECISA de assinatura para usar o sistema.
+        - Alunos podem ser Free, então retorna False
+        - Profissionais DEVEM ter assinatura, então retorna True
+        """
+        return hasattr(self, 'profissional')
 
 
 class FotoUsuario(ImageResizingMixin, models.Model):
@@ -458,3 +523,338 @@ class SolicitacaoConexao(models.Model):
 
     def __str__(self):
         return f"Pedido de {self.solicitante.email} para {self.solicitado.email} ({self.status})"
+
+
+class TipoPlano(models.Model):
+    """
+    Define os tipos de planos disponíveis no sistema.
+    Permite cadastrar e gerenciar os valores de cada plano.
+
+    Exemplos:
+    - Aluno Premium Mensal
+    - Aluno Premium Anual
+    - Profissional Pro Mensal
+    - Profissional Pro Anual
+    """
+
+    # Choices para tipo de usuário
+    TIPO_USUARIO_CHOICES = [
+        ('aluno', 'Aluno Premium'),
+        ('profissional', 'Profissional Pro'),
+    ]
+
+    # Choices para periodicidade
+    PERIODICIDADE_CHOICES = [
+        ('mensal', 'Mensal'),
+        ('trimestral', 'Trimestral'),
+        ('semestral', 'Semestral'),
+        ('anual', 'Anual'),
+    ]
+
+    # Identificação do Plano
+    nome = models.CharField(
+        max_length=100,
+        unique=True,
+        help_text="Ex: Aluno Premium Mensal, Profissional Pro Anual"
+    )
+    slug = models.SlugField(
+        max_length=100,
+        unique=True,
+        help_text="Identificador único para uso no código (ex: aluno-premium-mensal)"
+    )
+
+    # Características do Plano
+    tipo_usuario = models.CharField(
+        max_length=20,
+        choices=TIPO_USUARIO_CHOICES,
+        help_text="Para qual tipo de usuário este plano se aplica"
+    )
+    periodicidade = models.CharField(
+        max_length=20,
+        choices=PERIODICIDADE_CHOICES,
+        help_text="Com que frequência o plano é cobrado"
+    )
+
+    # Valores
+    valor = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Valor cobrado por período"
+    )
+    desconto_percentual = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text="Desconto aplicado (ex: planos anuais com 20% de desconto)"
+    )
+
+    # Configurações
+    ativo = models.BooleanField(
+        default=True,
+        help_text="Se False, este plano não aparecerá nas opções de compra"
+    )
+    destaque = models.BooleanField(
+        default=False,
+        help_text="Se True, este plano será destacado como 'Mais Popular' ou 'Recomendado'"
+    )
+
+    # Descrição e Benefícios
+    descricao = models.TextField(
+        blank=True,
+        help_text="Descrição curta do plano"
+    )
+    ordem = models.IntegerField(
+        default=0,
+        help_text="Ordem de exibição (menor número aparece primeiro)"
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Tipo de Plano"
+        verbose_name_plural = "Tipos de Planos"
+        ordering = ['tipo_usuario', 'ordem', 'periodicidade']
+
+    def __str__(self):
+        return self.nome
+
+    def valor_com_desconto(self):
+        """
+        Calcula o valor final aplicando o desconto, se houver.
+        """
+        if self.desconto_percentual > 0:
+            desconto = self.valor * (self.desconto_percentual / 100)
+            return self.valor - desconto
+        return self.valor
+
+    def economia_mensal(self):
+        """
+        Para planos não mensais, calcula quanto o usuário economiza por mês
+        comparado com o plano mensal equivalente.
+        """
+        if self.periodicidade == 'mensal':
+            return 0
+
+        try:
+            # Tenta encontrar o plano mensal correspondente
+            plano_mensal = TipoPlano.objects.get(
+                tipo_usuario=self.tipo_usuario,
+                periodicidade='mensal',
+                ativo=True
+            )
+
+            # Calcula quantos meses este plano cobre
+            meses = {
+                'trimestral': 3,
+                'semestral': 6,
+                'anual': 12,
+            }
+            num_meses = meses.get(self.periodicidade, 1)
+
+            # Custo total se pagasse mensalmente
+            custo_mensal_total = plano_mensal.valor_com_desconto() * num_meses
+
+            # Economia total
+            economia = custo_mensal_total - self.valor_com_desconto()
+
+            return economia
+        except TipoPlano.DoesNotExist:
+            return 0
+
+    def meses_duracao(self):
+        """
+        Retorna quantos meses este plano dura.
+        """
+        meses_map = {
+            'mensal': 1,
+            'trimestral': 3,
+            'semestral': 6,
+            'anual': 12,
+        }
+        return meses_map.get(self.periodicidade, 1)
+
+
+class AssinaturaPremium(models.Model):
+    """
+    Gerencia as assinaturas ativas de usuários.
+
+    Funciona tanto para Alunos Premium quanto para Profissionais Pro.
+    Cada registro representa um período de assinatura pago.
+
+    Regras de negócio:
+    - Alunos podem ter ou não ter assinatura (podem ser Free)
+    - Profissionais DEVEM ter assinatura ativa para usar o sistema
+    """
+
+    # Choices para status da assinatura
+    STATUS_CHOICES = [
+        ('ativa', 'Ativa'),
+        ('cancelada', 'Cancelada'),
+        ('expirada', 'Expirada'),
+        ('pendente', 'Pendente Pagamento'),
+    ]
+
+    # Relacionamentos
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='assinaturas_premium'
+    )
+
+    tipo_plano = models.ForeignKey(
+        TipoPlano,
+        on_delete=models.PROTECT,
+        related_name='assinaturas',
+        help_text="Qual plano foi contratado"
+    )
+
+    # Status da Assinatura
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='pendente'
+    )
+
+    # Datas
+    data_inicio = models.DateTimeField(
+        help_text="Quando a assinatura começou ou começará"
+    )
+    data_expiracao = models.DateTimeField(
+        help_text="Quando a assinatura expira"
+    )
+    data_cancelamento = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Quando o usuário solicitou o cancelamento"
+    )
+
+    # Informações de Pagamento
+    valor_pago = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Valor efetivamente pago por este período"
+    )
+    id_transacao_externa = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="ID da transação no gateway de pagamento"
+    )
+    metodo_pagamento = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="Ex: cartao_credito, pix, boleto"
+    )
+
+    # Controle de Renovação
+    renovacao_automatica = models.BooleanField(
+        default=False,
+        help_text="Se True, tentará renovar automaticamente ao expirar"
+    )
+    cancelada_pelo_usuario = models.BooleanField(
+        default=False,
+        help_text="Se True, o usuário não quer renovar"
+    )
+
+    # Observações
+    observacoes = models.TextField(
+        blank=True,
+        help_text="Notas internas sobre esta assinatura"
+    )
+
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Assinatura Premium"
+        verbose_name_plural = "Assinaturas Premium"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['usuario', 'status']),
+            models.Index(fields=['data_expiracao', 'status']),
+        ]
+
+    def __str__(self):
+        return f"{self.usuario.email} - {self.tipo_plano.nome} - {self.status}"
+
+    def save(self, *args, **kwargs):
+        """
+        Ao salvar, se não tiver data_inicio, define como agora.
+        Se não tiver data_expiracao, calcula baseado no tipo de plano.
+        """
+        if not self.data_inicio:
+            self.data_inicio = timezone.now()
+
+        if not self.data_expiracao:
+            # Calcula a data de expiração baseada no tipo de plano
+            meses = self.tipo_plano.meses_duracao()
+            self.data_expiracao = self.data_inicio + relativedelta(months=meses)
+
+        # Se o valor_pago não foi definido, usa o valor do plano
+        if not self.valor_pago:
+            self.valor_pago = self.tipo_plano.valor_com_desconto()
+
+        super().save(*args, **kwargs)
+
+    def esta_ativa(self):
+        """
+        Verifica se a assinatura está ativa e não expirou.
+        """
+        agora = timezone.now()
+        return (
+            self.status == 'ativa' and
+            self.data_inicio <= agora <= self.data_expiracao and
+            not self.cancelada_pelo_usuario
+        )
+
+    def dias_restantes(self):
+        """
+        Retorna quantos dias faltam para a assinatura expirar.
+        """
+        if not self.esta_ativa():
+            return 0
+
+        delta = self.data_expiracao - timezone.now()
+        return max(0, delta.days)
+
+    def pode_renovar(self):
+        """
+        Verifica se esta assinatura pode ser renovada.
+        """
+        return (
+            self.renovacao_automatica and
+            not self.cancelada_pelo_usuario and
+            self.status in ['ativa', 'expirada']
+        )
+
+    def renovar(self):
+        """
+        Cria uma nova assinatura que começa quando esta termina.
+        Usado para renovações automáticas.
+        """
+        if not self.pode_renovar():
+            return None
+
+        # Cria nova assinatura começando quando esta expira
+        nova_assinatura = AssinaturaPremium.objects.create(
+            usuario=self.usuario,
+            tipo_plano=self.tipo_plano,
+            status='pendente',  # Será 'ativa' após confirmação de pagamento
+            data_inicio=self.data_expiracao,
+            renovacao_automatica=self.renovacao_automatica,
+            observacoes=f"Renovação automática da assinatura #{self.id}"
+        )
+
+        return nova_assinatura
+
+    def cancelar(self):
+        """
+        Cancela a assinatura (marca para não renovar).
+        A assinatura continua válida até a data de expiração.
+        """
+        self.cancelada_pelo_usuario = True
+        self.renovacao_automatica = False
+        self.data_cancelamento = timezone.now()
+        self.save()
