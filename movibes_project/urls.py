@@ -8,9 +8,10 @@ from apps.events.views import home, subscribe_to_event, create_event, \
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
     set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
     adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
-    responder_solicitacao_view, processar_like_back_view, mock_premium_checkout_view, \
+    responder_solicitacao_view, processar_like_back_view, \
     process_premium_payment_view, escolher_plano_view, checkout_assinatura_view, \
-    processar_assinatura_view, cancelar_assinatura_view, historico_assinaturas_view
+    processar_assinatura_view, cancelar_assinatura_view, historico_assinaturas_view, \
+    mock_premium_checkout_view, escolher_plano_obrigatorio_view
 
 urlpatterns = [
     path('', home, name='home'),
@@ -32,11 +33,12 @@ urlpatterns = [
          name='account_galeria_evento'),
     path('evento/<int:evento_id>/', evento_detail_view, name='evento_detail'),
     path('evento/<int:evento_id>/comprar/', mock_checkout_view, name='mock_checkout'),
-    path('evento/<int:evento_id>/processar-pagamento/', processar_pagamento_view, name='processar_pagamento'),
+    path('evento/<int:evento_id>/processar-pagamento/', processar_pagamento_view,
+         name='processar_pagamento'),
     # Paths de Perfil
     path('perfil/profissional/<int:profissional_id>/avaliar/', adicionar_avaliacao_view,
          name='adicionar_avaliacao'),
-    # PATHS PARA CONEXÕES ---
+    # PATHS PARA CONEXÕES
     path('solicitar-conexao/<int:usuario_id>/', solicitar_conexao_view,
          name='solicitar_conexao'),
     path('notificacoes/', listar_notificacoes_view, name='listar_notificacoes'),
@@ -50,15 +52,20 @@ urlpatterns = [
     # Rota para curtir de volta na tela de notificações
     path('interacao/<int:interacao_id>/like-back/', processar_like_back_view,
          name='like_back'),
-    # PATHS PARA PREMIUM ---
-    path('premium/checkout/', mock_premium_checkout_view, name='mock_premium_checkout'),
+    # PATHS PARA PREMIUM (Sistema Antigo - pode ser removido futuramente)
     path('premium/process-payment/', process_premium_payment_view,
          name='process_premium_payment'),
-    # URLs para Sistema de Assinaturas
+    # URLs para Sistema de Assinaturas (Sistema Novo)
     path('assinatura/escolher-plano/', escolher_plano_view, name='escolher_plano'),
-    path('assinatura/checkout/<int:plano_id>/', checkout_assinatura_view, name='checkout_assinatura'),
-    path('assinatura/processar/<int:plano_id>/', processar_assinatura_view, name='processar_assinatura'),
+    path('assinatura/escolher-plano-obrigatorio/', escolher_plano_obrigatorio_view, name='escolher_plano_obrigatorio'),
+    path('premium/checkout/', mock_premium_checkout_view, name='mock_premium_checkout'),
+
+    path('assinatura/checkout/<int:plano_id>/', checkout_assinatura_view,
+         name='checkout_assinatura'),
+    path('assinatura/processar/<int:plano_id>/', processar_assinatura_view,
+         name='processar_assinatura'),
     path('assinatura/cancelar/', cancelar_assinatura_view, name='cancelar_assinatura'),
-    path('assinatura/historico/', historico_assinaturas_view, name='historico_assinaturas'),
+    path('assinatura/historico/', historico_assinaturas_view,
+         name='historico_assinaturas'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

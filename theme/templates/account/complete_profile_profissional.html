@@ -2,93 +2,284 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="max-w-md mx-auto mt-10 mb-10 p-8 bg-[#1F2937] rounded-lg shadow-lg">
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+  <div class="max-w-3xl mx-auto">
 
-    <h1 class="text-3xl font-bold text-white text-center mb-6">
+    <!-- Header com Badge de Profissional -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-3 mb-4">
+        <div class="p-3 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-2xl">
+          <svg class="w-8 h-8 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="px-4 py-2 bg-yellow-400/20 border border-yellow-400/50 rounded-full text-yellow-400 text-sm font-bold">
+          CONTA PROFISSIONAL
+        </span>
+      </div>
+      <h1 class="text-4xl font-bold text-white mb-3">
         Complete seu Perfil Profissional
-    </h1>
-    <p class="text-gray-400 text-center mb-8">
-        Quase lá! Precisamos dos seus dados básicos e do seu perfil profissional.
-    </p>
+      </h1>
+      <p class="text-gray-400 text-lg">
+        Configure seu perfil e prepare-se para começar sua jornada profissional
+      </p>
+    </div>
+
+    <!-- Aviso sobre Plano Obrigatório -->
+    <div class="mb-8 bg-gradient-to-r from-yellow-900/30 to-yellow-800/30 backdrop-blur border-2 border-yellow-500/50 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-start gap-4">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center">
+            <svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="flex-1">
+          <h3 class="text-xl font-bold text-yellow-400 mb-2">
+            Assinatura Profissional Obrigatória
+          </h3>
+          <p class="text-gray-300 mb-3">
+            Para acessar a plataforma como profissional, você precisará escolher um plano de assinatura.
+            Após completar seu perfil, você será direcionado para escolher o melhor plano para você.
+          </p>
+          <div class="flex items-center gap-2 text-sm text-yellow-300">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Planos flexíveis mensais, trimestrais e anuais</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <form method="POST" class="space-y-6" enctype="multipart/form-data">
-        {% csrf_token %}
+      {% csrf_token %}
 
-        {% if user_form.non_field_errors or profile_form.non_field_errors %}
-            <div class="bg-red-900 border border-red-700 text-red-200 px-4 py-3 rounded-md">
-                {% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-                {% for error in profile_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
-            </div>
-        {% endif %}
+      {% if user_form.non_field_errors or profile_form.non_field_errors %}
+      <div class="bg-red-900/50 backdrop-blur border border-red-700 text-red-200 px-6 py-4 rounded-xl">
+        {% for error in user_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+        {% for error in profile_form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
 
-        <div>
-            <label for="{{ user_form.url_foto_perfil.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.url_foto_perfil.label }}</label>
-            {% render_field user_form.url_foto_perfil class="mt-1 w-full p-2 bg-gray-700 border border-gray-600 rounded-md text-white file:bg-yellow-400 file:border-0 file:text-black file:font-semibold file:py-2 file:px-4 file:rounded file:cursor-pointer" %}
-            {% if user_form.url_foto_perfil.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.url_foto_perfil.errors %}{{ error }}{% endfor %}</div>{% endif %}
+      <!-- Seção: Informações Pessoais -->
+      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">1</span>
+          Informações Pessoais
+        </h2>
+
+        <!-- Foto de Perfil -->
+        <div class="mb-6">
+          <label class="block text-sm font-semibold text-gray-300 mb-3">
+            {{ user_form.url_foto_perfil.label }}
+          </label>
+          <div class="relative">
+            {% render_field user_form.url_foto_perfil class="w-full p-4 bg-gray-700/50 border-2 border-dashed border-gray-600 rounded-xl text-white file:bg-yellow-400 file:border-0 file:text-gray-900 file:font-semibold file:py-2.5 file:px-5 file:rounded-lg file:cursor-pointer file:transition-all file:hover:bg-yellow-500 file:mr-4" %}
+          </div>
+          {% if user_form.url_foto_perfil.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in user_form.url_foto_perfil.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label for="{{ user_form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.first_name.label }} <span class="text-red-500">*</span></label>
-                {% render_field user_form.first_name class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: James" %}
-                {% if user_form.first_name.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.first_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
-            </div>
-            <div>
-                <label for="{{ user_form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.last_name.label }} <span class="text-red-500">*</span></label>
-                {% render_field user_form.last_name class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="Ex: Ribeiro" %}
-                {% if user_form.last_name.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.last_name.errors %}{{ error }}{% endfor %}</div>{% endif %}
-            </div>
-        </div>
-
-        <div>
-            <label for="{{ user_form.bio_curta.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.bio_curta.label }}</label>
-            {% render_field user_form.bio_curta class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="3" placeholder="Fale um pouco sobre você..." %}
-            {% if user_form.bio_curta.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.bio_curta.errors %}{{ error }}{% endfor %}</div>{% endif %}
-        </div>
-
-        <!-- WhatsApp -->
-          <div class="mb-6">
-            <label for="{{ user_form.whatsapp.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
-              {{ user_form.whatsapp.label }}
-              <span class="text-gray-500 font-normal">(11 dígitos com DDD)</span>
+        <!-- Nome e Sobrenome -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label for="{{ user_form.first_name.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ user_form.first_name.label }} <span class="text-yellow-400">*</span>
             </label>
-            {% render_field user_form.whatsapp type="tel" id="id_whatsapp" maxlength="11" pattern="[0-9]{11}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="85999998888" %}
-            <p id="whatsapp_helper" class="text-xs text-gray-500 mt-1">Exemplo: 85999998888 (DDD + 9 dígitos)</p>
-            <p id="whatsapp_feedback" class="text-sm mt-2 hidden"></p>
-            {% if user_form.whatsapp.errors %}
+            {% render_field user_form.first_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: James" %}
+            {% if user_form.first_name.errors %}
             <div class="text-red-400 text-sm mt-2">
-              {% for error in user_form.whatsapp.errors %}{{ error }}{% endfor %}
+              {% for error in user_form.first_name.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div>
+            <label for="{{ user_form.last_name.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+              {{ user_form.last_name.label }} <span class="text-yellow-400">*</span>
+            </label>
+            {% render_field user_form.last_name class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: Ribeiro" %}
+            {% if user_form.last_name.errors %}
+            <div class="text-red-400 text-sm mt-2">
+              {% for error in user_form.last_name.errors %}{{ error }}{% endfor %}
             </div>
             {% endif %}
           </div>
         </div>
 
-        <div>
-            <label for="{{ user_form.link_social.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ user_form.link_social.label }}</label>
-            {% render_field user_form.link_social class="mt-1 w-full p-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="https://..." %}
-            {% if user_form.link_social.errors %}<div class="text-red-400 text-sm mt-1">{% for error in user_form.link_social.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        <!-- Bio -->
+        <div class="mb-6">
+          <label for="{{ user_form.bio_curta.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ user_form.bio_curta.label }}
+            <span class="text-gray-500 font-normal">(max 140 caracteres)</span>
+          </label>
+          {% render_field user_form.bio_curta class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="3" placeholder="Apresente-se aos seus futuros alunos..." %}
+          {% if user_form.bio_curta.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in user_form.bio_curta.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
         </div>
 
-        <hr class="border-gray-700">
-
-        <div>
-            <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.especialidade.label|default:"Especialidade" }}</label>
-            {% render_field profile_form.especialidade class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="4" placeholder="Ex: Treinador de corrida, Professor de Yoga" %}
-            {% if profile_form.especialidade.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.especialidade.errors %}{{ error }}{% endfor %}</div>{% endif %}
+        <!-- WhatsApp -->
+        <div class="mb-6">
+          <label for="{{ user_form.whatsapp.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ user_form.whatsapp.label }}
+            <span class="text-gray-500 font-normal">(11 dígitos com DDD)</span>
+          </label>
+          {% render_field user_form.whatsapp type="tel" id="id_whatsapp" maxlength="11" pattern="[0-9]{11}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="85999998888" %}
+          <p id="whatsapp_helper" class="text-xs text-gray-500 mt-1">Exemplo: 85999998888 (DDD + 9 dígitos)</p>
+          <p id="whatsapp_feedback" class="text-sm mt-2 hidden"></p>
+          {% if user_form.whatsapp.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in user_form.whatsapp.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
         </div>
 
-        <div>
-            <label for="{{ profile_form.num_conselho_classe.id_for_label }}" class="block text-sm font-medium text-gray-300">{{ profile_form.num_conselho_classe.label|default:"Nº conselho classe" }}</label>
-            {% render_field profile_form.num_conselho_classe class="mt-1 w-full py-2 px-3 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-yellow-400" rows="4" placeholder="Ex: Treinador de corrida, Professor de Yoga" %}
-            {% if profile_form.num_conselho_classe.errors %}<div class="text-red-400 text-sm mt-1">{% for error in profile_form.num_conselho_classe.errors %}{{ error }}{% endfor %}</div>{% endif %}
+      </div>
+
+      <!-- Seção: Informações Profissionais -->
+      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
+          Informações Profissionais
+        </h2>
+
+        <!-- Especialidade -->
+        <div class="mb-6">
+          <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.especialidade.label|default:"Especialidade" }}
+            <span class="text-yellow-400">*</span>
+          </label>
+          {% render_field profile_form.especialidade class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="4" placeholder="Ex: Personal Trainer, Professor de Yoga, Nutricionista Esportivo..." %}
+          <p class="text-xs text-gray-500 mt-1">Descreva suas áreas de atuação e especialização</p>
+          {% if profile_form.especialidade.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in profile_form.especialidade.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
         </div>
 
+        <!-- Número do Conselho de Classe -->
+        <div class="mb-6">
+          <label for="{{ profile_form.num_conselho_classe.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.num_conselho_classe.label|default:"Nº Conselho de Classe" }}
+            <span class="text-gray-500 font-normal">(opcional)</span>
+          </label>
+          {% render_field profile_form.num_conselho_classe class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: CREF 123456-G/CE" %}
+          <p class="text-xs text-gray-500 mt-1">CREF, CRN, ou outro registro profissional</p>
+          {% if profile_form.num_conselho_classe.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in profile_form.num_conselho_classe.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
 
-        <button type="submit" class="w-full bg-yellow-400 text-black font-semibold px-4 py-3 rounded-md text-sm hover:bg-yellow-500 cursor-pointer">
-            Salvar e Continuar
-        </button>
+      <!-- Card de Próximos Passos -->
+      <div class="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur border-2 border-yellow-400/30 rounded-2xl p-8 shadow-xl">
+        <div class="flex items-start gap-4 mb-6">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-xl font-bold text-white mb-2">
+              Próximo Passo: Escolha seu Plano
+            </h3>
+            <p class="text-gray-300 mb-4">
+              Após salvar seu perfil, você será direcionado para escolher o plano profissional que melhor se encaixa nas suas necessidades. Você poderá começar a usar a plataforma imediatamente após a confirmação.
+            </p>
+            <div class="space-y-2">
+              <div class="flex items-center gap-3 text-sm text-gray-300">
+                <div class="w-5 h-5 bg-yellow-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span>Acesso completo à plataforma</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-gray-300">
+                <div class="w-5 h-5 bg-yellow-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span>Criação de eventos e aulas</span>
+              </div>
+              <div class="flex items-center gap-3 text-sm text-gray-300">
+                <div class="w-5 h-5 bg-yellow-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-3 h-3 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span>Gestão de alunos e pagamentos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botão de Submit com animação -->
+      <button type="submit" class="group w-full cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-5 rounded-xl text-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-2xl relative overflow-hidden">
+        <span class="relative z-10 flex items-center justify-center gap-3">
+          Salvar e Escolher Plano
+          <svg class="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </span>
+        <div class="absolute inset-0 bg-gradient-to-r from-yellow-500 to-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      </button>
+
+      <!-- Informação de segurança -->
+      <div class="text-center">
+        <p class="text-sm text-gray-500">
+          <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+          Seus dados estão seguros e protegidos
+        </p>
+      </div>
     </form>
+  </div>
 </div>
+
+<style>
+  /* Esconde os radio buttons e checkboxes padrão */
+  input[type="radio"],
+  input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Animação suave para as transições */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+  }
+
+  /* Animação de pulso para o botão */
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+</style>
 
 <script>
   // Validação do WhatsApp - aceita apenas números e valida ao sair do campo
@@ -97,7 +288,7 @@
   const whatsappHelper = document.getElementById('whatsapp_helper');
 
   if (whatsappInput) {
-    // Durante a digitação: limpa caracteres não numéricos (INALTERADO)
+    // Durante a digitação: limpa caracteres não numéricos
     whatsappInput.addEventListener('input', function() {
       this.value = this.value.replace(/\D/g, '');
       if (this.value.length > 11) {
@@ -112,8 +303,6 @@
     // Ao sair do campo: valida e mostra feedback
     whatsappInput.addEventListener('blur', function() {
       const value = this.value.trim();
-
-      // --- 1. ADICIONADO O REGEX ---
       const regexCelular = /^[1-9]{2}9[0-9]{8}$/;
 
       // Se o campo estiver vazio, não mostra erro (assume que é opcional)
@@ -125,7 +314,6 @@
         return;
       }
 
-      // --- 2. MUDADA A CONDIÇÃO PARA USAR O REGEX ---
       // Valida se não bate com o regex
       if (!regexCelular.test(value)) {
         // Mostra mensagem de erro
@@ -135,16 +323,14 @@
         this.classList.remove('border-gray-600', 'border-green-500');
         this.classList.add('border-red-500');
       } else {
-        // --- 3. MUDANÇA PRINCIPAL: Bloco "else" agora limpa o feedback ---
-        // (Antes mostrava "WhatsApp válido!")
         whatsappFeedback.classList.add('hidden');
         whatsappHelper.classList.remove('hidden');
-        this.classList.remove('border-red-500', 'border-green-500'); // Remove borda de erro/sucesso
-        this.classList.add('border-gray-600'); // Volta à borda normal
-      }
+        this.classList.remove('border-red-500', 'border-green-500');
+        this.classList.add('border-gray-600');
+      </div>
     });
 
-    // Ao focar no campo novamente: remove o feedback de sucesso/erro (INALTERADO)
+    // Ao focar no campo novamente: remove o feedback
     whatsappInput.addEventListener('focus', function() {
       whatsappFeedback.classList.add('hidden');
       whatsappHelper.classList.remove('hidden');

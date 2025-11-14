@@ -31,8 +31,8 @@ def complete_profissional_profile(request):
         profissional = Profissional(usuario=usuario)
 
     if request.method == 'POST':
-        user_form = UsuarioForm(request.POST, request.FILES, instance=usuario)
-        profile_form = ProfissionalForm(request.POST, instance=profissional)
+        user_form = UsuarioProfileForm(request.POST, request.FILES, instance=usuario)
+        profile_form = ProfissionalProfileForm(request.POST, instance=profissional)
 
         if user_form.is_valid() and profile_form.is_valid():
             # Salva o usuário
@@ -54,24 +54,25 @@ def complete_profissional_profile(request):
                     request,
                     'Perfil salvo! Agora escolha seu plano Pro para ativar sua conta profissional.'
                 )
-                return redirect('escolher_plano_obrigatorio')  # Nova URL que criaremos
+                return redirect('escolher_plano_obrigatorio')
     else:
-        user_form = UsuarioForm(instance=usuario)
-        profile_form = ProfissionalForm(instance=profissional)
+        user_form = UsuarioProfileForm(instance=usuario)
+        profile_form = ProfissionalProfileForm(instance=profissional)
 
     context = {
         'user_form': user_form,
         'profile_form': profile_form,
     }
 
-    return render(request, 'users/complete_profile_profissional.html', context)
+    return render(request, 'account/complete_profile_profissional.html', context)
 
 
 @login_required
 def complete_aluno_profile(request):
     """
     Completa o perfil do aluno.
-    Após salvar, oferece OPCIONALMENTE upgrade para Premium.
+    Se o aluno escolheu tipo de conta Premium, redireciona para escolha de plano.
+    Se escolheu Free, vai direto para a home.
     """
     usuario = request.user
 
@@ -81,37 +82,61 @@ def complete_aluno_profile(request):
         aluno = Aluno(usuario=usuario)
 
     if request.method == 'POST':
-        user_form = UsuarioForm(request.POST, request.FILES, instance=usuario)
-        profile_form = AlunoForm(request.POST, instance=aluno)
+        user_form = UsuarioProfileForm(request.POST, request.FILES, instance=usuario)
+        profile_form = AlunoProfileForm(request.POST, instance=aluno)
 
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
 
+            # Salva o aluno mas ainda não marca o cadastro como completo
             alu = profile_form.save(commit=False)
             alu.usuario = usuario
             alu.save()
 
-            # Para alunos, pergunta se quer conhecer os planos Premium
-            messages.success(request, 'Perfil criado com sucesso!')
+            # Precisamos salvar as relações ManyToMany
+            profile_form.save_m2m()
 
-            # Verifica se o aluno marcou interesse em Premium no formulário
-            # (vamos adicionar esse checkbox opcional no template)
-            interesse_premium = request.POST.get('interesse_premium') == 'on'
+            # MUDANÇA PRINCIPAL: Verifica qual tipo de conta foi escolhido
+            tipo_conta_escolhido = alu.tipo_conta
 
-            if interesse_premium:
+            # Verifica se o tipo de conta escolhido é Premium
+            # (assumindo que existe um TipoConta com nome "Premium")
+            try:
+                tipo_premium = TipoConta.objects.get(nome='Premium')
+                eh_premium = (tipo_conta_escolhido == tipo_premium)
+            except TipoConta.DoesNotExist:
+                # Se não existe tipo Premium no banco, trata como Free
+                eh_premium = False
+
+            # Marca o cadastro como completo
+            usuario.cadastro_completo = True
+            usuario.save()
+
+            if eh_premium:
+                # Se escolheu Premium, DEVE escolher um plano antes de continuar
+                messages.info(
+                    request,
+                    'Perfil salvo! Agora escolha seu plano Premium para ativar todos os recursos exclusivos.'
+                )
                 return redirect('escolher_plano')
             else:
-                return redirect('home')  # Vai direto para a home como usuário Free
+                # Se escolheu Free, pode ir direto para a home
+                messages.success(
+                    request,
+                    'Perfil criado com sucesso! Bem-vindo à plataforma.'
+                )
+                return redirect('home')
     else:
-        user_form = UsuarioForm(instance=usuario)
-        profile_form = AlunoForm(instance=aluno)
+        user_form = UsuarioProfileForm(instance=usuario)
+        profile_form = AlunoProfileForm(instance=aluno)
 
     context = {
         'user_form': user_form,
         'profile_form': profile_form,
     }
 
-    return render(request, 'users/complete_profile.html', context)
+    return render(request, 'account/complete_profile.html', context)
+
 
 @login_required
 def set_profile_type(request, profile_type):
@@ -500,27 +525,6 @@ def processar_like_back_view(request, interacao_id):
 
 
 @login_required
-def mock_premium_checkout_view(request):
-    """
-    Exibe a página de checkout Premium (mockada).
-    Apenas alunos podem acessar.
-    """
-    # Verifica se o usuário é um aluno
-    if not hasattr(request.user, 'aluno'):
-        messages.error(request, 'Apenas alunos podem se tornar Premium.')
-        return redirect('home')
-
-    aluno = request.user.aluno
-
-    # Verifica se já é Premium
-    if aluno.tipo_conta and aluno.tipo_conta.nome.lower() == 'premium':
-        messages.info(request, 'Você já é um membro Premium!')
-        return redirect('profile')
-
-    return render(request, 'users/premium_checkout.html')
-
-
-@login_required
 def process_premium_payment_view(request):
     """
     Processa o pagamento Premium (mockado).
@@ -570,43 +574,45 @@ def process_premium_payment_view(request):
 @login_required
 def escolher_plano_view(request):
     """
-    Mostra os planos disponíveis para o usuário escolher.
-
-    Se for Aluno: mostra planos de Aluno Premium
-    Se for Profissional: mostra planos de Profissional Pro
+    Mostra planos disponíveis.
+    Alunos: opcional | Profissionais: obrigatório
     """
-    # Determina qual tipo de usuário está acessando
+    # Determina tipo de usuário
     if hasattr(request.user, 'aluno'):
         tipo_usuario = 'aluno'
         titulo = "Torne-se Premium"
-        subtitulo = "Desbloqueie recursos exclusivos e conecte-se com outros atletas"
+        subtitulo = "Desbloqueie recursos exclusivos"
+        obrigatorio = False
     elif hasattr(request.user, 'profissional'):
         tipo_usuario = 'profissional'
-        titulo = "Assinatura Profissional"
-        subtitulo = "Mantenha sua conta ativa e alcance mais alunos"
+        titulo = "Escolha seu Plano Profissional"
+        subtitulo = "Ative sua conta profissional"
+        obrigatorio = True
     else:
-        messages.error(request, 'Você precisa completar seu perfil primeiro.')
+        messages.error(request, 'Complete seu perfil primeiro.')
         return redirect('account_set_profile_type')
 
-    # Verifica se já tem assinatura ativa
-    assinatura_atual = request.user.obter_assinatura_ativa()
-    if assinatura_atual:
-        return render(request, 'users/assinatura_status.html', {
-            'assinatura': assinatura_atual,
-            'tipo_usuario': tipo_usuario
-        })
+    # Se já tem assinatura
+    if request.user.tem_assinatura_ativa():
+        messages.info(request, 'Você já tem assinatura ativa!')
+        return redirect('profile')
 
-    # Busca os planos disponíveis para este tipo de usuário
+    # Busca planos
     planos = TipoPlano.objects.filter(
         tipo_usuario=tipo_usuario,
         ativo=True
     ).order_by('ordem', 'periodicidade')
+
+    if not planos.exists():
+        messages.error(request, 'Nenhum plano disponível.')
+        return redirect('profile')
 
     context = {
         'planos': planos,
         'tipo_usuario': tipo_usuario,
         'titulo': titulo,
         'subtitulo': subtitulo,
+        'obrigatorio': obrigatorio,
     }
 
     return render(request, 'users/escolher_plano.html', context)
@@ -767,6 +773,15 @@ def historico_assinaturas_view(request):
     }
 
     return render(request, 'users/historico_assinaturas.html', context)
+
+@login_required
+def mock_premium_checkout_view(request):
+    """
+    View antiga mantida para compatibilidade.
+    Redireciona para o novo sistema de assinaturas.
+    """
+    messages.info(request, 'Confira nossos planos Premium!')
+    return redirect('escolher_plano')
 
 
 @login_required
