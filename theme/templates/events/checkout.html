@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-[#0F172A] py-8">
+  <div class="container mx-auto px-4 max-w-2xl">
+
+    <!-- Card de Checkout -->
+    <div class="bg-[#1F2937] rounded-xl border border-gray-700 overflow-hidden">
+
+      <!-- Header -->
+      <div class="bg-gradient-to-r from-green-600 to-green-700 p-6 text-center">
+        <h1 class="text-2xl font-bold text-white mb-2">💳 Checkout do Evento</h1>
+        <p class="text-green-100">Revise os detalhes antes de confirmar</p>
+      </div>
+
+      <!-- Detalhes do Evento -->
+      <div class="p-6 border-b border-gray-700">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+          </svg>
+          Detalhes do Evento
+        </h2>
+
+        <div class="space-y-3">
+          <!-- Nome do Evento -->
+          <div class="flex justify-between items-start">
+            <span class="text-gray-400">Evento:</span>
+            <span class="text-white font-medium text-right">{{ evento.nome_evento }}</span>
+          </div>
+
+          <!-- Data e Hora -->
+          <div class="flex justify-between items-start">
+            <span class="text-gray-400">Data:</span>
+            <span class="text-white">{{ evento.data_e_hora|date:"d/m/Y - H:i" }}</span>
+          </div>
+
+          <!-- Localização -->
+          <div class="flex justify-between items-start">
+            <span class="text-gray-400">Local:</span>
+            <span class="text-white text-right">
+              {{ evento.localizacao_cidade }}
+              {% if evento.localizacao_bairro_endereco %}
+              <br>
+              <span class="text-sm text-gray-400">{{ evento.localizacao_bairro_endereco }}</span>
+              {% endif %}
+            </span>
+          </div>
+
+          <!-- Categoria -->
+          {% if evento.categoria %}
+          <div class="flex justify-between items-start">
+            <span class="text-gray-400">Categoria:</span>
+            <span class="text-white">{{ evento.categoria.icone }} {{ evento.categoria.nome }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Resumo do Pagamento -->
+      <div class="p-6 bg-[#111827]">
+        <h2 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
+          </svg>
+          Resumo do Pagamento
+        </h2>
+
+        <div class="space-y-3">
+          <div class="flex justify-between items-center">
+            <span class="text-gray-400">Valor do Ingresso:</span>
+            <span class="text-white font-medium">R$ {{ evento.preco }}</span>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <span class="text-gray-400">Taxa de Serviço:</span>
+            <span class="text-green-400 font-medium">Grátis</span>
+          </div>
+
+          <div class="border-t border-gray-700 pt-3 mt-3">
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-semibold text-white">Total:</span>
+              <span class="text-2xl font-bold text-green-400">R$ {{ evento.preco }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botões de Ação -->
+      <div class="p-6 flex gap-3">
+        <a href="{% url 'evento_detail' evento.id %}"
+           class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-3 rounded-lg text-center transition-colors">
+          Cancelar
+        </a>
+
+        <form method="POST" action="{% url 'processar_pagamento' evento.id %}" class="flex-1">
+          {% csrf_token %}
+          <button type="submit"
+                  class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold px-6 py-3 rounded-lg transition-all hover:scale-[1.02] shadow-lg">
+            Confirmar Pagamento
+          </button>
+        </form>
+      </div>
+
+      <!-- Informação de Segurança -->
+      <div class="px-6 pb-6">
+        <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 flex items-start gap-3">
+          <svg class="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <p class="text-blue-400 font-semibold text-sm mb-1">Pagamento Simulado</p>
+            <p class="text-blue-300 text-xs">
+              Este é um ambiente de demonstração. Nenhum pagamento real será processado.
+              Ao confirmar, sua inscrição será registrada automaticamente.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

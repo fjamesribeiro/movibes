@@ -170,65 +170,12 @@ def create_event(request):
     return render(request, 'events/create_event.html', {'form': form})
 
 
-def evento_detail_view(request, evento_id):
+@login_required
+def modal_premium_view(request):
     """
-    Mostra a página de detalhes e verifica o status de pagamento.
+    Retorna o HTML do modal premium para uso com HTMX.
     """
-    evento = get_object_or_404(Evento, pk=evento_id)
-    is_past = evento.data_e_hora < timezone.now()
-    fotos_galeria = []
-    if is_past:
-        fotos_galeria = evento.galeria.all()
-
-    inscricoes = evento.inscricoes.all().select_related('id_aluno__usuario')
-    curtidas_pelo_usuario_ids = []
-    is_subscribed = False
-
-    has_paid = False  # Começa como Falso
-
-    if request.user.is_authenticated:
-        # Verifica se o usuário é Aluno
-        is_aluno = hasattr(request.user, 'aluno')
-        # Pega os IDs das inscrições que o usuário logado JÁ CURTIU
-        curtidas_pelo_usuario_ids = InteracaoPresenca.objects.filter(
-            autor=request.user,
-            inscricao_alvo__in=inscricoes
-        ).values_list('inscricao_alvo_id', flat=True)
-
-        if is_aluno:
-            try:
-                # Verifica se o aluno tem uma Inscrição (para eventos gratuitos)
-                is_subscribed = Inscricao.objects.filter(
-                    id_aluno=request.user.aluno,
-                    id_evento=evento
-                ).exists()
-
-                # Se o evento for PAGO, verifica se existe um Pagamento
-                if evento.eh_pago:
-                    has_paid = Pagamento.objects.filter(
-                        usuario=request.user,
-                        evento=evento,
-                        status='aprovado'
-                    ).exists()
-
-                    # Se ele pagou, ele também está inscrito
-                    if has_paid:
-                        is_subscribed = True
-
-            except Aluno.DoesNotExist:
-                is_subscribed = False
-                has_paid = False
-
-    context = {
-        'evento': evento,
-        'is_past': is_past,
-        'fotos_galeria': fotos_galeria,
-        'is_subscribed': is_subscribed,
-        'inscricoes': inscricoes,
-        'curtidas_pelo_usuario_ids': curtidas_pelo_usuario_ids,
-        'has_paid': has_paid
-    }
-    return render(request, 'events/evento_detail.html', context)
+    return render(request, 'partials/modal_premium.html')
 
 
 @login_required
@@ -345,37 +292,203 @@ def like_inscricao_view(request, inscricao_id):
     return render(request, 'partials/like_button.html', context)
 
 
+def evento_detail_view(request, evento_id):
+    """
+    Mostra a página de detalhes do evento.
+    """
+    evento = get_object_or_404(Evento, pk=evento_id)
+    is_past = evento.data_e_hora < timezone.now()
+    fotos_galeria = []
+    if is_past:
+        fotos_galeria = evento.galeria.all()
+
+    inscricoes = evento.inscricoes.all().select_related('id_aluno__usuario')
+    total_participantes = inscricoes.count()
+
+    # Inicializa todas as variáveis como False/vazio
+    curtidas_pelo_usuario_ids = []
+    is_subscribed = False
+    has_paid = False
+    is_premium = False
+    is_aluno = False
+    can_view_participants = False
+    participant_preview = None
+
+    if request.user.is_authenticated:
+        is_aluno = hasattr(request.user, 'aluno')
+
+        if is_aluno:
+            # Verifica se é premium
+            try:
+                is_premium = (
+                    request.user.aluno.tipo_conta and
+                    request.user.aluno.tipo_conta.nome == 'Premium'
+                )
+            except:
+                is_premium = False
+
+            # Define permissões para ver participantes
+            can_view_participants = (
+                is_premium or
+                request.user == evento.id_criador
+            )
+
+            if not is_premium and is_past:
+                participant_preview = inscricoes[:3]
+
+        # Criador sempre pode ver participantes
+        if request.user == evento.id_criador:
+            can_view_participants = True
+
+        # Busca curtidas do usuário
+        curtidas_pelo_usuario_ids = InteracaoPresenca.objects.filter(
+            autor=request.user,
+            inscricao_alvo__in=inscricoes
+        ).values_list('inscricao_alvo_id', flat=True)
+
+        # LÓGICA PRINCIPAL DE INSCRIÇÃO
+        if is_aluno:
+            try:
+                if evento.eh_pago:
+                    # EVENTO PAGO: A regra é clara
+                    # 1. Primeiro verifica se existe PAGAMENTO aprovado
+                    has_paid = Pagamento.objects.filter(
+                        usuario=request.user,
+                        evento=evento,
+                        status='aprovado'
+                    ).exists()
+
+                    # 2. Se tem pagamento aprovado, ele está inscrito
+                    # Se NÃO tem pagamento, ele NÃO está inscrito (mesmo que exista Inscricao)
+                    is_subscribed = has_paid
+
+                else:
+                    # EVENTO GRATUITO: Só verifica a inscrição
+                    is_subscribed = Inscricao.objects.filter(
+                        id_aluno=request.user.aluno,
+                        id_evento=evento
+                    ).exists()
+                    # Em evento gratuito, has_paid sempre é False
+                    has_paid = False
+
+            except Aluno.DoesNotExist:
+                is_subscribed = False
+                has_paid = False
+
+    context = {
+        'evento': evento,
+        'is_past': is_past,
+        'fotos_galeria': fotos_galeria,
+        'is_subscribed': is_subscribed,
+        'inscricoes': inscricoes,
+        'curtidas_pelo_usuario_ids': curtidas_pelo_usuario_ids,
+        'has_paid': has_paid,
+        'total_participantes': total_participantes,
+        'is_premium': is_premium,
+        'is_aluno': is_aluno,
+        'can_view_participants': can_view_participants,
+        'participant_preview': participant_preview,
+    }
+    return render(request, 'events/evento_detail.html', context)
+
+
 @login_required
 def mock_checkout_view(request, evento_id):
     """
-    SIMULA (mocka) um pagamento bem-sucedido.
-    Cria a Inscrição e o Pagamento.
+    Exibe a tela de checkout com os detalhes do evento e valor a pagar.
+    Esta é apenas a tela de visualização, não processa o pagamento ainda.
     """
     evento = get_object_or_404(Evento, pk=evento_id)
-    aluno = get_object_or_404(Aluno, usuario=request.user)
 
+    # Valida que o usuário é um aluno
+    try:
+        aluno = request.user.aluno
+    except:
+        messages.error(request, 'Apenas alunos podem comprar ingressos.')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # Verifica se o evento é pago
     if not evento.eh_pago:
         messages.error(request, 'Este evento é gratuito.')
         return redirect('evento_detail', evento_id=evento.id)
 
-    # Verifica se já não pagou ou se inscreveu
-    if Pagamento.objects.filter(usuario=request.user, evento=evento,
-                                status='aprovado').exists():
-        messages.warning(request, 'Você já está inscrito neste evento.')
+    # Verifica se já pagou
+    ja_pagou = Pagamento.objects.filter(
+        usuario=request.user,
+        evento=evento,
+        status='aprovado'
+    ).exists()
+
+    if ja_pagou:
+        messages.info(request, 'Você já comprou o ingresso para este evento!')
         return redirect('evento_detail', evento_id=evento.id)
 
-    # --- LÓGICA DO MOCK ---
-    # 1. Cria o registro de Pagamento
-    Pagamento.objects.create(
+    # Se passou por todas as validações, mostra a tela de checkout
+    context = {
+        'evento': evento,
+        'aluno': aluno,
+    }
+    return render(request, 'events/checkout.html', context)
+
+
+@login_required
+def processar_pagamento_view(request, evento_id):
+    """
+    Processa efetivamente o pagamento após o usuário confirmar na tela de checkout.
+    Só aceita requisições POST.
+    """
+    # Só aceita POST (quando o usuário clica em "Confirmar Pagamento")
+    if request.method != 'POST':
+        return redirect('mock_checkout', evento_id=evento_id)
+
+    evento = get_object_or_404(Evento, pk=evento_id)
+
+    # Valida que o usuário é um aluno
+    try:
+        aluno = request.user.aluno
+    except:
+        messages.error(request, 'Apenas alunos podem comprar ingressos.')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # Verifica se o evento é pago
+    if not evento.eh_pago:
+        messages.error(request, 'Este evento é gratuito.')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # Verifica se já pagou (última validação antes de processar)
+    ja_pagou = Pagamento.objects.filter(
+        usuario=request.user,
+        evento=evento,
+        status='aprovado'
+    ).exists()
+
+    if ja_pagou:
+        messages.info(request, 'Você já comprou o ingresso para este evento!')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # --- AGORA SIM, PROCESSA O PAGAMENTO ---
+
+    # Cria o registro de Pagamento
+    pagamento = Pagamento.objects.create(
         usuario=request.user,
         evento=evento,
         valor_pago=evento.preco,
         status='aprovado',
-        id_transacao_externa=f"mock_{request.user.id}_{evento.id}"
+        id_transacao_externa=f"mock_{request.user.id}_{evento.id}_{timezone.now().timestamp()}"
     )
 
-    # 2. Cria a Inscrição associada
-    Inscricao.objects.create(id_aluno=aluno, id_evento=evento)
+    # Garante que existe a Inscrição
+    inscricao, criada = Inscricao.objects.get_or_create(
+        id_aluno=aluno,
+        id_evento=evento
+    )
 
-    messages.success(request, 'Pagamento aprovado e inscrição confirmada!')
+    # Atualiza vagas se necessário
+    if evento.vagas_restantes and evento.vagas_restantes > 0:
+        evento.vagas_restantes -= 1
+        evento.save()
+
+    # Mensagem de sucesso
+    messages.success(request,
+                     f'Pagamento de R$ {evento.preco} confirmado com sucesso! Você está inscrito no evento.')
     return redirect('evento_detail', evento_id=evento.id)

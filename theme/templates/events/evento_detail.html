@@ -17,6 +17,105 @@
   <div id="modalCaption" class="absolute bottom-8 left-0 right-0 text-center text-white text-lg px-4 font-medium"></div>
 </div>
 
+<!-- Modal Premium -->
+<div id="premiumModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
+     onclick="event.target === event.currentTarget && closePremiumModal()">
+  <div class="bg-gradient-to-br from-[#1F2937] to-[#111827] rounded-2xl p-8 max-w-md w-full border-2 border-yellow-400/50 relative shadow-2xl">
+    <button onclick="closePremiumModal()"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="text-center mb-6">
+      <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold text-white mb-2">Desbloqueie o Acesso Premium</h3>
+      <p class="text-gray-300 text-sm">Conecte-se com outros atletas e aproveite benefícios exclusivos</p>
+    </div>
+
+    <div class="bg-[#0F172A] rounded-xl p-5 mb-6 border border-gray-700/50">
+      <div class="flex items-center gap-2 mb-3">
+        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+        </svg>
+        <p class="text-yellow-400 font-semibold">Benefícios Premium</p>
+      </div>
+      <ul class="text-gray-300 text-sm space-y-2.5">
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span>Veja <strong class="text-white">todos os participantes</strong> dos eventos</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span><strong class="text-white">Conecte-se</strong> com outros atletas</span>
+        </li>
+        <li class="flex items-start gap-2.5">
+          <svg class="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span>Acesse <strong class="text-white">recursos exclusivos</strong></span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex gap-3">
+      <button onclick="closePremiumModal()"
+              class="flex-1 bg-gray-700 hover:bg-gray-600 text-white font-semibold px-6 py-3 rounded-lg transition-all hover:scale-[1.02]">
+        Mais tarde
+      </button>
+      <a href="{% url 'mock_premium_checkout' %}"
+         class="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold px-6 py-3 rounded-lg text-center transition-all hover:scale-[1.02] shadow-lg">
+        Ser Premium
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Compartilhamento -->
+<div id="shareModal" class="hidden fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+  <div class="bg-[#1F2937] rounded-2xl p-6 max-w-sm w-full border border-gray-700 relative">
+    <button onclick="closeShareModal()"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white transition-colors">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <h3 class="text-xl font-bold text-white mb-4">Compartilhar Evento</h3>
+
+    <div class="space-y-3">
+      <button onclick="shareWhatsApp()"
+              class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-3 rounded-lg flex items-center justify-center gap-3 transition-colors">
+        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        WhatsApp
+      </button>
+
+      <button onclick="copyEventLink()"
+              class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold px-4 py-3 rounded-lg flex items-center justify-center gap-3 transition-colors">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+        </svg>
+        Copiar Link
+      </button>
+    </div>
+
+    <p id="copyFeedback" class="hidden text-center text-green-400 text-sm mt-3 font-semibold">
+      ✓ Link copiado!
+    </p>
+  </div>
+</div>
+
 <script>
   function openModal(imageSrc, caption) {
       document.getElementById('photoModal').classList.remove('hidden');
@@ -30,251 +129,327 @@
       document.body.style.overflow = 'auto';
   }
 
+  function showPremiumModal() {
+      document.getElementById('premiumModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+  }
+
+  function closePremiumModal() {
+      document.getElementById('premiumModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+  }
+
+  function openShareModal() {
+      document.getElementById('shareModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+  }
+
+  function closeShareModal() {
+      document.getElementById('shareModal').classList.add('hidden');
+      document.getElementById('copyFeedback').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+  }
+
+  function shareWhatsApp() {
+      const eventUrl = window.location.href;
+      const eventName = '{{ evento.nome_evento|escapejs }}';
+      const message = encodeURIComponent(`Olá! Confira este evento: ${eventName}\n${eventUrl}`);
+      window.open(`https://wa.me/?text=${message}`, '_blank');
+  }
+
+  function copyEventLink() {
+      const eventUrl = window.location.href;
+      navigator.clipboard.writeText(eventUrl).then(() => {
+          document.getElementById('copyFeedback').classList.remove('hidden');
+          setTimeout(() => {
+              document.getElementById('copyFeedback').classList.add('hidden');
+          }, 2000);
+      });
+  }
+
   document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') {
+          closeModal();
+          closePremiumModal();
+          closeShareModal();
+      }
   });
 </script>
 
-<div class="min-h-screen bg-[#111827] pb-8">
+<div class="min-h-screen bg-[#0F172A] py-8">
+  <div class="container mx-auto px-4 max-w-6xl">
 
-  <!-- Imagem de Capa -->
-  <div class="relative h-[50vh] md:h-[60vh] bg-cover bg-center"
-       style="background-image: url('{% if evento.foto_do_evento %}{{ evento.foto_do_evento.url }}{% else %}{% static 'images/placeholder-evento.jpg' %}{% endif %}')">
-    <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#111827]"></div>
-
-    <!-- Badges no topo -->
-    <div class="absolute top-4 md:top-6 left-4 md:left-6 right-4 md:right-6 flex justify-between items-start">
-      <!-- Botão Voltar -->
-      <button onclick="window.history.back()"
-              class="flex items-center gap-2 bg-black/50 hover:bg-black/70 backdrop-blur-sm text-white font-medium px-4 py-2 rounded-full transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-        Voltar
-      </button>
-
-      <!-- Badge de Status -->
-      {% if evento.status %}
-      <span class="bg-green-500 text-white text-sm font-bold px-4 py-2 rounded-full shadow-lg">
-        {{ evento.status }}
-      </span>
-      {% endif %}
-    </div>
-
-    <!-- Info sobreposta na imagem -->
-    <div class="absolute bottom-0 left-0 right-0 px-4 md:px-6 pb-6">
-      <div class="max-w-5xl mx-auto">
-        <!-- Categoria -->
-        {% if evento.categoria %}
-        <span class="inline-block bg-yellow-400 text-black text-sm font-bold px-4 py-1.5 rounded-full mb-4">
-          {{ evento.categoria.icone }} {{ evento.categoria.nome }}
-        </span>
-        {% endif %}
-
-        <!-- Título -->
-        <h1 class="text-3xl md:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-          {{ evento.nome_evento }}
-        </h1>
+    <!-- Cabeçalho do Evento -->
+    <div class="bg-[#1F2937] rounded-xl overflow-hidden border border-gray-700 mb-6">
+      {% if evento.foto_do_evento %}
+      <div class="relative h-64 md:h-96 overflow-hidden">
+        <img src="{{ evento.foto_do_evento.url }}"
+             alt="{{ evento.nome_evento }}"
+             class="w-full h-full object-cover">
+        <div class="absolute inset-0 bg-gradient-to-t from-[#1F2937] via-transparent to-transparent"></div>
       </div>
-    </div>
-  </div>
+      {% endif %}
 
-  <!-- Conteúdo Principal -->
-  <div class="max-w-5xl mx-auto px-4 md:px-6 -mt-4">
+      <div class="p-6">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3 flex-wrap">
+              {% if evento.categoria %}
+              <span class="bg-purple-500/20 text-purple-400 px-3 py-1 rounded-full text-sm font-medium border border-purple-500/30">
+                {{ evento.categoria.icone }} {{ evento.categoria.nome }}
+              </span>
+              {% endif %}
+              {% if evento.eh_pago %}
+              <!-- Badge do preço clicável -->
+              {% if request.user.is_authenticated %}
+                <!-- Se logado, redireciona para pagamento -->
+                <a href="{% url 'mock_checkout' evento.id %}"
+                   class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium border border-green-500/30 hover:bg-green-500/30 transition-colors cursor-pointer">
+                  💰 R$ {{ evento.preco }}
+                </a>
+              {% else %}
+                <!-- Se não logado, redireciona para login -->
+                <a href="{% url 'account_login' %}?next={{ request.path }}"
+                   class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium border border-green-500/30 hover:bg-green-500/30 transition-colors cursor-pointer">
+                  💰 R$ {{ evento.preco }}
+                </a>
+              {% endif %}
+              {% else %}
+              <span class="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium border border-blue-500/30">
+                🎉 Gratuito
+              </span>
+              {% endif %}
+            </div>
+            <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">{{ evento.nome_evento }}</h1>
+          </div>
 
-    <!-- Cards de Informações Rápidas -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-
-      <!-- Data e Hora -->
-      {% if evento.data_e_hora %}
-      <div class="bg-[#1F2937] rounded-xl p-4 border border-gray-700">
-        <div class="flex items-center gap-2 mb-2">
-          <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-gray-400 text-xs font-medium">Data</span>
+          <button onclick="openShareModal()"
+                  class="bg-gray-700 hover:bg-gray-600 p-3 rounded-lg transition-colors flex-shrink-0">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+            </svg>
+          </button>
         </div>
-        <p class="text-white font-semibold text-sm">{{ evento.data_e_hora|date:"d/m/Y" }}</p>
-        <p class="text-gray-400 text-xs">{{ evento.data_e_hora|date:"H:i" }}</p>
-      </div>
-      {% endif %}
 
-      <!-- Localização -->
-      {% if evento.localizacao_cidade %}
-      <div class="bg-[#1F2937] rounded-xl p-4 border border-gray-700">
-        <div class="flex items-center gap-2 mb-2">
-          <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-gray-400 text-xs font-medium">Local</span>
-        </div>
-        <p class="text-white font-semibold text-sm truncate">{{ evento.localizacao_cidade }}</p>
-        {% if evento.localizacao_bairro_endereco %}
-        <p class="text-gray-400 text-xs truncate">{{ evento.localizacao_bairro_endereco }}</p>
-        {% endif %}
-      </div>
-      {% endif %}
+        <!-- Info Grid -->
+        <div class="grid md:grid-cols-3 gap-4 mb-6">
+          <div class="flex items-center gap-3 text-gray-300">
+            <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-0.5">Data e Hora</p>
+              <p class="font-semibold">{{ evento.data_e_hora|date:"d/m/Y - H:i" }}</p>
+            </div>
+          </div>
 
-      <!-- Preço -->
-      {% if evento.preco %}
-      <div class="bg-[#1F2937] rounded-xl p-4 border border-gray-700">
-        <div class="flex items-center gap-2 mb-2">
-          <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"></path>
-          </svg>
-          <span class="text-gray-400 text-xs font-medium">Preço</span>
-        </div>
-        <p class="text-white font-bold text-lg">R$ {{ evento.preco }}</p>
-      </div>
-      {% endif %}
+          <div class="flex items-center gap-3 text-gray-300">
+            <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-0.5">Localização</p>
+              <p class="font-semibold">{{ evento.localizacao_cidade }}</p>
+              {% if evento.localizacao_bairro_endereco %}
+              <p class="text-sm text-gray-400">{{ evento.localizacao_bairro_endereco }}</p>
+              {% endif %}
+            </div>
+          </div>
 
-      <!-- Vagas -->
-      {% if evento.vagas_restantes is not None %}
-      <div class="bg-[#1F2937] rounded-xl p-4 border border-gray-700">
-        <div class="flex items-center gap-2 mb-2">
-          <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
-          </svg>
-          <span class="text-gray-400 text-xs font-medium">Vagas</span>
-        </div>
-        <p class="text-white font-semibold text-sm">{{ evento.vagas_restantes }} livres</p>
-        {% if evento.participantes_confirmados %}
-        <p class="text-gray-400 text-xs">{{ evento.participantes_confirmados }} inscritos</p>
-        {% endif %}
-      </div>
-      {% endif %}
-
-    </div>
-
-    <!-- Botão de Inscrição -->
-    <div class="mb-6" id="subscribe-button-{{ evento.id }}">
-      {% include "partials/subscribe_button.html" with evento=evento is_subscribed=is_subscribed %}
-    </div>
-
-    <!-- Organizador -->
-    <div class="bg-[#1F2937] rounded-xl p-4 border border-gray-700 mb-6">
-      <div class="flex items-center justify-between gap-4">
-        <div class="flex items-center gap-3 flex-1 min-w-0">
-          <a href="{% url 'public_profile' evento.id_criador.id %}">
-            <img src="{% if evento.id_criador.url_foto_perfil %}{{ evento.id_criador.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
-                 alt="{{ evento.id_criador.first_name }}"
-                 class="w-12 h-12 rounded-full object-cover border-2 border-yellow-400">
-          </a>
-          <div class="flex-1 min-w-0">
-            <p class="text-gray-400 text-xs mb-0.5">Organizado por</p>
-            <a href="{% url 'public_profile' evento.id_criador.id %}"
-               class="text-white font-semibold hover:text-yellow-400 transition-colors truncate block">
-              {{ evento.id_criador.first_name }} {{ evento.id_criador.last_name }}
-            </a>
-            {% if evento.id_criador.profissional %}
-            <span class="inline-flex items-center text-xs text-yellow-400 font-medium mt-1">
-              ⭐ Profissional
-            </span>
-            {% endif %}
+          <div class="flex items-center gap-3 text-gray-300">
+            <div class="w-10 h-10 bg-green-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-xs text-gray-400 mb-0.5">Vagas</p>
+              {% if evento.vagas_restantes %}
+              <p class="font-semibold">{{ evento.vagas_restantes }} disponíveis</p>
+              {% else %}
+              <p class="font-semibold text-gray-400">Sem limite</p>
+              {% endif %}
+            </div>
           </div>
         </div>
 
-        <!-- Link de Pagamento -->
-        {% if evento.link_pagamento %}
-        <a href="{{ evento.link_pagamento }}" target="_blank"
-           class="flex-shrink-0 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2">
-          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
-            <path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path>
-          </svg>
-          Pagar
-        </a>
+        {% if evento.descricao_do_evento %}
+        <div class="border-t border-gray-700 pt-4">
+          <h3 class="text-lg font-semibold text-white mb-2">Sobre o Evento</h3>
+          <p class="text-gray-300 leading-relaxed">{{ evento.descricao_do_evento }}</p>
+        </div>
         {% endif %}
+
+        <div class="border-t border-gray-700 pt-4 mt-4">
+          {% if evento.eh_pago %}
+            {% if has_paid %}
+            <div class="bg-green-500/20 border border-green-500/30 rounded-lg p-4 flex items-center gap-3">
+              <svg class="w-6 h-6 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <div>
+                <p class="text-green-400 font-semibold">Você está inscrito!</p>
+                <p class="text-green-300 text-sm">Pagamento confirmado</p>
+              </div>
+            </div>
+            {% else %}
+            <a href="{% url 'mock_checkout' evento.id %}"
+               class="block w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold px-6 py-4 rounded-lg text-center transition-all hover:scale-[1.02] shadow-lg">
+              💳 Comprar Ingresso - R$ {{ evento.preco }}
+            </a>
+            {% endif %}
+          {% else %}
+            <div id="subscribe-button-container" class="htmx-indicator">
+              {% include 'partials/subscribe_button.html' %}
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
 
-    <!-- Descrição -->
-    {% if evento.descricao_do_evento %}
-    <div class="bg-[#1F2937] rounded-xl p-6 border border-gray-700 mb-6">
-      <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
-        <div class="w-1 h-6 bg-yellow-400 rounded-full"></div>
-        Sobre o Evento
-      </h2>
-      <div class="text-gray-300 leading-relaxed whitespace-pre-line">
-        {{ evento.descricao_do_evento }}
-      </div>
-    </div>
-    {% endif %}
-
-    <!-- Lista de Participantes (se evento passou) -->
-    {% if is_past and inscricoes %}
+    <!-- Seção de Participantes -->
+    {% if is_past and total_participantes > 0 %}
     <div class="bg-[#1F2937] rounded-xl p-6 border border-gray-700 mb-6">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2">
-          <div class="w-1 h-6 bg-pink-500 rounded-full"></div>
+        <h2 class="text-xl font-bold text-white flex items-center gap-3">
+          <div class="w-1 h-6 bg-purple-500 rounded-full"></div>
           Participantes
+          <div class="flex items-center gap-2">
+            {% if not can_view_participants %}
+              <div class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center border-2 border-gray-600">
+                <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            {% endif %}
+            <span class="text-gray-400 text-base font-normal">{{ total_participantes }}</span>
+          </div>
         </h2>
-        <span class="bg-pink-500/20 text-pink-400 text-sm font-bold px-3 py-1 rounded-full">
-          {{ inscricoes|length }}
-        </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {% for inscricao in inscricoes %}
-        <div class="bg-[#111827] rounded-lg p-3 border border-gray-700 hover:border-gray-600 transition-colors">
-          <div class="flex items-center justify-between gap-3">
-
-            <!-- Avatar e Info -->
-            <div class="flex items-center gap-3 flex-1 min-w-0">
-              <a href="{% url 'public_profile' inscricao.id_aluno.usuario.id %}" class="flex-shrink-0">
-                <img src="{% if inscricao.id_aluno.usuario.url_foto_perfil %}{{ inscricao.id_aluno.usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
-                     alt="{{ inscricao.id_aluno.usuario.first_name }}"
-                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-600 hover:border-pink-500 transition-colors">
-              </a>
-              <div class="flex-1 min-w-0">
+      {% if can_view_participants %}
+        {% if inscricoes %}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for inscricao in inscricoes %}
+            <div class="bg-[#111827] rounded-lg p-3 border border-gray-700 hover:border-gray-600 transition-colors">
+              <div class="flex items-center justify-between gap-3">
                 <a href="{% url 'public_profile' inscricao.id_aluno.usuario.id %}"
-                   class="text-white font-semibold hover:text-pink-400 transition-colors truncate block">
-                  {{ inscricao.id_aluno.usuario.first_name }}
+                   class="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+                  <img src="{% if inscricao.id_aluno.usuario.url_foto_perfil %}{{ inscricao.id_aluno.usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                       alt="{{ inscricao.id_aluno.usuario.first_name }}"
+                       class="w-12 h-12 rounded-full object-cover border-2 border-purple-500/50">
+                  <div class="flex-1 min-w-0">
+                    <p class="text-white font-semibold truncate">
+                      {{ inscricao.id_aluno.usuario.first_name }}
+                    </p>
+                    {% if inscricao.id_aluno.nivel_pratica %}
+                    <span class="text-xs text-gray-400">{{ inscricao.id_aluno.get_nivel_pratica_display }}</span>
+                    {% endif %}
+                  </div>
                 </a>
-                {% if inscricao.id_aluno.usuario == request.user %}
-                <span class="text-xs text-gray-400">Você</span>
+
+                {% if request.user.is_authenticated and is_aluno and inscricao.id_aluno.usuario != request.user %}
+                <div class="flex-shrink-0">
+                  {% if inscricao.id in curtidas_pelo_usuario_ids %}
+                  <button class="w-9 h-9 flex items-center justify-center rounded-full bg-pink-500/20 text-pink-400 border border-pink-500/50"
+                          hx-post="{% url 'curtir_presenca' inscricao.id %}"
+                          hx-swap="outerHTML"
+                          hx-target="this">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
+                    </svg>
+                  </button>
+                  {% else %}
+                  <button class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 hover:bg-pink-500/20 text-gray-400 hover:text-pink-400 border border-gray-600 hover:border-pink-500/50 transition-all"
+                          hx-post="{% url 'curtir_presenca' inscricao.id %}"
+                          hx-swap="outerHTML"
+                          hx-target="this">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                    </svg>
+                  </button>
+                  {% endif %}
+                </div>
                 {% endif %}
               </div>
             </div>
-
-            <!-- Botão de Curtir -->
-            {% if request.user.aluno and inscricao.id_aluno.usuario != request.user %}
-            <div id="btn-curtida-{{ inscricao.id }}" class="flex-shrink-0">
-              {% if inscricao.id in interacoes_ids %}
-              <div class="flex items-center gap-1 text-pink-500 text-sm font-semibold">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path>
-                </svg>
-              </div>
-              {% else %}
-              <form hx-post="{% url 'curtir_presenca' inscricao.id %}"
-                    hx-swap="outerHTML"
-                    hx-target="#btn-curtida-{{ inscricao.id }}">
-                {% csrf_token %}
-                <button type="submit"
-                        class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 hover:bg-pink-600 text-gray-400 hover:text-white transition-all border border-gray-600 hover:border-pink-500 group"
-                        title="Curtir">
-                  <svg class="w-5 h-5 transform group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                  </svg>
-                </button>
-              </form>
-              {% endif %}
-            </div>
-            {% endif %}
-
+            {% endfor %}
           </div>
-        </div>
-        {% endfor %}
-      </div>
+        {% else %}
+          <div class="text-center py-8">
+            <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+            </svg>
+            <p class="text-gray-400">Nenhum participante registrado</p>
+          </div>
+        {% endif %}
+      {% else %}
+        {% if inscricoes %}
+          <div class="relative">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 blur-[6px] select-none pointer-events-none">
+              {% for inscricao in inscricoes %}
+              <div class="bg-[#111827] rounded-lg p-3 border border-gray-700">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-3 flex-1 min-w-0">
+                    <img src="{% if inscricao.id_aluno.usuario.url_foto_perfil %}{{ inscricao.id_aluno.usuario.url_foto_perfil.url }}{% else %}{% static 'images/placeholder-perfil.jpg' %}{% endif %}"
+                         alt="{{ inscricao.id_aluno.usuario.first_name }}"
+                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-600">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-white font-semibold truncate">
+                        {{ inscricao.id_aluno.usuario.first_name }}
+                      </p>
+                      {% if inscricao.id_aluno.nivel_pratica %}
+                      <span class="text-xs text-gray-400">{{ inscricao.id_aluno.get_nivel_pratica_display }}</span>
+                      {% endif %}
+                    </div>
+                  </div>
 
-      {% if not inscricoes %}
-      <div class="text-center py-8">
-        <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
-          <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
-        </svg>
-        <p class="text-gray-400">Nenhum participante registrado</p>
-      </div>
+                  <div class="flex-shrink-0">
+                    <button class="w-9 h-9 flex items-center justify-center rounded-full bg-gray-800 text-gray-400 border border-gray-600"
+                            disabled>
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="absolute inset-0 flex items-center justify-center cursor-pointer bg-gradient-to-b from-[#111827]/60 via-[#111827]/80 to-[#111827]/90 backdrop-blur-[1px]"
+                 onclick="showPremiumModal()">
+              <div class="text-center max-w-sm mx-4 p-8 bg-gradient-to-br from-[#1F2937]/90 to-[#111827]/90 rounded-2xl border-2 border-yellow-400/30 shadow-2xl transform hover:scale-[1.02] transition-transform">
+                <div class="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg border-2 border-gray-600">
+                  <svg class="w-8 h-8 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Conteúdo Restrito</h3>
+                <p class="text-gray-300 text-sm mb-4">
+                  Veja todos os <strong class="text-yellow-400">{{ total_participantes }} participantes</strong> e conecte-se com eles!
+                </p>
+                <div class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-5 py-2.5 rounded-lg transition-colors shadow-lg">
+                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                  </svg>
+                  Tornar-se Premium
+                </div>
+              </div>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center py-8">
+            <svg class="w-12 h-12 mx-auto text-gray-600 mb-3" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
+            </svg>
+            <p class="text-gray-400">Nenhum participante registrado</p>
+          </div>
+        {% endif %}
       {% endif %}
     </div>
     {% endif %}

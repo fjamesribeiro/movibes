@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import AlunoProfileForm, ProfissionalProfileForm, UsuarioProfileForm, \
     FotoUsuarioForm, AvaliacaoForm
-from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao, SolicitacaoConexao
+from .models import Aluno, Profissional, Perfil, Usuario, Avaliacao, SolicitacaoConexao, \
+    TipoConta
 from django.contrib import messages
 from django.db import models
 from django.db.models import Q
@@ -461,3 +462,72 @@ def processar_like_back_view(request, interacao_id):
         messages.success(request,
                          f"Você curtiu {interacao.autor.first_name} de volta! ⚡")
     return redirect('listar_notificacoes')
+
+
+@login_required
+def mock_premium_checkout_view(request):
+    """
+    Exibe a página de checkout Premium (mockada).
+    Apenas alunos podem acessar.
+    """
+    # Verifica se o usuário é um aluno
+    if not hasattr(request.user, 'aluno'):
+        messages.error(request, 'Apenas alunos podem se tornar Premium.')
+        return redirect('home')
+
+    aluno = request.user.aluno
+
+    # Verifica se já é Premium
+    if aluno.tipo_conta and aluno.tipo_conta.nome.lower() == 'premium':
+        messages.info(request, 'Você já é um membro Premium!')
+        return redirect('profile')
+
+    return render(request, 'users/premium_checkout.html')
+
+
+@login_required
+def process_premium_payment_view(request):
+    """
+    Processa o pagamento Premium (mockado).
+    Atualiza o tipo de conta do aluno para Premium.
+    """
+    if request.method != 'POST':
+        return redirect('mock_premium_checkout')
+
+    # Verifica se o usuário é um aluno
+    if not hasattr(request.user, 'aluno'):
+        messages.error(request, 'Apenas alunos podem se tornar Premium.')
+        return redirect('home')
+
+    aluno = request.user.aluno
+
+    # Verifica se já é Premium
+    if aluno.tipo_conta and aluno.tipo_conta.nome.lower() == 'premium':
+        messages.info(request, 'Você já é um membro Premium!')
+        return redirect('profile')
+
+    try:
+        # Busca ou cria o tipo de conta Premium
+        tipo_premium, created = TipoConta.objects.get_or_create(
+            nome='Premium'
+        )
+
+        # Atualiza o aluno para Premium
+        aluno.tipo_conta = tipo_premium
+        aluno.save()
+
+        # Mensagem de sucesso
+        messages.success(
+            request,
+            '🎉 Parabéns! Você agora é um membro Premium! Aproveite todos os benefícios.'
+        )
+
+        # Redireciona para o perfil
+        return redirect('profile')
+
+    except Exception as e:
+        messages.error(
+            request,
+            f'Ocorreu um erro ao processar seu upgrade. Tente novamente. ({str(e)})'
+        )
+        return redirect('mock_premium_checkout')

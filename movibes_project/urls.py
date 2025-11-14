@@ -4,11 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from apps.events.views import home, subscribe_to_event, create_event, \
     gerenciar_galeria_evento, evento_detail_view, like_inscricao_view, \
-    processar_curtida_presenca_view, mock_checkout_view
+    processar_curtida_presenca_view, mock_checkout_view, processar_pagamento_view
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
     set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
     adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
-    responder_solicitacao_view, processar_like_back_view
+    responder_solicitacao_view, processar_like_back_view, mock_premium_checkout_view, \
+    process_premium_payment_view
 
 urlpatterns = [
     path('', home, name='home'),
@@ -30,6 +31,7 @@ urlpatterns = [
          name='account_galeria_evento'),
     path('evento/<int:evento_id>/', evento_detail_view, name='evento_detail'),
     path('evento/<int:evento_id>/comprar/', mock_checkout_view, name='mock_checkout'),
+    path('evento/<int:evento_id>/processar-pagamento/', processar_pagamento_view, name='processar_pagamento'),
     # Paths de Perfil
     path('perfil/profissional/<int:profissional_id>/avaliar/', adicionar_avaliacao_view,
          name='adicionar_avaliacao'),
@@ -47,6 +49,9 @@ urlpatterns = [
     # Rota para curtir de volta na tela de notificações
     path('interacao/<int:interacao_id>/like-back/', processar_like_back_view,
          name='like_back'),
+    # PATHS PARA PREMIUM ---
+    path('premium/checkout/', mock_premium_checkout_view, name='mock_premium_checkout'),
+    path('premium/process-payment/', process_premium_payment_view,
+         name='process_premium_payment'),
 ]
-
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
