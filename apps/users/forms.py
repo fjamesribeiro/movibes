@@ -92,7 +92,7 @@ class AlunoProfileForm(forms.ModelForm):
 
         if 'tipo_conta' in self.fields:
             self.fields['tipo_conta'].empty_label = None
-            self.fields['tipo_conta'].required = False
+            self.fields['tipo_conta'].required = True
 
 
 class ProfissionalProfileForm(forms.ModelForm):

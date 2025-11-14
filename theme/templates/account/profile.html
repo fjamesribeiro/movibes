@@ -14,9 +14,56 @@
       </p>
     </div>
 
+    <!-- Card de Status da Assinatura (se existir) -->
+    {% if user.tem_assinatura_ativa %}
+    <div class="mb-6 bg-gradient-to-r from-yellow-900/30 to-yellow-800/30 backdrop-blur border-2 border-yellow-500/50 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-start justify-between">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-yellow-400 rounded-xl flex items-center justify-center">
+              <svg class="w-6 h-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            {% if user.eh_premium %}
+            <h3 class="text-xl font-bold text-yellow-400 mb-1">
+              Conta Premium Ativa
+            </h3>
+            <p class="text-gray-300 text-sm mb-2">
+              Você tem acesso a todos os recursos exclusivos para alunos premium.
+            </p>
+            {% elif user.eh_profissional_ativo %}
+            <h3 class="text-xl font-bold text-yellow-400 mb-1">
+              Conta Profissional Ativa
+            </h3>
+            <p class="text-gray-300 text-sm mb-2">
+              Sua assinatura profissional está ativa e você pode usar todas as funcionalidades.
+            </p>
+            {% endif %}
+            {% with assinatura=user.obter_assinatura_ativa %}
+            <div class="flex items-center gap-4 text-xs text-gray-400">
+              <span>Plano: <strong class="text-yellow-300">{{ assinatura.tipo_plano.nome }}</strong></span>
+              <span>•</span>
+              <span>Expira em: <strong class="text-yellow-300">{{ assinatura.data_expiracao|date:"d/m/Y" }}</strong></span>
+              <span>•</span>
+              <span><strong class="text-yellow-300">{{ assinatura.dias_restantes }}</strong> dias restantes</span>
+            </div>
+            {% endwith %}
+          </div>
+        </div>
+        <a href="{% url 'historico_assinaturas' %}" class="px-4 py-2 bg-yellow-400/20 hover:bg-yellow-400/30 border border-yellow-400/50 rounded-lg text-yellow-400 text-sm font-semibold transition-all">
+          Ver Histórico
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
     <form method="POST" class="space-y-6" enctype="multipart/form-data">
       {% csrf_token %}
 
+      <!-- Seção: Informações Pessoais -->
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">1</span>
@@ -71,6 +118,7 @@
         </div>
       </div>
 
+      <!-- Card de Galeria -->
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl text-center">
           <h2 class="text-2xl font-bold text-white mb-4">Minha Galeria</h2>
           <p class="text-gray-400 mb-6">Adicione e gerencie as fotos que aparecem no seu perfil.</p>
@@ -80,12 +128,60 @@
           </a>
       </div>
 
+      <!-- Seção: Perfil de Aluno -->
       {% if profile_type == 'aluno' %}
       <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
         <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
           <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
           Perfil de Aluno
         </h2>
+
+        <!-- CAMPO TIPO DE CONTA - NOVO! -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-gray-300 mb-3">
+            {{ profile_form.tipo_conta.label }}
+            <span class="text-yellow-400">*</span>
+          </label>
+          <div class="space-y-3">
+            {% for radio in profile_form.tipo_conta %}
+            <label class="relative cursor-pointer block">
+              {{ radio.tag }}
+              <div class="peer-checked:bg-gradient-to-r peer-checked:from-yellow-400 peer-checked:to-yellow-500 peer-checked:border-yellow-400 peer-checked:text-gray-900 peer-checked:shadow-lg border-2 border-gray-600 bg-gray-700/50 rounded-xl p-5 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center justify-between group">
+                <div class="flex items-center">
+                  <div class="w-10 h-10 rounded-full bg-gray-600 group-[.peer-checked]:bg-gray-900 flex items-center justify-center mr-4 transition-all">
+                    <svg class="w-5 h-5 text-gray-400 group-[.peer-checked]:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <span class="text-base">{{ radio.choice_label }}</span>
+                </div>
+                <svg class="w-6 h-6 text-gray-500 group-[.peer-checked]:text-gray-900 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+
+          <!-- Botão para Upgrade se for Free -->
+          {% if user.aluno.tipo_conta.nome == "Free" %}
+          <div class="mt-4 bg-blue-900/20 border border-blue-700/50 rounded-lg p-4">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div>
+                  <p class="text-sm text-gray-300 mb-2">Quer aproveitar todos os recursos da plataforma? Faça upgrade para Premium!</p>
+                  <a href="{% url 'escolher_plano' %}" class="inline-block text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+                    Ver planos Premium →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
 
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
@@ -159,6 +255,28 @@
 
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
+            {{ profile_form.preferencias_esporte.label }}
+            <span class="text-gray-500 font-normal text-xs ml-2">(Selecione todas que se aplicam)</span>
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for checkbox in profile_form.preferencias_esporte %}
+            <label class="relative cursor-pointer checkbox-container">
+              {{ checkbox.tag }}
+              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-3.5 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center text-sm">
+                <span class="checkbox-icon flex items-center justify-center w-5 h-5 border-2 border-gray-500 rounded bg-gray-600 mr-2.5 transition-all flex-shrink-0">
+                  <svg class="w-3.5 h-3.5 text-yellow-400 opacity-0 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                  </svg>
+                </span>
+                <span>{{ checkbox.choice_label }}</span>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.status_social.label }}
           </label>
           <div class="space-y-3">
@@ -173,66 +291,14 @@
           </div>
         </div>
 
-        <div class="mb-8">
-          <label class="block text-sm font-semibold text-gray-300 mb-3">
-            {{ profile_form.preferencias_esporte.label }}
-            <span class="text-gray-500 font-normal text-xs ml-2">(Selecione todas que se aplicam)</span>
-          </label>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {% for checkbox in profile_form.preferencias_esporte %}
-            <label class="relative cursor-pointer block checkbox-container">
-              {{ checkbox.tag }}
-              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center">
-                <span class="checkbox-icon flex items-center justify-center w-6 h-6 border-2 border-gray-500 rounded bg-gray-600 mr-3 transition-all">
-                  <svg class="w-4 h-4 text-yellow-400 opacity-0 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                </span>
-                <span class="flex-1">{{ checkbox.choice_label }}</span>
-              </div>
-            </label>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
-      {% endif %}
-
-      {% if profile_type == 'profissional' %}
-      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
-          Perfil Profissional
-        </h2>
-
-        <div class="mb-6">
-          <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
-            {{ profile_form.especialidade.label }}
-          </label>
-          {% render_field profile_form.especialidade class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="5" %}
-        </div>
-
-        <div class="mb-6">
-          <label for="{{ profile_form.num_conselho_classe.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
-            {{ profile_form.num_conselho_classe.label }}
-          </label>
-          {% render_field profile_form.num_conselho_classe class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" %}
-        </div>
-      </div>
-      {% endif %}
-
-
-      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
-        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
-          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">3</span>
-          Localização
-        </h2>
+        <h3 class="text-xl font-bold text-white mb-4 mt-8">Localização</h3>
 
         <div class="mb-6">
           <label for="cep_input" class="block text-sm font-semibold text-gray-300 mb-2">
-            CEP <span class="text-gray-500 font-normal">(Digite para auto-preencher)</span>
+            CEP <span class="text-gray-500 font-normal">(para auto-preenchimento)</span>
           </label>
           <input
-            type="tel"
+            type="text"
             id="cep_input"
             placeholder="Digite os 8 números do CEP"
             maxlength="8"
@@ -264,6 +330,53 @@
           </div>
         </div>
       </div>
+      {% endif %}
+
+      <!-- Seção: Perfil de Profissional - NOVO! -->
+      {% if profile_type == 'profissional' %}
+      <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-8 shadow-xl">
+        <h2 class="text-2xl font-bold text-white mb-6 flex items-center">
+          <span class="w-8 h-8 bg-yellow-400 rounded-lg flex items-center justify-center text-gray-900 font-bold mr-3">2</span>
+          Perfil Profissional
+        </h2>
+
+        <div class="mb-6">
+          <label for="{{ profile_form.especialidade.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.especialidade.label }}
+            <span class="text-yellow-400">*</span>
+          </label>
+          {% render_field profile_form.especialidade class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all resize-none" rows="4" placeholder="Ex: Personal Trainer, Professor de Yoga, Nutricionista Esportivo..." %}
+          <p class="text-xs text-gray-500 mt-1">Descreva suas áreas de atuação e especialização</p>
+        </div>
+
+        <div class="mb-6">
+          <label for="{{ profile_form.num_conselho_classe.id_for_label }}" class="block text-sm font-semibold text-gray-300 mb-2">
+            {{ profile_form.num_conselho_classe.label }}
+            <span class="text-gray-500 font-normal">(opcional)</span>
+          </label>
+          {% render_field profile_form.num_conselho_classe class="w-full p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="Ex: CREF 123456-G/CE" %}
+          <p class="text-xs text-gray-500 mt-1">CREF, CRN, ou outro registro profissional</p>
+        </div>
+
+        <!-- Informação sobre Assinatura Profissional -->
+        {% if not user.tem_assinatura_ativa %}
+        <div class="mt-6 bg-red-900/20 border border-red-700/50 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <div>
+              <p class="text-sm font-semibold text-red-300 mb-2">Assinatura Necessária</p>
+              <p class="text-sm text-gray-300 mb-3">Sua conta profissional precisa de uma assinatura ativa para acessar todas as funcionalidades da plataforma.</p>
+              <a href="{% url 'escolher_plano' %}" class="inline-block px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition-colors text-sm">
+                Escolher Plano Profissional
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
 
       <button type="submit" class="w-full cursor-pointer bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold px-6 py-4 rounded-xl text-lg hover:from-yellow-500 hover:to-yellow-600 transform hover:scale-[1.02] transition-all shadow-lg hover:shadow-xl">
         Salvar Alterações
@@ -363,6 +476,8 @@
 
     whatsappInput.addEventListener('blur', function() {
       const value = this.value.trim();
+      const regexCelular = /^[1-9]{2}9[0-9]{8}$/;
+
       if (value === '') {
         whatsappFeedback.classList.add('hidden');
         whatsappHelper.classList.remove('hidden');
@@ -370,26 +485,24 @@
         this.classList.add('border-gray-600');
         return;
       }
-      if (value.length !== 11) {
-        whatsappFeedback.textContent = `❌ O WhatsApp deve ter 11 dígitos (você digitou ${value.length})`;
+
+      if (!regexCelular.test(value)) {
+        whatsappFeedback.textContent = `❌ WhatsApp inválido. Deve ter 11 dígitos (DDD + 9xxxxxxxx).`;
         whatsappFeedback.className = 'text-sm mt-2 text-red-400 block';
         whatsappHelper.classList.add('hidden');
         this.classList.remove('border-gray-600', 'border-green-500');
         this.classList.add('border-red-500');
       } else {
-        whatsappFeedback.textContent = '✓ WhatsApp válido!';
-        whatsappFeedback.className = 'text-sm mt-2 text-green-400 block';
-        whatsappHelper.classList.add('hidden');
-        this.classList.remove('border-gray-600', 'border-red-500');
-        this.classList.add('border-green-500');
+        whatsappFeedback.classList.add('hidden');
+        whatsappHelper.classList.remove('hidden');
+        this.classList.remove('border-red-500', 'border-green-500');
+        this.classList.add('border-gray-600');
       }
     });
 
     whatsappInput.addEventListener('focus', function() {
-      if (this.value.length === 11) {
-        whatsappFeedback.classList.add('hidden');
-        whatsappHelper.classList.remove('hidden');
-      }
+      whatsappFeedback.classList.add('hidden');
+      whatsappHelper.classList.remove('hidden');
     });
   }
 </script>

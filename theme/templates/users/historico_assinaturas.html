@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 py-12 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <h1 class="text-4xl font-bold text-white mb-3">
+        Histórico de Assinaturas
+      </h1>
+      <p class="text-gray-400 text-lg">
+        Todas as suas assinaturas e pagamentos
+      </p>
+    </div>
+
+    <!-- Assinatura Atual -->
+    {% if assinatura_atual %}
+    <div class="mb-8 bg-gradient-to-r from-yellow-900/30 to-yellow-800/30 backdrop-blur border-2 border-yellow-500/50 rounded-2xl p-6 shadow-xl">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-yellow-400 mb-2">Assinatura Ativa</h2>
+          <p class="text-gray-300">{{ assinatura_atual.tipo_plano.nome }}</p>
+        </div>
+        <div class="px-4 py-2 bg-green-500 rounded-lg">
+          <span class="text-white font-bold text-sm">ATIVA</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <p class="text-gray-500 mb-1">Início</p>
+          <p class="text-white font-semibold">{{ assinatura_atual.data_inicio|date:"d/m/Y" }}</p>
+        </div>
+        <div>
+          <p class="text-gray-500 mb-1">Expira em</p>
+          <p class="text-white font-semibold">{{ assinatura_atual.data_expiracao|date:"d/m/Y" }}</p>
+        </div>
+        <div>
+          <p class="text-gray-500 mb-1">Dias restantes</p>
+          <p class="text-yellow-400 font-bold text-lg">{{ assinatura_atual.dias_restantes }}</p>
+        </div>
+        <div>
+          <p class="text-gray-500 mb-1">Valor pago</p>
+          <p class="text-white font-semibold">R$ {{ assinatura_atual.valor_pago }}</p>
+        </div>
+      </div>
+
+      {% if assinatura_atual.renovacao_automatica and not assinatura_atual.cancelada_pelo_usuario %}
+      <div class="mt-4 pt-4 border-t border-yellow-700/30">
+        <p class="text-green-400 text-sm mb-2">✓ Renovação automática ativada</p>
+        <form method="POST" action="{% url 'cancelar_assinatura' %}" class="inline">
+          {% csrf_token %}
+          <button type="submit" class="text-sm text-gray-400 hover:text-red-400 underline">
+            Cancelar renovação automática
+          </button>
+        </form>
+      </div>
+      {% elif assinatura_atual.cancelada_pelo_usuario %}
+      <div class="mt-4 pt-4 border-t border-yellow-700/30">
+        <p class="text-gray-400 text-sm">Renovação automática cancelada. Sua assinatura expira em {{ assinatura_atual.data_expiracao|date:"d/m/Y" }}</p>
+      </div>
+      {% endif %}
+    </div>
+    {% else %}
+    <div class="mb-8 bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-6 text-center">
+      <p class="text-gray-400 mb-4">Você não tem uma assinatura ativa no momento.</p>
+      <a href="{% url 'escolher_plano' %}" class="inline-block px-6 py-3 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold rounded-xl transition-all">
+        Ver Planos Disponíveis
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Histórico -->
+    <div class="bg-gray-800/50 backdrop-blur border border-gray-700 rounded-2xl p-6 shadow-xl">
+      <h2 class="text-2xl font-bold text-white mb-6">Histórico Completo</h2>
+
+      {% if assinaturas %}
+      <div class="space-y-4">
+        {% for assinatura in assinaturas %}
+        <div class="bg-gray-700/50 rounded-xl p-5 hover:bg-gray-700 transition-all">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="text-lg font-bold text-white">{{ assinatura.tipo_plano.nome }}</h3>
+              <p class="text-gray-400 text-sm">{{ assinatura.tipo_plano.get_periodicidade_display }}</p>
+            </div>
+            <div class="px-3 py-1 rounded-lg text-xs font-bold
+              {% if assinatura.status == 'ativa' %}bg-green-500 text-white
+              {% elif assinatura.status == 'expirada' %}bg-gray-600 text-gray-300
+              {% elif assinatura.status == 'cancelada' %}bg-red-500 text-white
+              {% else %}bg-yellow-500 text-gray-900{% endif %}">
+              {{ assinatura.get_status_display|upper }}
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+            <div>
+              <p class="text-gray-500">Início</p>
+              <p class="text-gray-300">{{ assinatura.data_inicio|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Expiração</p>
+              <p class="text-gray-300">{{ assinatura.data_expiracao|date:"d/m/Y" }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Valor</p>
+              <p class="text-white font-semibold">R$ {{ assinatura.valor_pago }}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Método</p>
+              <p class="text-gray-300">{{ assinatura.metodo_pagamento|default:"N/A" }}</p>
+            </div>
+          </div>
+
+          {% if assinatura.observacoes %}
+          <div class="mt-3 pt-3 border-t border-gray-600">
+            <p class="text-gray-400 text-xs">{{ assinatura.observacoes }}</p>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="text-gray-400 text-center">Nenhuma assinatura encontrada no histórico.</p>
+      {% endif %}
+    </div>
+
+    <!-- Botão Voltar -->
+    <div class="mt-8 text-center">
+      <a href="{% url 'profile' %}" class="inline-block px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-xl transition-all">
+        ← Voltar ao Perfil
+      </a>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

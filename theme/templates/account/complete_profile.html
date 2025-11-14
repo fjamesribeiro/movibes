@@ -118,6 +118,52 @@
           Perfil de Aluno
         </h2>
 
+        <!-- Tipo de Conta - NOVA SEÇÃO -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-gray-300 mb-3">
+            {{ profile_form.tipo_conta.label }}
+            <span class="text-yellow-400">*</span>
+          </label>
+          <div class="space-y-3">
+            {% for radio in profile_form.tipo_conta %}
+            <label class="relative cursor-pointer block">
+              {{ radio.tag }}
+              <div class="peer-checked:bg-gradient-to-r peer-checked:from-yellow-400 peer-checked:to-yellow-500 peer-checked:border-yellow-400 peer-checked:text-gray-900 peer-checked:shadow-lg border-2 border-gray-600 bg-gray-700/50 rounded-xl p-5 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center justify-between group">
+                <div class="flex items-center">
+                  <div class="w-10 h-10 rounded-full bg-gray-600 group-[.peer-checked]:bg-gray-900 flex items-center justify-center mr-4 transition-all">
+                    <svg class="w-5 h-5 text-gray-400 group-[.peer-checked]:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </div>
+                  <span class="text-base">{{ radio.choice_label }}</span>
+                </div>
+                <svg class="w-6 h-6 text-gray-500 group-[.peer-checked]:text-gray-900 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+          {% if profile_form.tipo_conta.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in profile_form.tipo_conta.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+
+          <!-- Informação adicional sobre tipos de conta -->
+          <div class="mt-4 bg-blue-900/20 border border-blue-700/50 rounded-lg p-4">
+            <div class="flex items-start">
+              <svg class="w-5 h-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <div class="text-sm text-gray-300">
+                <p class="font-semibold text-blue-300 mb-1">Sobre os tipos de conta:</p>
+                <p class="text-gray-400">Você pode escolher seu tipo de conta agora. Contas gratuitas têm acesso aos recursos básicos, enquanto contas premium oferecem funcionalidades exclusivas.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Sexo -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
@@ -168,11 +214,16 @@
             {{ profile_form.periodos_preferidos.label }}
           </label>
           <div class="space-y-3">
-            {% for radio in profile_form.periodos_preferidos %}
-            <label class="relative cursor-pointer block">
-              {{ radio.tag }}
-              <div class="peer-checked:bg-yellow-400 peer-checked:border-yellow-400 peer-checked:text-gray-900 peer-checked:shadow-lg border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500">
-                {{ radio.choice_label }}
+            {% for checkbox in profile_form.periodos_preferidos %}
+            <label class="checkbox-container relative cursor-pointer block">
+              {{ checkbox.tag }}
+              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center">
+                <div class="checkbox-icon w-6 h-6 rounded border-2 border-gray-500 bg-transparent flex items-center justify-center mr-3 transition-all">
+                  <svg class="w-4 h-4 text-white opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span>{{ checkbox.choice_label }}</span>
               </div>
             </label>
             {% endfor %}
@@ -184,23 +235,50 @@
           {% endif %}
         </div>
 
+        <!-- Modalidades Praticadas -->
+        <div class="mb-8">
+          <label class="block text-sm font-semibold text-gray-300 mb-3">
+            {{ profile_form.modalidades_praticadas.label }}
+          </label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {% for checkbox in profile_form.modalidades_praticadas %}
+            <label class="checkbox-container relative cursor-pointer">
+              {{ checkbox.tag }}
+              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-3.5 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center text-sm">
+                <div class="checkbox-icon w-5 h-5 rounded border-2 border-gray-500 bg-transparent flex items-center justify-center mr-2.5 transition-all flex-shrink-0">
+                  <svg class="w-3.5 h-3.5 text-white opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                  </svg>
+                </div>
+                <span>{{ checkbox.choice_label }}</span>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+          {% if profile_form.modalidades_praticadas.errors %}
+          <div class="text-red-400 text-sm mt-2">
+            {% for error in profile_form.modalidades_praticadas.errors %}{{ error }}{% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
         <!-- Vibe After -->
         <div class="mb-8">
           <label class="block text-sm font-semibold text-gray-300 mb-3">
             {{ profile_form.vibe_after.label }}
-            <span class="text-gray-500 font-normal text-xs ml-2">(Selecione todas que se aplicam)</span>
+            <span class="text-gray-500 font-normal text-xs">(opcional)</span>
           </label>
-          <div class="space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {% for checkbox in profile_form.vibe_after %}
-            <label class="relative cursor-pointer block checkbox-container">
+            <label class="checkbox-container relative cursor-pointer">
               {{ checkbox.tag }}
-              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center">
-                <span class="checkbox-icon flex items-center justify-center w-6 h-6 border-2 border-gray-500 rounded bg-gray-600 mr-3 transition-all">
-                  <svg class="w-4 h-4 text-yellow-400 opacity-0 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-3.5 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center text-sm">
+                <div class="checkbox-icon w-5 h-5 rounded border-2 border-gray-500 bg-transparent flex items-center justify-center mr-2.5 transition-all flex-shrink-0">
+                  <svg class="w-3.5 h-3.5 text-white opacity-0 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
                   </svg>
-                </span>
-                <span class="flex-1">{{ checkbox.choice_label }}</span>
+                </div>
+                <span>{{ checkbox.choice_label }}</span>
               </div>
             </label>
             {% endfor %}
@@ -208,56 +286,6 @@
           {% if profile_form.vibe_after.errors %}
           <div class="text-red-400 text-sm mt-2">
             {% for error in profile_form.vibe_after.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Status Social -->
-        <div class="mb-8">
-          <label class="block text-sm font-semibold text-gray-300 mb-3">
-            {{ profile_form.status_social.label }}
-          </label>
-          <div class="space-y-3">
-            {% for radio in profile_form.status_social %}
-            <label class="relative cursor-pointer block">
-              {{ radio.tag }}
-              <div class="peer-checked:bg-yellow-400 peer-checked:border-yellow-400 peer-checked:text-gray-900 peer-checked:shadow-lg border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500">
-                {{ radio.choice_label }}
-              </div>
-            </label>
-            {% endfor %}
-          </div>
-          {% if profile_form.status_social.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.status_social.errors %}{{ error }}{% endfor %}
-          </div>
-          {% endif %}
-        </div>
-
-        <!-- Preferências de Esporte -->
-        <div class="mb-8">
-          <label class="block text-sm font-semibold text-gray-300 mb-3">
-            {{ profile_form.preferencias_esporte.label }}
-            <span class="text-gray-500 font-normal text-xs ml-2">(Selecione todas que se aplicam)</span>
-          </label>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {% for checkbox in profile_form.preferencias_esporte %}
-            <label class="relative cursor-pointer block checkbox-container">
-              {{ checkbox.tag }}
-              <div class="checkbox-visual border-2 border-gray-600 bg-gray-700/50 rounded-xl p-4 text-gray-300 font-medium transition-all hover:border-gray-500 flex items-center">
-                <span class="checkbox-icon flex items-center justify-center w-6 h-6 border-2 border-gray-500 rounded bg-gray-600 mr-3 transition-all">
-                  <svg class="w-4 h-4 text-yellow-400 opacity-0 transition-opacity" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                  </svg>
-                </span>
-                <span class="flex-1">{{ checkbox.choice_label }}</span>
-              </div>
-            </label>
-            {% endfor %}
-          </div>
-          {% if profile_form.preferencias_esporte.errors %}
-          <div class="text-red-400 text-sm mt-2">
-            {% for error in profile_form.preferencias_esporte.errors %}{{ error }}{% endfor %}
           </div>
           {% endif %}
         </div>
@@ -272,16 +300,11 @@
 
         <div class="mb-6">
           <label for="cep_input" class="block text-sm font-semibold text-gray-300 mb-2">
-            CEP <span class="text-gray-500 font-normal">(Digite para auto-preencher)</span>
+            CEP
           </label>
-          <input
-            type="tel"
-            id="cep_input"
-            placeholder="Digite os 8 números do CEP"
-            maxlength="8"
-            class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all"
-          >
-          <span id="cep_status" class="text-sm text-gray-400 mt-2 block"></span>
+          <input type="text" id="cep_input" maxlength="8" pattern="[0-9]{8}" class="w-full max-w-xs p-4 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition-all" placeholder="60000000">
+          <p class="text-xs text-gray-500 mt-1">Digite o CEP para preencher automaticamente</p>
+          <span id="cep_status" class="text-sm text-gray-400 mt-2"></span>
         </div>
 
         <hr class="border-gray-700 my-6">
@@ -348,10 +371,17 @@
   .checkbox-container input[type="checkbox"]:checked ~ .checkbox-visual .checkbox-icon svg {
     opacity: 1;
   }
+
+  /* Estilos específicos para tipo de conta */
+  input[type="radio"]:checked ~ div {
+    background: linear-gradient(to right, rgb(250 204 21), rgb(234 179 8));
+    border-color: rgb(250 204 21);
+    color: rgb(17 24 39);
+  }
 </style>
 
 <script>
-  // Busca CEP usando ViaCEP (CÓDIGO INALTERADO)
+  // Busca CEP usando ViaCEP
   const cepInput = document.getElementById('cep_input');
   const statusSpan = document.getElementById('cep_status');
 
@@ -394,7 +424,7 @@
   const whatsappHelper = document.getElementById('whatsapp_helper');
 
   if (whatsappInput) {
-    // Durante a digitação: limpa caracteres não numéricos (INALTERADO)
+    // Durante a digitação: limpa caracteres não numéricos
     whatsappInput.addEventListener('input', function() {
       this.value = this.value.replace(/\D/g, '');
       if (this.value.length > 11) {
@@ -409,8 +439,6 @@
     // Ao sair do campo: valida e mostra feedback
     whatsappInput.addEventListener('blur', function() {
       const value = this.value.trim();
-
-      // --- 1. ADICIONADO O REGEX ---
       const regexCelular = /^[1-9]{2}9[0-9]{8}$/;
 
       // Se o campo estiver vazio, não mostra erro (assume que é opcional)
@@ -422,7 +450,6 @@
         return;
       }
 
-      // --- 2. MUDADA A CONDIÇÃO PARA USAR O REGEX ---
       // Valida se não bate com o regex
       if (!regexCelular.test(value)) {
         // Mostra mensagem de erro
@@ -432,16 +459,14 @@
         this.classList.remove('border-gray-600', 'border-green-500');
         this.classList.add('border-red-500');
       } else {
-        // --- 3. MUDANÇA PRINCIPAL: Bloco "else" agora limpa o feedback ---
-        // (Antes mostrava "WhatsApp válido!")
         whatsappFeedback.classList.add('hidden');
         whatsappHelper.classList.remove('hidden');
-        this.classList.remove('border-red-500', 'border-green-500'); // Remove borda de erro/sucesso
-        this.classList.add('border-gray-600'); // Volta à borda normal
+        this.classList.remove('border-red-500', 'border-green-500');
+        this.classList.add('border-gray-600');
       }
     });
 
-    // Ao focar no campo novamente: remove o feedback de sucesso/erro (INALTERADO)
+    // Ao focar no campo novamente: remove o feedback de sucesso/erro
     whatsappInput.addEventListener('focus', function() {
       whatsappFeedback.classList.add('hidden');
       whatsappHelper.classList.remove('hidden');
