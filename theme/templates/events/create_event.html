@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto mt-10 mb-10 px-4">
+<div class="max-w-4xl mx-auto mt-10 mb-10 px-4 sm:px-6 lg:px-8">
 
     <!-- Header com breadcrumb -->
     <div class="mb-8">
@@ -59,15 +59,15 @@
                     <span class="bg-yellow-400 text-black w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold">1</span>
                     Informações Básicas
                 </h2>
-                <p class="text-gray-400 text-sm mb-6 ml-11">Dados principais do seu evento</p>
+                <p class="text-gray-400 text-sm mb-6 ml-0 sm:ml-11">Dados principais do seu evento</p>
 
-                <div class="space-y-6 ml-11">
+                <div class="space-y-6 ml-0 sm:ml-11">
                     <!-- Nome do Evento -->
                     <div>
                         <label for="{{ form.nome_evento.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                             {{ form.nome_evento.label }} <span class="text-red-400">*</span>
                         </label>
-                        {% render_field form.nome_evento class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Treinão de Corrida no Parque" %}
+                        {% render_field form.nome_evento class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Treinão de Corrida no Parque" maxlength="150" required=True %}
                         {% if form.nome_evento.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,11 +125,8 @@
                         <label for="{{ form.descricao_do_evento.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                             {{ form.descricao_do_evento.label }} <span class="text-red-400">*</span>
                         </label>
-                        {% render_field form.descricao_do_evento class="w-full py-3 px-4 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none" rows="5" placeholder="Descreva os detalhes: o que levar, nível de dificuldade, benefícios, etc." x-model="description" %}
-                        <div class="flex justify-between items-center mt-2">
-                            <p class="text-xs text-gray-500">Seja detalhado para atrair mais participantes</p>
-                            <span class="text-xs text-gray-500" x-text="description.length + ' caracteres'"></span>
-                        </div>
+                        <p class="text-xs text-gray-400 mb-2">Seja detalhista para atrair mais participantes. Insira sugestão de after, ex: Reunião da turma para um Açaí no Sr. Gelato após o treino</p>
+                        {% render_field form.descricao_do_evento class="w-full py-3 px-4 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all resize-none" rows="5" placeholder="Descreva os detalhes: o que levar, nível de dificuldade, benefícios, sugestão de after, etc." x-model="description" required=True %}
                         {% if form.descricao_do_evento.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,10 +142,7 @@
                         <label for="{{ form.categoria.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                             {{ form.categoria.label }} <span class="text-red-400">*</span>
                         </label>
-
-                        {% render_field form.categoria class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Corrida, Yoga, Vôlei, Funcional" %}
-
-                        <p class="text-xs text-gray-500 mt-2">Ajuda os usuários a encontrar seu evento</p>
+                        {% render_field form.categoria class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all appearance-none" required=True %}
                         {% if form.categoria.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -170,15 +164,15 @@
                     <span class="bg-yellow-400 text-black w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold">2</span>
                     Data e Localização
                 </h2>
-                <p class="text-gray-400 text-sm mb-6 ml-11">Quando e onde será o evento</p>
+                <p class="text-gray-400 text-sm mb-6 ml-0 sm:ml-11">Quando e onde será o evento</p>
 
-                <div class="space-y-6 ml-11">
+                <div class="space-y-6 ml-0 sm:ml-11">
                     <!-- Data e Hora -->
                     <div>
                         <label for="{{ form.data_e_hora.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                             {{ form.data_e_hora.label }} <span class="text-red-400">*</span>
                         </label>
-                        {% render_field form.data_e_hora type="datetime-local" class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" %}
+                        {% render_field form.data_e_hora type="datetime-local" class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all [color-scheme:dark] appearance-none" required=True %}
                         {% if form.data_e_hora.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,7 +189,7 @@
                             <label for="{{ form.localizacao_cidade.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                                 {{ form.localizacao_cidade.label }} <span class="text-red-400">*</span>
                             </label>
-                            {% render_field form.localizacao_cidade class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Fortaleza" %}
+                            {% render_field form.localizacao_cidade class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Fortaleza" maxlength="100" required=True %}
                             {% if form.localizacao_cidade.errors %}
                                 <div class="text-red-400 text-sm mt-2 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,7 +204,7 @@
                             <label for="{{ form.localizacao_bairro_endereco.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                                 {{ form.localizacao_bairro_endereco.label }} <span class="text-red-400">*</span>
                             </label>
-                            {% render_field form.localizacao_bairro_endereco class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Beira Mar, Av. 1000" %}
+                            {% render_field form.localizacao_bairro_endereco class="w-full p-3 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: Beira Mar, Av. 1000" maxlength="200" required=True %}
                             {% if form.localizacao_bairro_endereco.errors %}
                                 <div class="text-red-400 text-sm mt-2 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,24 +227,26 @@
                     <span class="bg-yellow-400 text-black w-8 h-8 rounded-full flex items-center justify-center mr-3 text-sm font-bold">3</span>
                     Detalhes Adicionais
                 </h2>
-                <p class="text-gray-400 text-sm mb-6 ml-11">Valor e número de vagas</p>
+                <p class="text-gray-400 text-sm mb-6 ml-0 sm:ml-11">Valor e número de vagas</p>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 ml-11">
-                    <!-- Preço -->
+                <div class="space-y-6 ml-0 sm:ml-11">
+                    <!-- Checkbox Evento Pago (para todos os usuários) -->
                     <div>
-                        <label for="{{ form.preco.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
-                            {{ form.preco.label|default:"Valor (R$)" }}
+                        <label for="{{ form.eh_pago.id_for_label }}" class="flex items-center cursor-pointer">
+                            {% render_field form.eh_pago class="w-5 h-5 text-yellow-400 bg-gray-800 border-gray-600 rounded focus:ring-yellow-400 focus:ring-2" %}
+                            <span class="ml-3 text-sm font-semibold text-gray-200">Este é um evento pago?</span>
                         </label>
-                        <div class="relative">
+                    </div>
+
+                    <!-- Campo de Preço (aparece quando checkbox marcado) -->
+                    <div id="preco-container" style="display: none;">
+                        <label for="{{ form.preco.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
+                            Valor do Ingresso (R$) <span class="text-red-400">*</span>
+                        </label>
+                        <div class="relative w-full md:w-1/2">
                             <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">R$</span>
-                            {% render_field form.preco type="number" step="0.01" class="w-full p-3 pl-10 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="0,00" %}
+                            {% render_field form.preco type="number" step="0.01" min="0.01" class="w-full p-3 pl-10 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: 25,00" %}
                         </div>
-                        <p class="mt-2 text-xs text-gray-500 flex items-center">
-                            <svg class="w-4 h-4 mr-1 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            Deixe 0 para evento gratuito
-                        </p>
                         {% if form.preco.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -266,13 +262,13 @@
                         <label for="{{ form.vagas_restantes.id_for_label }}" class="block text-sm font-semibold text-gray-200 mb-2">
                             {{ form.vagas_restantes.label }} <span class="text-red-400">*</span>
                         </label>
-                        <div class="relative">
+                        <p class="text-xs text-gray-400 mb-2">Número máximo de participantes</p>
+                        <div class="relative w-full md:w-1/2">
                             <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                             </svg>
-                            {% render_field form.vagas_restantes type="number" min="1" class="w-full p-3 pl-10 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: 20" %}
+                            {% render_field form.vagas_restantes type="number" min="1" class="w-full p-3 pl-10 bg-gray-800 border-2 border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 transition-all" placeholder="Ex: 20" required=True %}
                         </div>
-                        <p class="mt-2 text-xs text-gray-500">Número máximo de participantes</p>
                         {% if form.vagas_restantes.errors %}
                             <div class="text-red-400 text-sm mt-2 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -304,20 +300,6 @@
                 </a>
             </div>
         </form>
-    </div>
-
-    <!-- Dica final -->
-    <div class="mt-8 bg-blue-900/20 border border-blue-700/50 rounded-lg p-6 flex items-start">
-        <svg class="w-6 h-6 text-blue-400 mr-3 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div>
-            <h3 class="text-white font-semibold mb-1">💡 Dica para atrair mais participantes</h3>
-            <p class="text-gray-400 text-sm">
-                Use fotos de alta qualidade, seja específico na descrição e defina um valor justo.
-                Eventos com fotos atraem 3x mais inscrições!
-            </p>
-        </div>
     </div>
 </div>
 
@@ -359,5 +341,32 @@ function eventForm() {
         }
     }
 }
+
+// JavaScript para mostrar/ocultar campo de preço
+document.addEventListener('DOMContentLoaded', function() {
+    const ehPagoCheckbox = document.getElementById('{{ form.eh_pago.id_for_label }}');
+    const precoContainer = document.getElementById('preco-container');
+
+    if (ehPagoCheckbox && precoContainer) {
+        // Mostrar/ocultar inicialmente baseado no estado do checkbox
+        if (ehPagoCheckbox.checked) {
+            precoContainer.style.display = 'block';
+        }
+
+        // Listener para mudanças no checkbox
+        ehPagoCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                precoContainer.style.display = 'block';
+            } else {
+                precoContainer.style.display = 'none';
+                // Limpar o valor do preço quando desmarcar
+                const precoInput = document.getElementById('{{ form.preco.id_for_label }}');
+                if (precoInput) {
+                    precoInput.value = '';
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}

@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Evento, Inscricao, CategoriaEvento, FotoEvento, InteracaoPresenca
+from .models import Evento, Inscricao, CategoriaEvento, FotoEvento, InteracaoPresenca, \
+    Pagamento
 
 
 @admin.register(CategoriaEvento)
@@ -29,3 +30,4 @@ class InscricaoAdmin(admin.ModelAdmin):
 
 admin.site.register(FotoEvento)
 admin.site.register(InteracaoPresenca)
+admin.site.register(Pagamento)

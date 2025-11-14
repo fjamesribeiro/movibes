@@ -2,10 +2,10 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Count, Q
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Evento, Inscricao, CategoriaEvento, FotoEvento, InteracaoPresenca
+from .models import Evento, Inscricao, CategoriaEvento, Pagamento, InteracaoPresenca
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseForbidden
-from .forms import EventoForm, FotoEventoForm
+from .forms import EventoCreateForm, FotoEventoForm
 from apps.users.models import Aluno
 from django.contrib import messages
 
@@ -106,90 +106,118 @@ def home(request):
 
     return render(request, 'home.html', context)
 
-@login_required  # 1. Garante que apenas usuários logados acessem
+
+@login_required
 def subscribe_to_event(request, event_id):
-    # 2. Só aceita requisições POST (que vêm do HTMX)
-    if request.method != 'POST':
-        return HttpResponseForbidden()
-
-    # 3. Pega o usuário e o evento
-    user = request.user
+    """
+    Inscreve um aluno em um evento (apenas eventos GRATUITOS).
+    Chamado via HTMX.
+    """
     evento = get_object_or_404(Evento, pk=event_id)
+    aluno = get_object_or_404(Aluno, usuario=request.user)
+    # --- 6. REGRA DE NEGÓCIO ADICIONADA ---
+    # Se o evento for pago, esta view não deve fazer nada.
+    if evento.eh_pago:
+        messages.error(request,
+                       'Este é um evento pago e não pode ser inscrito por aqui.')
+        return redirect('evento_detail', evento_id=evento.id)
+    # --- FIM DA REGRA ---
+    inscricao_existente = Inscricao.objects.filter(id_aluno=aluno,
+                                                   id_evento=evento).first()
 
-    # 4. LÓGICA DE NEGÓCIO: Verifica se o usuário é um Aluno
-    try:
-        # Tenta acessar o perfil de aluno do usuário logado
-        aluno = user.aluno
-    except Aluno.DoesNotExist:
-        # Se não tiver, retorna um erro 403 (Proibido)
-        return HttpResponse("Apenas alunos podem se inscrever.", status=403)
+    if inscricao_existente:
+        inscricao_existente.delete()
+        is_subscribed = False
+        messages.success(request, 'Inscrição cancelada.')
+    else:
+        Inscricao.objects.create(id_aluno=aluno, id_evento=evento)
+        is_subscribed = True
+        messages.success(request, 'Inscrição realizada com sucesso!')
 
-    # 5. CÚPULA DO HTMX: Cria a inscrição e retorna o novo HTML
-    # Usamos get_or_create para evitar duplicatas se o usuário clicar rápido
-    Inscricao.objects.get_or_create(id_aluno=aluno, id_evento=evento)
-
-    # 6. RESPOSTA HTMX: Retorna o HTML do novo botão
-    # Este é o fragmento que o HTMX vai "trocar" na tela
-    return HttpResponse(
-        '<button class="bg-green-500 text-white font-semibold px-4 py-2 rounded-md text-sm" disabled>✓ Inscrito</button>'
-    )
+    context = {
+        'evento': evento,
+        'is_subscribed': is_subscribed,
+    }
+    # Retorna o partial do botão
+    return render(request, 'partials/subscribe_button.html', context)
 
 
-@login_required  # Só usuários logados podem criar eventos
+@login_required
 def create_event(request):
     """
-    Mostra o formulário para criar um novo evento.
+    Usa o novo EventoCreateForm para criar um evento.
+    Passa o 'request.user' para o formulário.
     """
     if request.method == 'POST':
-        # Usuário está enviando o formulário
-        form = EventoForm(request.POST, request.FILES)
+        # 3. Passe 'user=request.user' para o formulário
+        form = EventoCreateForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
-            # Não salve no banco ainda, precisamos adicionar o criador
             evento = form.save(commit=False)
-            # 3. Define o 'id_criador' como o usuário logado
             evento.id_criador = request.user
-            # 4. Define um status padrão
-            evento.status = 'ativo'
-            # 5. Agora sim, salva no banco
-            evento.save()
-            # 6. Redireciona para a homepage para ver o evento criado
-            return redirect('home')
-    else:
-        # Usuário está vendo a página (GET)
-        form = EventoForm()
+            # 4. Lógica para salvar o preço correto (do clean do form)
+            if not form.cleaned_data.get('eh_pago'):
+                evento.preco = None
+            else:
+                evento.preco = form.cleaned_data.get('preco')
 
-    # Vamos criar este template no próximo passo
+            evento.save()
+            messages.success(request, 'Evento criado com sucesso!')
+            return redirect('home')  # TODO: Mudar para a página do evento
+    else:
+        # 5. Passe 'user=request.user' também no GET
+        form = EventoCreateForm(user=request.user)
+
     return render(request, 'events/create_event.html', {'form': form})
 
 
 def evento_detail_view(request, evento_id):
+    """
+    Mostra a página de detalhes e verifica o status de pagamento.
+    """
     evento = get_object_or_404(Evento, pk=evento_id)
-    # Verifica se o evento já passou (lógica existente)
     is_past = evento.data_e_hora < timezone.now()
-
     fotos_galeria = []
     if is_past:
         fotos_galeria = evento.galeria.all()
 
-    # 1. Pega todas as inscrições (participantes) deste evento
     inscricoes = evento.inscricoes.all().select_related('id_aluno__usuario')
+    curtidas_pelo_usuario_ids = []
+    is_subscribed = False
 
-    # 2. [NOVO] Verifica quais inscrições o usuário logado JÁ curtiu
-    # Isso serve para desabilitar o botão ou mostrar "Curtida enviada"
-    interacoes_ids = []
+    has_paid = False  # Começa como Falso
+
     if request.user.is_authenticated:
-        interacoes_ids = InteracaoPresenca.objects.filter(
+        # Verifica se o usuário é Aluno
+        is_aluno = hasattr(request.user, 'aluno')
+        # Pega os IDs das inscrições que o usuário logado JÁ CURTIU
+        curtidas_pelo_usuario_ids = InteracaoPresenca.objects.filter(
             autor=request.user,
             inscricao_alvo__in=inscricoes
         ).values_list('inscricao_alvo_id', flat=True)
 
-    # Verifica se o próprio usuário está inscrito (lógica existente)
-    is_subscribed = False
-    if request.user.is_authenticated and hasattr(request.user, 'aluno'):
-        is_subscribed = Inscricao.objects.filter(
-            id_aluno=request.user.aluno,
-            id_evento=evento
-        ).exists()
+        if is_aluno:
+            try:
+                # Verifica se o aluno tem uma Inscrição (para eventos gratuitos)
+                is_subscribed = Inscricao.objects.filter(
+                    id_aluno=request.user.aluno,
+                    id_evento=evento
+                ).exists()
+
+                # Se o evento for PAGO, verifica se existe um Pagamento
+                if evento.eh_pago:
+                    has_paid = Pagamento.objects.filter(
+                        usuario=request.user,
+                        evento=evento,
+                        status='aprovado'
+                    ).exists()
+
+                    # Se ele pagou, ele também está inscrito
+                    if has_paid:
+                        is_subscribed = True
+
+            except Aluno.DoesNotExist:
+                is_subscribed = False
+                has_paid = False
 
     context = {
         'evento': evento,
@@ -197,9 +225,9 @@ def evento_detail_view(request, evento_id):
         'fotos_galeria': fotos_galeria,
         'is_subscribed': is_subscribed,
         'inscricoes': inscricoes,
-        'interacoes_ids': interacoes_ids,  # Passamos a lista de IDs curtidos
+        'curtidas_pelo_usuario_ids': curtidas_pelo_usuario_ids,
+        'has_paid': has_paid
     }
-
     return render(request, 'events/evento_detail.html', context)
 
 
@@ -293,16 +321,16 @@ def like_inscricao_view(request, inscricao_id):
 
     # Tenta encontrar uma curtida existente
     try:
-        curtida_existente = CurtidaInscricao.objects.get(
+        curtida_existente = InteracaoPresenca.objects.get(
             usuario=request.user,
             inscricao=inscricao
         )
         # Se encontrou, o usuário está "descurtindo"
         curtida_existente.delete()
         is_liked = False
-    except CurtidaInscricao.DoesNotExist:
+    except InteracaoPresenca.DoesNotExist:
         # Se não encontrou, o usuário está "curtindo"
-        CurtidaInscricao.objects.create(
+        InteracaoPresenca.objects.create(
             usuario=request.user,
             inscricao=inscricao
         )
@@ -315,3 +343,39 @@ def like_inscricao_view(request, inscricao_id):
     }
     # Retorna SÓ o botão atualizado
     return render(request, 'partials/like_button.html', context)
+
+
+@login_required
+def mock_checkout_view(request, evento_id):
+    """
+    SIMULA (mocka) um pagamento bem-sucedido.
+    Cria a Inscrição e o Pagamento.
+    """
+    evento = get_object_or_404(Evento, pk=evento_id)
+    aluno = get_object_or_404(Aluno, usuario=request.user)
+
+    if not evento.eh_pago:
+        messages.error(request, 'Este evento é gratuito.')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # Verifica se já não pagou ou se inscreveu
+    if Pagamento.objects.filter(usuario=request.user, evento=evento,
+                                status='aprovado').exists():
+        messages.warning(request, 'Você já está inscrito neste evento.')
+        return redirect('evento_detail', evento_id=evento.id)
+
+    # --- LÓGICA DO MOCK ---
+    # 1. Cria o registro de Pagamento
+    Pagamento.objects.create(
+        usuario=request.user,
+        evento=evento,
+        valor_pago=evento.preco,
+        status='aprovado',
+        id_transacao_externa=f"mock_{request.user.id}_{evento.id}"
+    )
+
+    # 2. Cria a Inscrição associada
+    Inscricao.objects.create(id_aluno=aluno, id_evento=evento)
+
+    messages.success(request, 'Pagamento aprovado e inscrição confirmada!')
+    return redirect('evento_detail', evento_id=evento.id)

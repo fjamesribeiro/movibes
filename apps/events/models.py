@@ -23,6 +23,7 @@ class Evento(models.Model):
     descricao_do_evento = models.TextField(null=True, blank=True)
     foto_do_evento = models.ImageField(upload_to='event_pics/', null=True, blank=True)
     status = models.TextField(null=True, blank=True)
+    eh_pago = models.BooleanField(default=False)
     preco = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     vagas_restantes = models.IntegerField(null=True, blank=True)
     participantes_confirmados = models.IntegerField(null=True, blank=True)
@@ -31,7 +32,6 @@ class Evento(models.Model):
     localizacao_cidade = models.TextField(null=True, blank=True)
     localizacao_bairro_endereco = models.TextField(null=True, blank=True)
 
-    # DEPOIS:
     categoria = models.ForeignKey(
         CategoriaEvento,
         on_delete=models.SET_NULL,
@@ -39,7 +39,6 @@ class Evento(models.Model):
         blank=True,
         related_name='eventos'
     )
-
     # Chave estrangeira para o Usuário (aluno ou profissional) que criou.
     id_criador = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
@@ -58,11 +57,8 @@ class Evento(models.Model):
 class Inscricao(models.Model):
     """ Tabela de ligação que registra a inscrição de um aluno em um evento. """
     id_aluno = models.ForeignKey('users.Aluno', on_delete=models.CASCADE, related_name='inscricoes')
-
     id_evento = models.ForeignKey(Evento, on_delete=models.CASCADE, related_name='inscricoes')
-
     testemunho = models.TextField(null=True, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -174,3 +170,47 @@ class InteracaoPresenca(models.Model):
 
     def __str__(self):
         return f"Interação de {self.autor.email} para {self.inscricao_alvo.id_aluno.usuario.email}"
+
+
+class Pagamento(models.Model):
+    """
+    Armazena o histórico de transações (mockadas ou reais)
+    para eventos pagos.
+    """
+    # Relacionamentos
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="pagamentos_feitos"
+    )
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE,
+        related_name="pagamentos_recebidos"
+    )
+    # Campos do Pagamento
+    status = models.CharField(
+        max_length=20,
+        default='aprovado',  # Mockado: já começa como 'aprovado'
+        help_text="Ex: 'pendente', 'aprovado', 'recusado'"
+    )
+    valor_pago = models.DecimalField(max_digits=10, decimal_places=2)
+    id_transacao_externa = models.CharField(
+        max_length=100,
+        blank=True,
+        default='mock_payment'  # Mockado
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        verbose_name = "Pagamento"
+        verbose_name_plural = "Pagamentos"
+        # Garante que um usuário só pague por um evento uma vez
+        constraints = [
+            UniqueConstraint(
+                fields=['usuario', 'evento'],
+                name='unique_pagamento_usuario_evento'
+            )
+        ]
+
+    def __str__(self):
+        return f"Pagamento de {self.usuario.email} para {self.evento.titulo}"
