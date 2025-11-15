@@ -128,26 +128,26 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 
 # Aqui configuramos os escopos (permissões) que vamos pedir ao Google
 # e as credenciais do OAuth2
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        # O que vamos pedir de informação ao Google
-        'SCOPE': [
-            'profile',  # Nome, foto, etc.
-            'email',  # Email do usuário
-        ],
-        # Parâmetros extras para o OAuth2
-        'AUTH_PARAMS': {
-            'access_type': 'online',  # 'online' = sem refresh token (mais simples)
-        },
-        # Credenciais da aplicação Google (IMPORTANTE!)
-        # Você vai pegar esses valores no Google Cloud Console
-        'APP': {
-            'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
-            'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
-            'key': ''  # Não usado para Google
-        }
-    }
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         # O que vamos pedir de informação ao Google
+#         'SCOPE': [
+#             'profile',  # Nome, foto, etc.
+#             'email',  # Email do usuário
+#         ],
+#         # Parâmetros extras para o OAuth2
+#         'AUTH_PARAMS': {
+#             'access_type': 'online',  # 'online' = sem refresh token (mais simples)
+#         },
+#         # Credenciais da aplicação Google (IMPORTANTE!)
+#         # Você vai pegar esses valores no Google Cloud Console
+#         'APP': {
+#             'client_id': os.getenv('GOOGLE_CLIENT_ID', ''),
+#             'secret': os.getenv('GOOGLE_CLIENT_SECRET', ''),
+#             'key': ''  # Não usado para Google
+#         }
+#     }
+# }
 
 # --- ADAPTERS CUSTOMIZADOS ---
 
@@ -171,8 +171,8 @@ MIDDLEWARE = [
 
     # Middleware do allauth - DEVE vir após o AuthenticationMiddleware
     'allauth.account.middleware.AccountMiddleware',
+    'apps.users.middleware.ProfileCompletionMiddleware',  # Nosso middleware
 ]
-
 # ============================================================
 # TEMPLATES
 # ============================================================

@@ -1,23 +1,25 @@
+"""
+Middleware de Completude de Cadastro - VERSÃO CORRIGIDA
+========================================================
+
+CORREÇÃO: Permite que profissionais acessem as páginas de escolher/comprar
+plano mesmo sem ter assinatura ativa ainda.
+"""
+
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.contrib import messages
 
 
 class ProfileCompletionMiddleware:
     """
-    Middleware que garante que usuários autenticados completem
-    todas as etapas do cadastro antes de acessar o sistema.
-
-    Fluxo de verificação:
-    1. Usuário tem perfil escolhido? Se não → escolher_perfil
-    2. Usuário tem cadastro completo? Se não → complete_profile
-    3. Profissional tem assinatura? Se não → escolher_plano_obrigatorio
-    4. Tudo OK → pode acessar o sistema normalmente
+    Middleware que garante que usuários autenticados completem o cadastro.
     """
 
     def __init__(self, get_response):
         self.get_response = get_response
 
-        # URLs que não devem ser interceptadas pelo middleware
+        # URLs que não devem ser interceptadas
         self.exempt_urls = [
             '/accounts/',  # Todas as URLs do allauth
             '/admin/',
@@ -25,69 +27,83 @@ class ProfileCompletionMiddleware:
             '/media/',
         ]
 
-        # Nomes de URLs que não devem ser bloqueadas
-        self.exempt_url_names = [
-            'account_select_profile_type',
-            'account_set_profile_type',
-            'account_complete_profile',
-            'account_complete_profile_profissional',
-            'escolher_plano',
-            'escolher_plano_obrigatorio',
-            'account_logout',
-        ]
+        # URLs específicas que precisam ser acessíveis
+        try:
+            self.exempt_urls.extend([
+                reverse('account_complete_profile'),
+                reverse('account_complete_profile_profissional'),
+                reverse('escolher_plano'),
+                reverse('escolher_plano_obrigatorio'),
+                reverse('account_logout'),
+            ])
+        except:
+            pass
 
     def __call__(self, request):
-        # Se o usuário não está autenticado, deixa passar
+        # Se não está autenticado, deixa passar
         if not request.user.is_authenticated:
             return self.get_response(request)
 
-        # Se é staff/superuser, deixa passar (para não bloquear admin)
+        # Se é staff/superuser, deixa passar
         if request.user.is_staff or request.user.is_superuser:
             return self.get_response(request)
 
-        # Verifica se a URL atual está na lista de exceções
+        # Pega o caminho atual
         path = request.path
+
+        # Verifica se está nas URLs de exceção
         if any(path.startswith(exempt_url) for exempt_url in self.exempt_urls):
             return self.get_response(request)
 
-        # Verifica se o nome da URL está na lista de exceções
-        if request.resolver_match and request.resolver_match.url_name in self.exempt_url_names:
-            return self.get_response(request)
+        # ===== VERIFICAÇÃO 1: Cadastro completo? =====
 
-        # ===== VERIFICAÇÃO 1: Perfil escolhido? =====
-        if not request.user.perfil_escolhido:
-            # Usuário ainda não escolheu se é Aluno ou Profissional
-            messages.info(
-                request,
-                'Para começar a usar a plataforma, escolha seu tipo de perfil.'
-            )
-            return redirect('account_select_profile_type')
-
-        # ===== VERIFICAÇÃO 2: Cadastro completo? =====
         if not request.user.cadastro_completo:
             # Redireciona para a página de completar cadastro apropriada
             if hasattr(request.user, 'aluno'):
-                messages.info(
-                    request,
-                    'Complete seu perfil de aluno para continuar.'
-                )
-                return redirect('account_complete_profile')
+                if path != reverse('account_complete_profile'):
+                    messages.info(
+                        request,
+                        'Complete seu perfil de aluno para começar a usar a plataforma.'
+                    )
+                    return redirect('account_complete_profile')
 
             elif hasattr(request.user, 'profissional'):
-                messages.info(
-                    request,
-                    'Complete seu perfil profissional para continuar.'
-                )
-                return redirect('account_complete_profile_profissional')
+                if path != reverse('account_complete_profile_profissional'):
+                    messages.info(
+                        request,
+                        'Complete seu perfil profissional para começar a divulgar seus serviços.'
+                    )
+                    return redirect('account_complete_profile_profissional')
 
-        # ===== VERIFICAÇÃO 3: Profissional com assinatura? =====
+        # ===== VERIFICAÇÃO 2: Profissional com assinatura? =====
+
         if hasattr(request.user, 'profissional'):
             if not request.user.tem_assinatura_ativa():
-                messages.warning(
-                    request,
-                    'Profissionais precisam ter uma assinatura ativa. Escolha seu plano!'
-                )
-                return redirect('escolher_plano_obrigatorio')
+                # URLs relacionadas a planos que devem ser PERMITIDAS
+                plano_related_paths = [
+                    '/assinatura/escolher-plano',
+                    '/assinatura/checkout',
+                    '/assinatura/processar',
+                    '/premium/',
+                ]
 
-        # Se passou por todas as verificações, deixa acessar normalmente
+                # Verifica se está em alguma página relacionada a planos
+                is_plano_page = any(path.startswith(plano_path) for plano_path in plano_related_paths)
+
+                # Se NÃO está em página de plano, redireciona
+                if not is_plano_page:
+                    try:
+                        escolher_plano_path = reverse('escolher_plano_obrigatorio')
+                        if path != escolher_plano_path:
+                            messages.warning(
+                                request,
+                                'Profissionais precisam ter uma assinatura ativa. '
+                                'Escolha seu plano para começar a usar a plataforma!'
+                            )
+                            return redirect('escolher_plano_obrigatorio')
+                    except:
+                        # Se a URL não existir, apenas deixa passar
+                        pass
+
+        # Tudo OK - pode acessar
         return self.get_response(request)

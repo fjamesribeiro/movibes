@@ -2,10 +2,9 @@ from django.contrib import admin
 from django.urls import path, include
 from apps.events.views import home, subscribe_to_event, create_event, \
     gerenciar_galeria_evento, evento_detail_view, like_inscricao_view, \
-    processar_curtida_presenca_view, mock_checkout_view, processar_pagamento_view, \
-    account_select_profile_type_view
+    processar_curtida_presenca_view, mock_checkout_view, processar_pagamento_view
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
-    set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
+     profile_view, gerenciar_galeria, public_profile_view, \
     adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
     responder_solicitacao_view, processar_like_back_view, \
     process_premium_payment_view, escolher_plano_view, checkout_assinatura_view, \
@@ -24,21 +23,12 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
 
     # Rotas customizadas de perfil/conta
-    path('accounts/set-profile-type/<str:profile_type>/', set_profile_type,
-         name='account_set_profile_type'),
     path('accounts/complete-profile/', complete_aluno_profile,
          name='account_complete_profile'),
     path('accounts/complete-profile-profissional/', complete_profissional_profile,
          name='account_complete_profile_profissional'),
     path('accounts/profile/', profile_view, name='profile'),
     path('accounts/galeria/', gerenciar_galeria, name='account_galeria'),
-
-    # Página de escolha de perfil (Aluno ou Profissional)
-    path('select-profile/', account_select_profile_type_view,
-         name='account_select_profile_type'),
-    path('set-profile/<str:profile_type>/', set_profile_type,
-         name='account_set_profile_type'),
-
     # Rotas de eventos
     path('subscribe-event/<int:event_id>/', subscribe_to_event, name='subscribe_event'),
     path('events/create/', create_event, name='create_event'),
