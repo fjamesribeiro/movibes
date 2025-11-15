@@ -13,9 +13,17 @@ from apps.users.views import complete_aluno_profile, complete_profissional_profi
     mock_premium_checkout_view, escolher_plano_obrigatorio_view
 
 urlpatterns = [
+    # Página inicial
     path('', home, name='home'),
+
+    # Admin do Django
     path('admin/', admin.site.urls),
+
+    # URLs do django-allauth (login, logout, signup, OAuth2, etc.)
+    # Isso inclui automaticamente todas as URLs necessárias para autenticação
     path('accounts/', include('allauth.urls')),
+
+    # Rotas customizadas de perfil/conta
     path('accounts/set-profile-type/<str:profile_type>/', set_profile_type,
          name='account_set_profile_type'),
     path('accounts/complete-profile/', complete_aluno_profile,
@@ -24,41 +32,50 @@ urlpatterns = [
          name='account_complete_profile_profissional'),
     path('accounts/profile/', profile_view, name='profile'),
     path('accounts/galeria/', gerenciar_galeria, name='account_galeria'),
+
+    # Página de escolha de perfil (Aluno ou Profissional)
+    path('select-profile/', account_select_profile_type_view,
+         name='account_select_profile_type'),
+    path('set-profile/<str:profile_type>/', set_profile_type,
+         name='account_set_profile_type'),
+
+    # Rotas de eventos
     path('subscribe-event/<int:event_id>/', subscribe_to_event, name='subscribe_event'),
     path('events/create/', create_event, name='create_event'),
-    path('perfil/<int:usuario_id>/', public_profile_view, name='public_profile'),
-    # Paths de Eventos
     path('evento/<int:evento_id>/galeria/', gerenciar_galeria_evento,
          name='account_galeria_evento'),
     path('evento/<int:evento_id>/', evento_detail_view, name='evento_detail'),
     path('evento/<int:evento_id>/comprar/', mock_checkout_view, name='mock_checkout'),
     path('evento/<int:evento_id>/processar-pagamento/', processar_pagamento_view,
          name='processar_pagamento'),
-    # Paths de Perfil
+
+    # Rotas de perfil público
+    path('perfil/<int:usuario_id>/', public_profile_view, name='public_profile'),
     path('perfil/profissional/<int:profissional_id>/avaliar/', adicionar_avaliacao_view,
          name='adicionar_avaliacao'),
-    # PATHS PARA CONEXÕES
+
+    # Rotas de conexões entre usuários
     path('solicitar-conexao/<int:usuario_id>/', solicitar_conexao_view,
          name='solicitar_conexao'),
     path('notificacoes/', listar_notificacoes_view, name='listar_notificacoes'),
     path('notificacoes/responder/<int:solicitacao_id>/<str:acao>/',
          responder_solicitacao_view, name='responder_solicitacao'),
+
+    # Rotas de interações (likes, curtidas)
     path('inscricao/<int:inscricao_id>/like/', like_inscricao_view,
          name='like_inscricao'),
-    # Rota para curtir alguém na lista de participantes do evento
     path('inscricao/<int:inscricao_id>/curtir/', processar_curtida_presenca_view,
          name='curtir_presenca'),
-    # Rota para curtir de volta na tela de notificações
     path('interacao/<int:interacao_id>/like-back/', processar_like_back_view,
          name='like_back'),
-    # PATHS PARA PREMIUM (Sistema Antigo - pode ser removido futuramente)
+
+    # Rotas de sistema de premium/assinaturas
     path('premium/process-payment/', process_premium_payment_view,
          name='process_premium_payment'),
-    # URLs para Sistema de Assinaturas (Sistema Novo)
-    path('assinatura/escolher-plano/', escolher_plano_view, name='escolher_plano'),
-    path('assinatura/escolher-plano-obrigatorio/', escolher_plano_obrigatorio_view, name='escolher_plano_obrigatorio'),
     path('premium/checkout/', mock_premium_checkout_view, name='mock_premium_checkout'),
-
+    path('assinatura/escolher-plano/', escolher_plano_view, name='escolher_plano'),
+    path('assinatura/escolher-plano-obrigatorio/', escolher_plano_obrigatorio_view,
+         name='escolher_plano_obrigatorio'),
     path('assinatura/checkout/<int:plano_id>/', checkout_assinatura_view,
          name='checkout_assinatura'),
     path('assinatura/processar/<int:plano_id>/', processar_assinatura_view,
@@ -66,9 +83,4 @@ urlpatterns = [
     path('assinatura/cancelar/', cancelar_assinatura_view, name='cancelar_assinatura'),
     path('assinatura/historico/', historico_assinaturas_view,
          name='historico_assinaturas'),
-    path('select-profile/', account_select_profile_type_view,
-         name='account_select_profile_type'),
-    path('set-profile/<str:profile_type>/', set_profile_type,
-         name='account_set_profile_type'),
-
 ]
