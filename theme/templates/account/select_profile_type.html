@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Escolha seu Perfil - VibeSports{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center px-4 py-12">
+    <div class="max-w-5xl w-full">
+        
+        <!-- Cabeçalho -->
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+                Bem-vindo à VibeSports! 🏋️
+            </h1>
+            <p class="text-xl text-gray-300 mb-2">
+                Para começarmos, nos conte:
+            </p>
+            <p class="text-2xl font-semibold text-yellow-400">
+                Você é um Aluno ou um Profissional?
+            </p>
+        </div>
+
+        <!-- Mensagens -->
+        {% if messages %}
+            <div class="max-w-2xl mx-auto mb-8">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500/10 border border-red-500 text-red-400{% elif message.tags == 'warning' %}bg-yellow-500/10 border border-yellow-500 text-yellow-400{% else %}bg-blue-500/10 border border-blue-500 text-blue-400{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Cards de Escolha -->
+        <div class="grid md:grid-cols-2 gap-8">
+            
+            <!-- Card Aluno -->
+            <a href="{% url 'account_set_profile_type' profile_type='aluno' %}"
+               class="group block bg-gradient-to-br from-blue-600/20 to-blue-800/20 backdrop-blur-lg border-2 border-blue-500/30 hover:border-blue-400 rounded-3xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-blue-500/20">
+                
+                <div class="text-center">
+                    <!-- Ícone -->
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-blue-500/20 rounded-full mb-6 group-hover:bg-blue-500/30 transition-colors">
+                        <svg class="w-12 h-12 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Título -->
+                    <h2 class="text-3xl font-bold text-white mb-4">
+                        Sou Aluno
+                    </h2>
+                    
+                    <!-- Descrição -->
+                    <p class="text-gray-300 mb-6 leading-relaxed">
+                        Estou buscando treinos, eventos esportivos e profissionais qualificados para me ajudar a alcançar meus objetivos.
+                    </p>
+                    
+                    <!-- Features -->
+                    <ul class="text-left space-y-3 mb-6">
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Encontre eventos e treinos
+                        </li>
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Conecte-se com profissionais
+                        </li>
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-blue-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Comece grátis ou escolha Premium
+                        </li>
+                    </ul>
+                    
+                    <!-- Botão -->
+                    <div class="inline-flex items-center justify-center px-6 py-3 bg-blue-500 group-hover:bg-blue-600 text-white font-semibold rounded-xl transition-colors">
+                        Continuar como Aluno
+                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Card Profissional -->
+            <a href="{% url 'account_set_profile_type' profile_type='profissional' %}"
+               class="group block bg-gradient-to-br from-yellow-600/20 to-yellow-800/20 backdrop-blur-lg border-2 border-yellow-500/30 hover:border-yellow-400 rounded-3xl p-8 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/20">
+                
+                <div class="text-center">
+                    <!-- Ícone -->
+                    <div class="inline-flex items-center justify-center w-24 h-24 bg-yellow-500/20 rounded-full mb-6 group-hover:bg-yellow-500/30 transition-colors">
+                        <svg class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    
+                    <!-- Título -->
+                    <h2 class="text-3xl font-bold text-white mb-4">
+                        Sou Profissional
+                    </h2>
+                    
+                    <!-- Descrição -->
+                    <p class="text-gray-300 mb-6 leading-relaxed">
+                        Sou um profissional da área fitness e quero oferecer meus serviços, criar eventos e expandir minha rede de alunos.
+                    </p>
+                    
+                    <!-- Features -->
+                    <ul class="text-left space-y-3 mb-6">
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Crie e gerencie eventos
+                        </li>
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Aumente sua visibilidade
+                        </li>
+                        <li class="flex items-start text-gray-300">
+                            <svg class="w-5 h-5 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Requer assinatura profissional
+                        </li>
+                    </ul>
+                    
+                    <!-- Botão -->
+                    <div class="inline-flex items-center justify-center px-6 py-3 bg-yellow-500 group-hover:bg-yellow-600 text-gray-900 font-semibold rounded-xl transition-colors">
+                        Continuar como Profissional
+                        <svg class="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                        </svg>
+                    </div>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12">
+            <p class="text-gray-500">
+                Não tem certeza? Não se preocupe, você pode sempre alterar depois.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

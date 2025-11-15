@@ -124,14 +124,24 @@ class Usuario(AbstractUser):
         verbose_name="WhatsApp"
     )
     cadastro_completo = models.BooleanField(default=False)
-
+    perfil_escolhido = models.BooleanField(
+        default=False,
+        help_text="Indica se o usuário já escolheu ser Aluno ou Profissional"
+    )
+    metodo_registro = models.CharField(
+        max_length=20,
+        choices=[
+            ('email', 'Email/Senha'),
+            ('google', 'Google OAuth2'),
+        ],
+        default='email',
+        help_text="Método usado no primeiro cadastro"
+    )
     # Campo que define qual é o "username" (para o django-admin)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']  # Campos pedidos no 'createsuperuser'
-
     # Diga ao Django para usar o nosso manager
     objects = UsuarioManager()
-
     # Perfis (RBAC)
     perfis = models.ManyToManyField(
         Perfil,

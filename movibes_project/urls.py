@@ -1,10 +1,9 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
 from apps.events.views import home, subscribe_to_event, create_event, \
     gerenciar_galeria_evento, evento_detail_view, like_inscricao_view, \
-    processar_curtida_presenca_view, mock_checkout_view, processar_pagamento_view
+    processar_curtida_presenca_view, mock_checkout_view, processar_pagamento_view, \
+    account_select_profile_type_view
 from apps.users.views import complete_aluno_profile, complete_profissional_profile, \
     set_profile_type, profile_view, gerenciar_galeria, public_profile_view, \
     adicionar_avaliacao_view, solicitar_conexao_view, listar_notificacoes_view, \
@@ -67,5 +66,9 @@ urlpatterns = [
     path('assinatura/cancelar/', cancelar_assinatura_view, name='cancelar_assinatura'),
     path('assinatura/historico/', historico_assinaturas_view,
          name='historico_assinaturas'),
+    path('select-profile/', account_select_profile_type_view,
+         name='account_select_profile_type'),
+    path('set-profile/<str:profile_type>/', set_profile_type,
+         name='account_set_profile_type'),
+
 ]
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

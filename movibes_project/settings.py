@@ -24,15 +24,29 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.postgres',  # Necessário para campos avançados (como ArrayField)
-    'apps.users.apps.UsersConfig',   # <-- MUDE AQUI
-    'apps.events.apps.EventsConfig', # <-- MUDE AQUI
+    'django.contrib.sites',  # OBRIGATÓRIO para allauth
+    'allauth',              # Core do Allauth (autenticação)
+    'allauth.account',      # Gerenciamento de contas (login, register, etc)
+    'allauth.socialaccount', # Para login social (OAuth2)
+    'allauth.socialaccount.providers.google',  # Provider do Google
+    'apps.users.apps.UsersConfig',
+    'apps.events.apps.EventsConfig',
     'tailwind',      # Gerenciamento do Tailwind CSS
     'theme',
     'django_htmx',          # Integração com HTMX
     'widget_tweaks', # Facilita estilizar formulários
-    'allauth',              # Core do Allauth (autenticação)
-    'allauth.account',      # Gerenciamento de contas (login, register, etc)
-    'allauth.socialaccount', # Para login social (OAuth2)
+]
+
+# ID do site atual (obrigatório para allauth)
+SITE_ID = 1
+
+# Configurações de autenticação
+AUTHENTICATION_BACKENDS = [
+    # Backend padrão do Django (username/password)
+    'django.contrib.auth.backends.ModelBackend',
+
+    # Backend do allauth para OAuth2
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +146,4 @@ ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_LOGIN_ON_PASSWORD_RESET = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 ACCOUNT_ADAPTER = 'apps.users.adapter.MyAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'apps.users.adapter.MySocialAccountAdapter'

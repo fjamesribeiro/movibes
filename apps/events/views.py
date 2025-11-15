@@ -489,3 +489,25 @@ def processar_pagamento_view(request, evento_id):
     messages.success(request,
                      f'Pagamento de R$ {evento.preco} confirmado com sucesso! Você está inscrito no evento.')
     return redirect('evento_detail', evento_id=evento.id)
+
+
+# ADICIONE ESTA VIEW NO SEU apps/users/views.py
+
+@login_required
+def account_select_profile_type_view(request):
+    """
+    Renderiza a página de escolha de perfil (Aluno ou Profissional).
+    Esta view é chamada após o login/signup, antes de completar o cadastro.
+    """
+    # Se já escolheu o perfil, redireciona
+    if request.user.perfil_escolhido:
+        # Se já escolheu mas não completou cadastro
+        if not request.user.cadastro_completo:
+            if hasattr(request.user, 'aluno'):
+                return redirect('account_complete_profile')
+            elif hasattr(request.user, 'profissional'):
+                return redirect('account_complete_profile_profissional')
+        # Se tudo está completo, vai pra home
+        return redirect('home')
+
+    return render(request, 'account/select_profile_type.html')
