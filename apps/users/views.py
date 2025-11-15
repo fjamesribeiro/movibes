@@ -139,42 +139,6 @@ def complete_aluno_profile(request):
 
 
 @login_required
-def set_profile_type(request, profile_type):
-    """
-    Esta view é chamada pelos botões da página de escolha.
-    Ela define o perfil do usuário e redireciona.
-    """
-    user = request.user
-
-    # Impede que o usuário mude de perfil se já completou o cadastro
-    if user.cadastro_completo:
-        return redirect('home')
-
-    if profile_type == 'aluno':
-        # Pega ou cria o Perfil "aluno"
-        perfil, _ = Perfil.objects.get_or_create(nome='aluno')
-        # Cria a entrada 1-para-1 do Aluno
-        Aluno.objects.get_or_create(usuario=user)
-        # Adiciona o perfil ao usuário (N-N)
-        user.perfis.add(perfil)
-        # Redireciona para completar o cadastro de ALUNO
-        return redirect('account_complete_profile')
-
-    elif profile_type == 'profissional':
-        # Pega ou cria o Perfil "profissional"
-        perfil, _ = Perfil.objects.get_or_create(nome='profissional')
-        # Cria a entrada 1-para-1 do Profissional
-        Profissional.objects.get_or_create(usuario=user)
-        # Adiciona o perfil ao usuário (N-N)
-        user.perfis.add(perfil)
-        # Redireciona para completar o cadastro de PROFISSIONAL
-        return redirect('account_complete_profile_profissional')
-
-    # Se o tipo não for válido, manda de volta para a escolha
-    return redirect('account_select_profile_type')
-
-
-@login_required
 def profile_view(request):
     """
     Página "Meu Perfil" para ver e editar os dados do

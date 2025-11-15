@@ -1,0 +1,14 @@
+Olá!
+
+Você está recebendo este email porque criou uma conta na VibeSports.
+
+Para ativar sua conta, por favor clique no link abaixo (ou copie e cole no navegador):
+
+{{ activate_url }}
+
+Este link é válido por 3 dias.
+
+Se você não criou esta conta, por favor ignore este email.
+
+Atenciosamente,
+Equipe VibeSports
